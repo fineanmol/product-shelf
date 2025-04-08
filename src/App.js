@@ -3,7 +3,7 @@ import ItemsForSale from "./pages/ItemsForSale";
 
 function App() {
   return (
-    <div className="App ">
+    <div className="App">
       <ItemsForSale />
     </div>
   );
