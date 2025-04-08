@@ -1,26 +1,34 @@
 import React, { useState, useEffect } from "react";
+import productData from "../data/products";
 
 const ItemsForSale = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  console.log("🚀 ~ ItemsForSale ~ loading:", loading, items);
 
+  // useEffect(() => {
+  //   // Fetch data from local products.json in the public folder
+  //   const loadProducts = async () => {
+  //     try {
+  //       const response = await fetch("/data/products.json");
+  //       console.log("🚀 ~ loadProducts ~ response:", response);
+  //       if (!response.ok) {
+  //         throw new Error("Network response was not ok");
+  //       }
+  //       const data = await response.json();
+  //       console.log("🚀 ~ loadProducts ~ data:", data);
+  //       setItems(data);
+  //     } catch (error) {
+  //       console.error("Fetch error:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   loadProducts();
+  // }, []);
   useEffect(() => {
-    // Fetch data from local products.json in the public folder
-    const loadProducts = async () => {
-      try {
-        const response = await fetch("/products.json");
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        setItems(data);
-      } catch (error) {
-        console.error("Fetch error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProducts();
+    setItems(productData);
+    setLoading(false);
   }, []);
 
   return (
@@ -29,11 +37,6 @@ const ItemsForSale = () => {
       <p className="font-semibold">
         Check if items are available before messaging.
       </p>
-      {/* <p className="text-gray-600 mt-1">
-        Current last day (might change):{" "}
-        <strong>{new Date().toLocaleDateString()}</strong>
-      </p> */}
-
       {loading ? (
         <p className="text-center text-gray-500 mt-4">Loading products...</p>
       ) : (
