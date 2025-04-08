@@ -2,8 +2,15 @@
 import React, { useState } from "react";
 import { getDatabase, ref, update, remove } from "firebase/database";
 import { showToast } from "../utils/showToast";
+import { getAuth } from "firebase/auth";
 
 const ProductEditor = ({ product }) => {
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
+  const isSuperAdmin = currentUser?.email === "agarwal.anmol2004@gmail.com";
+  const isAuthor = currentUser?.uid === product.added_by;
+  const canEdit = isAuthor || isSuperAdmin;
+
   const [formData, setFormData] = useState({
     ...product,
     status: product.status || "available",
@@ -14,9 +21,13 @@ const ProductEditor = ({ product }) => {
   const [showPreview, setShowPreview] = useState(false);
 
   const handleChange = (e) => {
+    if (!canEdit) {
+      showToast("❌ You are not allowed to edit this product.");
+      return;
+    }
+
     const { name, value } = e.target;
 
-    // Don't capitalize technical fields
     const fieldsToSkipCapitalization = [
       "image",
       "url",
@@ -58,6 +69,11 @@ const ProductEditor = ({ product }) => {
   };
 
   const handleDelete = async () => {
+    if (!canEdit) {
+      showToast("❌ You are not allowed to delete this product.");
+      return;
+    }
+
     const confirmDelete = window.confirm(`Delete product "${formData.title}"?`);
     if (confirmDelete) {
       await remove(ref(getDatabase(), `/${product.id}`));
@@ -82,7 +98,10 @@ const ProductEditor = ({ product }) => {
             name="image"
             value={formData.image || ""}
             onChange={handleChange}
-            className="w-full p-2 border rounded text-sm"
+            disabled={!canEdit}
+            className={`w-full p-2 border rounded text-sm ${
+              !canEdit ? "bg-gray-100 cursor-not-allowed opacity-70" : ""
+            }`}
           />
         </div>
 
@@ -103,7 +122,10 @@ const ProductEditor = ({ product }) => {
           name="title"
           value={formData.title || ""}
           onChange={handleChange}
-          className="w-full p-2 border rounded text-sm"
+          disabled={!canEdit}
+          className={`w-full p-2 border rounded text-sm ${
+            !canEdit ? "bg-gray-100 cursor-not-allowed opacity-70" : ""
+          }`}
         />
         <p className="text-xs text-gray-500">
           {100 - countWords(formData.title || "")} words remaining
@@ -119,7 +141,10 @@ const ProductEditor = ({ product }) => {
           name="description"
           value={formData.description || ""}
           onChange={handleChange}
-          className="w-full p-2 border rounded text-sm"
+          disabled={!canEdit}
+          className={`w-full p-2 border rounded text-sm ${
+            !canEdit ? "bg-gray-100 cursor-not-allowed opacity-70" : ""
+          }`}
           rows={4}
         ></textarea>
         <p className="text-xs text-gray-500">
@@ -160,7 +185,10 @@ const ProductEditor = ({ product }) => {
               name="original_price"
               value={formData.original_price || ""}
               onChange={handleChange}
-              className="w-full p-2 border rounded text-sm"
+              disabled={!canEdit}
+              className={`w-full p-2 border rounded text-sm ${
+                !canEdit ? "bg-gray-100 cursor-not-allowed opacity-70" : ""
+              }`}
               placeholder="Optional"
             />
             <span className="bg-gray-100 px-3 py-2 text-sm text-gray-600">
@@ -180,7 +208,9 @@ const ProductEditor = ({ product }) => {
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, currency: e.target.value }))
             }
-            className="w-full p-2 border rounded text-sm"
+            className={`w-full p-2 border rounded text-sm ${
+              !canEdit ? "bg-gray-100 cursor-not-allowed opacity-70" : ""
+            }`}
           >
             <option value="EUR">Euro</option>
             <option value="USD">USD</option>
@@ -200,7 +230,10 @@ const ProductEditor = ({ product }) => {
             name="source"
             value={formData.source || ""}
             onChange={handleChange}
-            className="w-full p-2 border rounded text-sm"
+            disabled={!canEdit}
+            className={`w-full p-2 border rounded text-sm ${
+              !canEdit ? "bg-gray-100 cursor-not-allowed opacity-70" : ""
+            }`}
           />
         </div>
         <div>
@@ -211,18 +244,26 @@ const ProductEditor = ({ product }) => {
             name="available_from"
             value={formData.available_from || ""}
             onChange={handleChange}
-            className="w-full p-2 border rounded text-sm"
+            disabled={!canEdit}
+            className={`w-full p-2 border rounded text-sm ${
+              !canEdit ? "bg-gray-100 cursor-not-allowed opacity-70" : ""
+            }`}
           />
         </div>
       </div>
       <div className="flex justify-around flex-wrap gap-4">
         {/* Status Toggle */}
-        <label className="flex items-center gap-3">
+        <label
+          className={`flex items-center gap-3 ${
+            !canEdit ? "cursor-not-allowed" : ""
+          }`}
+        >
           <span className="text-sm font-medium">Status</span>
           <div className="toggle-wrapper">
             <input
               type="checkbox"
               className="toggle-checkbox"
+              disabled={!canEdit}
               checked={formData.status === "available"}
               onChange={() =>
                 setFormData((prev) => ({
@@ -240,18 +281,23 @@ const ProductEditor = ({ product }) => {
               formData.status === "available"
                 ? "bg-green-600 text-white"
                 : "bg-red-600 text-white"
-            }`}
+            } ${!canEdit ? "cursor-not-allowed" : ""}`}
           >
             {formData.status === "available" ? "Available" : "Reserved"}
           </span>
         </label>
 
         {/* Visible Toggle */}
-        <label className="flex items-center gap-3">
+        <label
+          className={`flex items-center gap-3 ${
+            !canEdit ? "cursor-not-allowed" : ""
+          }`}
+        >
           <span className="text-sm font-medium">Visible</span>
           <div className="toggle-wrapper">
             <input
               type="checkbox"
+              disabled={!canEdit}
               className="toggle-checkbox"
               checked={formData.visible !== false}
               onChange={() =>
@@ -269,35 +315,42 @@ const ProductEditor = ({ product }) => {
               formData.visible !== false
                 ? "bg-green-600 text-white"
                 : "bg-gray-400 text-white"
-            }`}
+            } `}
           >
             {formData.visible !== false ? "Visible" : "Hidden"}
           </span>
         </label>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          onClick={handleSave}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          Publish Changes
-        </button>
-        <button
-          onClick={() => setShowPreview(true)}
-          className="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600"
-        >
-          Preview Before Submit
-        </button>
-      </div>
+      {canEdit ? (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={handleSave}
+              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            >
+              Publish Changes
+            </button>
+            <button
+              onClick={() => setShowPreview(true)}
+              className="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600"
+            >
+              Preview Before Submit
+            </button>
+          </div>
 
-      {/* Delete Button */}
-      <button
-        onClick={handleDelete}
-        className="w-full bg-red-500 text-white py-1 rounded mt-2 text-sm hover:bg-red-600"
-      >
-        Delete Product
-      </button>
+          <button
+            onClick={handleDelete}
+            className="w-full bg-red-500 text-white py-1 rounded mt-2 text-sm hover:bg-red-600"
+          >
+            Delete Product
+          </button>
+        </>
+      ) : (
+        <div className="bg-yellow-100 text-yellow-800 text-sm px-4 py-2 rounded text-center mt-4">
+          🔒 You have read-only access to this product.
+        </div>
+      )}
 
       {/* Preview Section */}
       {showPreview && (

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { getDatabase, push, ref } from "firebase/database";
 import { showToast } from "../utils/showToast";
+import { getAuth } from "firebase/auth";
 
 const currencySymbols = {
   EUR: "€",
@@ -65,6 +66,8 @@ const ProductForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const auth = getAuth();
+    const user = auth.currentUser;
 
     const payload = {
       ...formData,
@@ -73,6 +76,8 @@ const ProductForm = () => {
         ? parseFloat(formData.original_price)
         : undefined,
       currency: formData.currency || "EUR",
+      added_by: user?.uid || "unknown",
+      timestamp: Date.now(),
     };
 
     await push(ref(db, "/"), payload);
