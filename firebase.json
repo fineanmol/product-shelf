@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "Yes",
+    "public": "build",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
@@ -8,12 +8,6 @@
         "destination": "/index.html"
       }
     ]
-  },
-  "storage": {
-    "rules": "storage.rules"
-  },
-  "remoteconfig": {
-    "template": "remoteconfig.template.json"
   },
   "database": {
     "rules": "database.rules.json"
