@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getDatabase } from "firebase/database";
+import { setLogLevel } from "firebase/app";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB-0HpHGBctqWmZGpjaTycwIrsK25Wcm3Y",
@@ -17,5 +18,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getDatabase(app);
+setLogLevel("debug");
 
 export { db };

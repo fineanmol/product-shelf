@@ -28,6 +28,8 @@ const ItemsForSale = () => {
     fetchProducts();
   }, []);
 
+  const visibleItems = items.filter((p) => p.visible !== false);
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold">Items for Sale</h1>
@@ -38,7 +40,7 @@ const ItemsForSale = () => {
         <p className="text-center text-gray-500 mt-4">Loading products...</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 text-left ">
-          {items.map((product, index) => (
+          {visibleItems.map((product, index) => (
             <div
               key={index}
               className="relative border rounded-xl p-4 shadow-lg bg-white max-w-[392px]"
