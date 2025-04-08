@@ -3,6 +3,8 @@ import ItemsForSale from "./pages/ItemsForSale";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
+import EditProduct from "./pages/EditProduct";
+import AddProduct from "./pages/AddProduct";
 
 function App() {
   return (
@@ -12,6 +14,8 @@ function App() {
           <Route path="/" element={<ItemsForSale />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admin/edit/:id" element={<EditProduct />} />
+          <Route path="/admin/add" element={<AddProduct />} />
         </Routes>
       </BrowserRouter>
     </div>

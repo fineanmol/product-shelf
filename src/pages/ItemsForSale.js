@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { get, ref } from "firebase/database";
 import { db } from "../firebase";
+import { currencySymbols } from "../utils/utils";
 
 const ItemsForSale = () => {
   const [items, setItems] = useState([]);
@@ -73,11 +74,12 @@ const ItemsForSale = () => {
                   <span className="font-medium text-gray-700">Price:</span>
                   <span>
                     <span className="text-base font-semibold text-black">
-                      {product.price}
+                      {product.price} {currencySymbols[product.currency]}
                     </span>
                     {product.original_price && (
                       <span className="text-gray-400 line-through ml-2">
-                        {product.original_price}
+                        {product.original_price}{" "}
+                        {currencySymbols[product.currency]}
                       </span>
                     )}
                   </span>
