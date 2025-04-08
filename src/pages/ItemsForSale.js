@@ -19,8 +19,16 @@ const ItemsForSale = () => {
       if (snapshot.exists()) {
         const data = snapshot.val();
         const productList = Object.entries(data)
+          .filter(
+            ([key, value]) =>
+              value &&
+              typeof value === "object" &&
+              !Array.isArray(value) &&
+              value.title
+          ) // exclude interests or malformed data
           .map(([id, item]) => ({ id, ...item }))
           .filter((p) => p.visible !== false);
+
         setItems(productList);
       }
       setLoading(false);
