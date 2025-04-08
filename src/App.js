@@ -5,6 +5,7 @@ import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import EditProduct from "./pages/EditProduct";
 import AddProduct from "./pages/AddProduct";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
@@ -12,10 +13,33 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<ItemsForSale />} />
-          <Route path="/admin" element={<Admin />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/admin/edit/:id" element={<EditProduct />} />
-          <Route path="/admin/add" element={<AddProduct />} />
+
+          {/* Protected Routes */}
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <Admin />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/add"
+            element={
+              <PrivateRoute>
+                <AddProduct />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/edit/:id"
+            element={
+              <PrivateRoute>
+                <EditProduct />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </div>
