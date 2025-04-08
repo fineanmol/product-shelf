@@ -23,6 +23,7 @@ const initial = {
   source: "Amazon",
   available_from: "Now",
   currency: "EUR",
+  url: "",
 };
 
 // Given original price and discount, return discounted price
@@ -251,7 +252,7 @@ const ProductForm = () => {
       </div>
 
       {/* Source & Available From */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Source
@@ -261,6 +262,18 @@ const ProductForm = () => {
             value={formData.source}
             onChange={handleChange}
             className="w-full p-2 border rounded text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Product URL
+          </label>
+          <input
+            name="url"
+            value={formData.url}
+            onChange={handleChange}
+            className="w-full p-2 border rounded text-sm"
+            placeholder="https://example.com/product"
           />
         </div>
         <div>
@@ -377,6 +390,19 @@ const ProductForm = () => {
             <p>
               <strong>Source:</strong> {formData.source}
             </p>
+            {formData.url && (
+              <p>
+                <strong>URL:</strong>{" "}
+                <a
+                  href={formData.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  {formData.url}
+                </a>
+              </p>
+            )}
           </div>
           <button
             onClick={() => setShowPreview(false)}

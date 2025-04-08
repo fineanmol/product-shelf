@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getDatabase, ref, get, update } from "firebase/database";
 import { Link } from "react-router-dom";
-
-const statusColor = {
-  available: "text-green-600 bg-green-100",
-  reserved: "text-red-600 bg-red-100",
-  sold: "text-gray-600 bg-gray-100",
-};
+import { getUserAccess } from "../utils/permissions";
 
 const ProductAdminList = () => {
   const [products, setProducts] = useState([]);
@@ -112,6 +107,7 @@ const ProductAdminList = () => {
     <div className="p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start md:items-center mb-4 gap-4">
         <h2 className="lg:text-2xl text-xl font-semibold">All Products</h2>
+
         <div className="flex gap-2 w-full md:w-auto h-10">
           <input
             type="text"
@@ -172,6 +168,7 @@ const ProductAdminList = () => {
           <tbody className="divide-y divide-gray-100">
             {sortedProducts.map((p) => {
               const interests = interestData[p.id] || {};
+              const { canEdit } = getUserAccess(p);
               const filteredInterests = Object.values(interests).filter((i) =>
                 interestSearch[p.id]
                   ? i.name
@@ -199,6 +196,11 @@ const ProductAdminList = () => {
                         <div className="font-medium text-gray-900">
                           {p.title}
                         </div>
+                        {!canEdit && (
+                          <div className="text-xs text-yellow-600 italic">
+                            Read-only
+                          </div>
+                        )}
                         <div className="text-gray-500 text-xs">{p.source}</div>
                       </div>
                     </div>
@@ -207,16 +209,21 @@ const ProductAdminList = () => {
                   <td className="px-4 py-2">
                     <button
                       onClick={() =>
+                        canEdit &&
                         handleToggle(
                           p.id,
                           "status",
                           p.status === "available" ? "reserved" : "available"
                         )
                       }
-                      className={`px-2 py-1 rounded text-xs font-semibold ${
+                      className={`px-2 py-1 rounded text-xs font-semibold transition ${
                         p.status === "available"
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-600"
+                      } ${
+                        !canEdit
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:brightness-95"
                       }`}
                     >
                       {p.status || "Unknown"}
@@ -225,12 +232,17 @@ const ProductAdminList = () => {
                   <td className="px-4 py-2">
                     <button
                       onClick={() =>
+                        canEdit &&
                         handleToggle(p.id, "visible", !(p.visible !== false))
                       }
-                      className={`px-2 py-1 rounded text-xs font-medium ${
+                      className={`px-2 py-1 rounded text-xs font-medium transition ${
                         p.visible === false
                           ? "bg-gray-200 text-gray-600"
                           : "bg-green-100 text-green-600"
+                      } ${
+                        !canEdit
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:brightness-95"
                       }`}
                     >
                       {p.visible === false ? "Hidden" : "Visible"}
@@ -242,14 +254,19 @@ const ProductAdminList = () => {
 
                   {/* Interested Users */}
                   <td className="px-4 py-2 text-xs max-w-[240px]">
-                    <details>
-                      <summary className="cursor-pointer font-medium text-blue-600">
+                    <details open={canEdit}>
+                      <summary
+                        className={`cursor-pointer font-medium ${
+                          canEdit ? "text-blue-600" : "text-gray-400"
+                        }`}
+                      >
                         {Object.keys(interests).length} interested
                       </summary>
                       <input
                         type="text"
                         className="mt-2 mb-1 w-full border px-2 py-1 rounded text-xs"
                         placeholder="Search name/email"
+                        disabled={!canEdit}
                         value={interestSearch[p.id] || ""}
                         onChange={(e) =>
                           setInterestSearch((prev) => ({
@@ -278,8 +295,13 @@ const ProductAdminList = () => {
                         ))}
                       </ul>
                       <button
+                        disabled={!canEdit}
                         onClick={() => handleExportCSV(p.id)}
-                        className="mt-2 bg-gray-100 text-xs px-3 py-1 rounded hover:bg-gray-200"
+                        className={`mt-2 px-3 py-1 rounded text-xs ${
+                          canEdit
+                            ? "bg-gray-100 hover:bg-gray-200"
+                            : "bg-gray-50 text-gray-400 cursor-not-allowed"
+                        }`}
                       >
                         Export CSV
                       </button>
@@ -287,12 +309,18 @@ const ProductAdminList = () => {
                   </td>
 
                   <td className="px-4 py-2 text-right">
-                    <Link
-                      to={`/admin/edit/${p.id}`}
-                      className="text-blue-600 hover:underline text-sm"
-                    >
-                      Edit
-                    </Link>
+                    {canEdit ? (
+                      <Link
+                        to={`/admin/edit/${p.id}`}
+                        className="text-blue-600 hover:underline text-sm"
+                      >
+                        Edit
+                      </Link>
+                    ) : (
+                      <span className="text-xs text-yellow-600 italic">
+                        Read-only
+                      </span>
+                    )}
                   </td>
                 </tr>
               );

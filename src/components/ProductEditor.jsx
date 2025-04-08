@@ -2,14 +2,10 @@
 import React, { useState } from "react";
 import { getDatabase, ref, update, remove } from "firebase/database";
 import { showToast } from "../utils/showToast";
-import { getAuth } from "firebase/auth";
+import { getUserAccess } from "../utils/permissions";
 
 const ProductEditor = ({ product }) => {
-  const auth = getAuth();
-  const currentUser = auth.currentUser;
-  const isSuperAdmin = currentUser?.email === "agarwal.anmol2004@gmail.com";
-  const isAuthor = currentUser?.uid === product.added_by;
-  const canEdit = isAuthor || isSuperAdmin;
+  const { canEdit } = getUserAccess(product);
 
   const [formData, setFormData] = useState({
     ...product,
@@ -221,7 +217,7 @@ const ProductEditor = ({ product }) => {
       </div>
 
       {/* Source and Available From */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Source
@@ -231,12 +227,27 @@ const ProductEditor = ({ product }) => {
             value={formData.source || ""}
             onChange={handleChange}
             disabled={!canEdit}
-            className={`w-full p-2 border rounded text-sm ${
+            className={`w-fit p-2 border rounded text-sm ${
               !canEdit ? "bg-gray-100 cursor-not-allowed opacity-70" : ""
             }`}
           />
         </div>
         <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Product URL
+          </label>
+          <input
+            name="url"
+            value={formData.url || ""}
+            onChange={handleChange}
+            disabled={!canEdit}
+            className={`w-full p-2 border rounded text-sm ${
+              !canEdit ? "bg-gray-100 cursor-not-allowed opacity-70" : ""
+            }`}
+            placeholder="https://..."
+          />
+        </div>
+        <div className="w-fit">
           <label className="block text-sm font-medium text-gray-700">
             Available From
           </label>
@@ -245,7 +256,7 @@ const ProductEditor = ({ product }) => {
             value={formData.available_from || ""}
             onChange={handleChange}
             disabled={!canEdit}
-            className={`w-full p-2 border rounded text-sm ${
+            className={`w-fit p-2 border rounded text-sm ${
               !canEdit ? "bg-gray-100 cursor-not-allowed opacity-70" : ""
             }`}
           />
@@ -385,6 +396,19 @@ const ProductEditor = ({ product }) => {
             <p>
               <strong>Source:</strong> {formData.source}
             </p>
+            {formData.url && (
+              <p>
+                <strong>URL:</strong>
+                <a
+                  href={formData.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  {formData.url}
+                </a>
+              </p>
+            )}
           </div>
           <button
             onClick={() => setShowPreview(false)}
