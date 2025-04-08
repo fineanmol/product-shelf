@@ -1,6 +1,7 @@
 // src/components/ProductEditor.jsx
 import React, { useState } from "react";
-import { getDatabase, ref, update } from "firebase/database";
+import { getDatabase, ref, update, remove } from "firebase/database";
+import { showToast } from "../utils/showToast";
 
 const ProductEditor = ({ product }) => {
   const [formData, setFormData] = useState(product);
@@ -18,7 +19,15 @@ const ProductEditor = ({ product }) => {
 
   const handleSave = () => {
     update(ref(getDatabase(), `/${product.id}`), formData);
-    alert("Saved ✅");
+      showToast("Product saved ✅");
+  };
+    
+  const handleDelete = async () => {
+    const confirm = window.confirm(`Delete product "${formData.title}"?`);
+    if (confirm) {
+      await remove(ref(getDatabase(), `/${product.id}`));
+        showToast("Product deleted 🗑️");
+    }
   };
 
   return (
@@ -66,7 +75,14 @@ const ProductEditor = ({ product }) => {
         className="w-full bg-blue-600 text-white py-1 rounded mt-2 text-sm hover:bg-blue-700"
       >
         Save Changes
-      </button>
+          </button>
+          <button
+  onClick={handleDelete}
+  className="w-full bg-red-500 text-white py-1 rounded mt-2 text-sm hover:bg-red-600"
+>
+  Delete Product
+</button>
+
     </div>
   );
 };
