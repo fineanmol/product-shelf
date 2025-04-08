@@ -24,6 +24,7 @@ const initial = {
   available_from: "Now",
   currency: "EUR",
   url: "",
+  delivery_options: ["pickup", "shipping"],
 };
 
 // Given original price and discount, return discounted price
@@ -342,6 +343,32 @@ const ProductForm = () => {
           </span>
         </label>
       </div>
+      {/* Delivery Options */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Delivery Options
+        </label>
+        <div className="flex flex-wrap gap-3">
+          {["pickup", "shipping"].map((option) => (
+            <label key={option} className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={formData.delivery_options.includes(option)}
+                onChange={(e) => {
+                  const updated = e.target.checked
+                    ? [...formData.delivery_options, option]
+                    : formData.delivery_options.filter((o) => o !== option);
+                  setFormData((prev) => ({
+                    ...prev,
+                    delivery_options: updated,
+                  }));
+                }}
+              />
+              {option.charAt(0).toUpperCase() + option.slice(1)}
+            </label>
+          ))}
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <button
@@ -404,6 +431,15 @@ const ProductForm = () => {
               </p>
             )}
           </div>
+          {formData.delivery_options?.length > 0 && (
+            <p className="mt-2">
+              <strong>Delivery:</strong>{" "}
+              {formData.delivery_options
+                .map((d) => d.charAt(0).toUpperCase() + d.slice(1))
+                .join(", ")}
+            </p>
+          )}
+
           <button
             onClick={() => setShowPreview(false)}
             className="mt-4 bg-gray-300 text-black px-4 py-1 rounded hover:bg-gray-400"

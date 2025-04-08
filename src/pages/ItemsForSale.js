@@ -177,6 +177,25 @@ const ItemsForSale = () => {
               >
                 View on {product.source} &rarr;
               </a>
+              {/* Delivery Modes */}
+              {Array.isArray(product.delivery_options) &&
+                product.delivery_options.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {product.delivery_options.map((option) => (
+                      <span
+                        key={option}
+                        className="bg-gray-100 text-sm text-black px-3 py-1 rounded-full flex items-center gap-2"
+                      >
+                        <img
+                          src="https://w7.pngwing.com/pngs/496/818/png-transparent-check-circle-heroicons-solid-icon.png"
+                          alt="Checkmark"
+                          className="w-4 h-4"
+                        />
+                        {option}
+                      </span>
+                    ))}
+                  </div>
+                )}
             </div>
           ))}
         </div>

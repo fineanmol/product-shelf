@@ -13,7 +13,9 @@ const ProductEditor = ({ product }) => {
     visible: product.visible !== false,
     source: product.source || "Amazon",
     available_from: product.available_from || "Now",
+    delivery_options: product.delivery_options || ["Pick Up", "Shipping"],
   });
+
   const [showPreview, setShowPreview] = useState(false);
 
   const handleChange = (e) => {
@@ -332,6 +334,40 @@ const ProductEditor = ({ product }) => {
           </span>
         </label>
       </div>
+      <div className="flex flex-wrap gap-3">
+        <label className="block text-sm font-medium text-gray-700 w-full">
+          Delivery Options
+        </label>
+        {["Pick Up", "Shipping"].map((option) => (
+          <label
+            key={option}
+            className={`flex items-center space-x-2 border px-3 py-1 rounded-full text-sm ${
+              formData.delivery_options?.includes(option)
+                ? "bg-gray-100"
+                : "bg-white"
+            }`}
+          >
+            <input
+              type="checkbox"
+              disabled={!canEdit}
+              checked={formData.delivery_options?.includes(option)}
+              onChange={() => {
+                if (!canEdit) return;
+                setFormData((prev) => {
+                  const selected = prev.delivery_options || [];
+                  return {
+                    ...prev,
+                    delivery_options: selected.includes(option)
+                      ? selected.filter((o) => o !== option)
+                      : [...selected, option],
+                  };
+                });
+              }}
+            />
+            <span>{option}</span>
+          </label>
+        ))}
+      </div>
 
       {canEdit ? (
         <>
@@ -393,6 +429,12 @@ const ProductEditor = ({ product }) => {
             <p>
               <strong>Visible:</strong> {formData.visible ? "Yes" : "No"}
             </p>
+            {formData.delivery_options?.length > 0 && (
+              <p>
+                <strong>Delivery Options:</strong>{" "}
+                {formData.delivery_options.join(", ")}
+              </p>
+            )}
             <p>
               <strong>Source:</strong> {formData.source}
             </p>
