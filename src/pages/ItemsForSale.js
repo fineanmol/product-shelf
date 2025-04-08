@@ -78,7 +78,7 @@ const ItemsForSale = () => {
       {loading ? (
         <p className="text-center text-gray-500 mt-4">Loading products...</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left items-stretch">
           {items.map((product, index) => (
             <div
               key={index}
@@ -137,14 +137,16 @@ const ItemsForSale = () => {
                 />
               </div>
 
-              <h3 className="text-lg font-semibold mt-4">{product.title}</h3>
-              <p className="text-sm text-gray-500 mt-1">
+              <h4 className="text-lg font-semibold mt-4 line-clamp-2">
+                {product.title}
+              </h4>
+              <p className="text-sm text-gray-500 mt-1 line-clamp-3">
                 {product.description}
               </p>
 
               <div className="mt-4 space-y-1">
                 <p className="text-gray-500 flex justify-between items-center">
-                  <span className="font-medium text-gray-700">Price:</span>
+                  <span className="font-normal text-gray-700">Price:</span>
                   <span>
                     <span className="text-base font-semibold text-black">
                       {product.price} {currencySymbols[product.currency]}
@@ -159,22 +161,22 @@ const ItemsForSale = () => {
                 </p>
 
                 <p className="text-gray-500 flex justify-between items-center">
-                  <span className="font-medium text-gray-700">Age:</span>
-                  <span>{product.age}</span>
+                  <span className="font-normal text-gray-700">Age:</span>
+                  <span className="text-black">{product.age}</span>
                 </p>
                 <p className="text-gray-500 flex justify-between items-center">
-                  <span className="font-medium text-gray-700">
+                  <span className="font-normal text-gray-700">
                     Available From:
                   </span>
-                  <span>{product.available_from}</span>
+                  <span className="text-black">{product.available_from}</span>
                 </p>
 
                 {/* Show interest count */}
-                {interestData[product.id] && (
+                {/* {interestData[product.id] && (
                   <p className="text-sm text-gray-500 italic">
                     {Object.keys(interestData[product.id]).length} interested
                   </p>
-                )}
+                )} */}
               </div>
 
               <a
@@ -204,6 +206,14 @@ const ItemsForSale = () => {
                     ))}
                   </div>
                 )}
+
+              <hr className="my-3 border-gray-200" />
+
+              {interestData[product.id] && (
+                <p className="text-sm text-gray-500 italic">
+                  {Object.keys(interestData[product.id]).length} interested
+                </p>
+              )}
             </div>
           ))}
         </div>
