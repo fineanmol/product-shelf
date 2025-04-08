@@ -1,34 +1,31 @@
-import React, { useState, useEffect } from "react";
-import productData from "../data/products";
+import React, { useEffect, useState } from "react";
+import { get, ref } from "firebase/database";
+import { db } from "../firebase";
 
 const ItemsForSale = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  console.log("🚀 ~ ItemsForSale ~ loading:", loading, items);
 
-  // useEffect(() => {
-  //   // Fetch data from local products.json in the public folder
-  //   const loadProducts = async () => {
-  //     try {
-  //       const response = await fetch("/data/products.json");
-  //       console.log("🚀 ~ loadProducts ~ response:", response);
-  //       if (!response.ok) {
-  //         throw new Error("Network response was not ok");
-  //       }
-  //       const data = await response.json();
-  //       console.log("🚀 ~ loadProducts ~ data:", data);
-  //       setItems(data);
-  //     } catch (error) {
-  //       console.error("Fetch error:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   loadProducts();
-  // }, []);
   useEffect(() => {
-    setItems(productData);
-    setLoading(false);
+    const fetchProducts = async () => {
+      try {
+        const snapshot = await get(ref(db, "/")); // Root-level array
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          // If data is stored as an array
+          const productList = Array.isArray(data) ? data : Object.values(data);
+          setItems(productList);
+        } else {
+          console.warn("No data available");
+        }
+      } catch (error) {
+        console.error("Error fetching data from Firebase:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   return (

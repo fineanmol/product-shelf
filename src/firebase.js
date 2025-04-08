@@ -1,10 +1,12 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
+import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB-0HpHGBctqWmZGpjaTycwIrsK25Wcm3Y",
   authDomain: "product-shelf-inventory.firebaseapp.com",
+  databaseURL:
+    "https://product-shelf-inventory-default-rtdb.europe-west1.firebasedatabase.app/",
   projectId: "product-shelf-inventory",
   storageBucket: "product-shelf-inventory.firebasestorage.app",
   messagingSenderId: "749155710210",
@@ -14,6 +16,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-const db = getFirestore(app);
+const db = getDatabase(app);
 
 export { db };
