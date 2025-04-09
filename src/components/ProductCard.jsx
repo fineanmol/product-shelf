@@ -137,11 +137,11 @@ const ProductCard = ({
         onClick={onShowInterest}
         className="mt-4 w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition"
       >
-        💬 Contact to Buy
+        Interested to Buy
       </button>
 
       <p className="text-center text-xs text-gray-400 mt-2">
-        You'll be contacted after clicking Buy
+        No payment now. You'll be contacted to confirm.
       </p>
 
       <HowItWorksHint />

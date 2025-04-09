@@ -1,3 +1,4 @@
+// src/pages/ItemsForSale.tsx
 import React, { useEffect, useState } from "react";
 import { ref, push, onValue } from "firebase/database";
 import { db } from "../firebase";
@@ -14,6 +15,10 @@ const ItemsForSale = () => {
   const [interestData, setInterestData] = useState({});
   const [interestedItems, setInterestedItems] = useState([]);
   const [pulseId, setPulseId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [conditionFilter, setConditionFilter] = useState("");
+  const [priceSort, setPriceSort] = useState("latest");
 
   useEffect(() => {
     const dbRef = ref(db, "products");
@@ -29,7 +34,7 @@ const ItemsForSale = () => {
               typeof value === "object" &&
               !Array.isArray(value) &&
               value.title
-          ) // exclude interests or malformed data
+          )
           .map(([id, item]) => ({ id, ...item }))
           .filter((p) => p.visible !== false);
 
@@ -67,79 +72,137 @@ const ItemsForSale = () => {
         timestamp: Date.now(),
       });
 
-      // await emailjs.send(
-      //   "service_kff4yqy",
-      //   "template_dt1bpdu",
-      //   {
-      //     name,
-      //     email,
-      //     message: phone,
-      //     title: product.title,
-      //     available_from: product.available_from,
-      //     image: product.image,
-      //     time: new Date().toLocaleString(),
-      //   },
-      //   "hjrAAqHXUVuBPn-AD"
-      // );
-
       setInterestedItems((prev) => [...prev, product.id]);
       setShowInterestForm(null);
-      showToast(
-        "✅ Thanks! Your interest was submitted and a confirmation was sent."
-      );
+      showToast("✅ Thanks! Your interest was submitted.");
     } catch (err) {
-      console.error("Email or submission failed:", err);
+      console.error("Submission failed:", err);
       showToast("❌ Could not save your interest. Please try again.");
     }
   };
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold">Items for Sale</h1>
-      <p className="font-semibold mb-4">
-        Check if items are available before messaging.
-      </p>
-      {loading ? (
-        <p className="text-center text-gray-500 mt-4">Loading products...</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left items-stretch">
-          {items.map((product, index) => (
-            <ProductCard
-              product={product}
-              isInterested={interestedItems.includes(product.id)}
-              pulse={pulseId === product.id}
-              interestCount={
-                interestData[product.id]
-                  ? Object.keys(interestData[product.id]).length
-                  : 0
-              }
-              onHeartClick={() => {
-                setTimeout(() => setShowInterestForm(product), 400);
-                setPulseId(product.id);
-                setTimeout(() => setPulseId(null), 400);
+  const filteredItems = items
+    .filter((item) =>
+      item.title.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter((item) => (statusFilter ? item.status === statusFilter : true))
+    .filter((item) =>
+      conditionFilter ? item.condition === conditionFilter : true
+    )
+    .sort((a, b) => {
+      if (priceSort === "price-low") return a.price - b.price;
+      if (priceSort === "price-high") return b.price - a.price;
+      return 0;
+    });
 
-                setInterestedItems((prev) =>
-                  prev.includes(product.id)
-                    ? prev.filter((id) => id !== product.id)
-                    : [...prev, product.id]
-                );
-              }}
-              onShowInterest={() => {
-                setTimeout(() => setShowInterestForm(product), 400);
-              }}
-            />
-          ))}
+  return (
+    <div className="min-h-screen bg-gray-50 ">
+      {/* Header */}
+      <header className="bg-white shadow p-4 flex justify-center items-center h-20 sticky top-0 z-50 w-full">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 text-center">
+          MarketPlace
+        </h1>
+      </header>
+
+      <div className="relative">
+        <div className="">
+          <input
+            type="text"
+            placeholder="Search products..."
+            className="px-3 py-2 rounded border w-full mt-4 max-w-[1500px] mx-auto h-14"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-      )}
-      {/* Interest Form */}
-      {showInterestForm && (
-        <InterestFormModal
-          product={showInterestForm}
-          onClose={() => setShowInterestForm(null)}
-          onSubmit={handleInterestSubmit}
-        />
-      )}
-      <StepsToBuy />;
+      </div>
+      <div className=" container mx-auto p-4">
+        {/* Filters */}
+        <div className="p-4 flex flex-wrap gap-4">
+          <select
+            className="border rounded px-3 py-2"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">All Status</option>
+            <option value="available">Available</option>
+            <option value="reserved">Reserved</option>
+          </select>
+
+          <select
+            className="border rounded px-3 py-2"
+            value={conditionFilter}
+            onChange={(e) => setConditionFilter(e.target.value)}
+          >
+            <option value="">All Conditions</option>
+            <option value="new">New</option>
+            <option value="very good">Very Good</option>
+            <option value="good">Good</option>
+            <option value="used">Used</option>
+          </select>
+
+          <select
+            className="border rounded px-3 py-2"
+            value={priceSort}
+            onChange={(e) => setPriceSort(e.target.value)}
+          >
+            <option value="latest">Sort by: Latest</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+        </div>
+
+        {/* Products */}
+        {loading ? (
+          <p className="text-center text-gray-500 mt-4">Loading products...</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left items-stretch">
+            {filteredItems.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                isInterested={interestedItems.includes(product.id)}
+                pulse={pulseId === product.id}
+                interestCount={
+                  interestData[product.id]
+                    ? Object.keys(interestData[product.id]).length
+                    : 0
+                }
+                onHeartClick={() => {
+                  setTimeout(() => setShowInterestForm(product), 400);
+                  setPulseId(product.id);
+                  setTimeout(() => setPulseId(null), 400);
+
+                  setInterestedItems((prev) =>
+                    prev.includes(product.id)
+                      ? prev.filter((id) => id !== product.id)
+                      : [...prev, product.id]
+                  );
+                }}
+                onShowInterest={() => {
+                  setTimeout(() => setShowInterestForm(product), 400);
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Interest Modal */}
+        {showInterestForm && (
+          <InterestFormModal
+            product={showInterestForm}
+            onClose={() => setShowInterestForm(null)}
+            onSubmit={handleInterestSubmit}
+          />
+        )}
+
+        {/* Steps to Buy */}
+        <StepsToBuy />
+
+        {/* Footer */}
+        <footer className="bg-white text-center text-gray-500 text-sm py-4 mt-10">
+          © 2025 Marketplace. All rights reserved.
+        </footer>
+      </div>
     </div>
   );
 };
