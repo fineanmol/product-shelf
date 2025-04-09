@@ -2,115 +2,197 @@ import React, { useState } from "react";
 import { showToast } from "../utils/showToast";
 
 const InterestFormModal = ({ product, onClose, onSubmit }) => {
-  const [deliveryPrefs, setDeliveryPrefs] = useState([]);
+  const [step, setStep] = useState(1);
+  const [deliveryPref, setDeliveryPref] = useState(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const { name, email, phone } = Object.fromEntries(new FormData(form));
-
-    if (deliveryPrefs.length === 0) {
-      showToast("Please select at least one delivery preference.");
+  const handleNext = () => {
+    if (step === 1 && !deliveryPref) {
+      showToast("Please select a delivery method");
       return;
     }
-
-    onSubmit({ name, email, phone, delivery_preferences: deliveryPrefs });
+    if (step === 2 && (!formData.name || !formData.email || !formData.phone)) {
+      showToast("Please fill out all required fields");
+      return;
+    }
+    setStep((prev) => prev + 1);
   };
 
-  const handleDeliveryChange = (option) => {
-    setDeliveryPrefs((prev) =>
-      prev.includes(option)
-        ? prev.filter((o) => o !== option)
-        : [...prev, option]
-    );
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFinalSubmit = () => {
+    onSubmit({ ...formData, delivery_preferences: [deliveryPref] });
+    setStep(3);
   };
 
   const deliveryOptions = Array.isArray(product.delivery_options)
     ? product.delivery_options
     : [];
 
-  const labels = {
-    pickup: "Pickup / Abholung",
-    shipping: "Shipping / Versand",
-  };
+  const closeIcon = (
+    <button
+      className="absolute top-2 right-3 text-gray-400 hover:text-gray-600 text-2xl"
+      onClick={onClose}
+    >
+      &times;
+    </button>
+  );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-xl relative">
-        <button
-          className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
-          onClick={onClose}
-        >
-          &times;
-        </button>
-        <h2 className="text-xl font-bold mb-4">
-          Interested in {product.title}?
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4 text-left">
-          <input
-            required
-            name="name"
-            placeholder="Your Name"
-            minLength={2}
-            maxLength={18}
-            pattern="^[A-Za-zÀ-ÿ ,.'-]{2,50}$"
-            title="Enter a valid name (letters, spaces, hyphens allowed)"
-            className="w-full p-2 border rounded"
-          />
-          <input
-            required
-            name="email"
-            type="email"
-            placeholder="Email"
-            maxLength={30}
-            pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
-            title="Enter a valid email address"
-            className="w-full p-2 border rounded"
-          />
-          <input
-            required
-            name="phone"
-            placeholder="Phone Number (e.g. +491234567890)"
-            pattern="^\+?[1-9]\d{6,14}$"
-            title="Enter a valid international phone number (7 to 15 digits, may start with +)"
-            className="w-full p-2 border rounded"
-          />
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center px-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-xl p-6 relative">
+        {closeIcon}
 
-          {/* Delivery Preference */}
-          {deliveryOptions.map((option) => {
-            const isShipping = option.toLowerCase() === "shipping";
-            return (
-              <label key={option} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  name="delivery_preference"
-                  value={option}
-                  checked={deliveryPrefs.includes(option)}
-                  onChange={() => handleDeliveryChange(option)}
-                  className="accent-blue-600"
-                />
-                <span className="flex items-center gap-2">
-                  {labels[option.toLowerCase()] || option}
-                  {isShipping && (
-                    <span
-                      className="ml-1 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded-full"
-                      title="Shipping is a paid service"
-                    >
-                      Paid
-                    </span>
-                  )}
-                </span>
+        {step === 1 && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">{product.title}</h2>
+            <p className="text-2xl font-bold text-black">€{product.price}</p>
+            <p className="text-sm text-gray-400 mt-2">{product.description}</p>
+
+            <div className="mt-6">
+              <label className="text-sm font-medium block mb-2">
+                Choose Delivery Method
               </label>
-            );
-          })}
+              <div className="grid grid-cols-2 gap-4">
+                {deliveryOptions.map((option) => (
+                  <label
+                    key={option}
+                    className={`border rounded-lg p-3 cursor-pointer ${
+                      deliveryPref === option
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="delivery"
+                      value={option}
+                      className="sr-only"
+                      checked={deliveryPref === option}
+                      onChange={() => setDeliveryPref(option)}
+                    />
+                    <div className="font-semibold">{option}</div>
+                    <div className="text-xs text-gray-500">
+                      {option.toLowerCase() === "shipping"
+                        ? "2-3 business days"
+                        : "Store pickup"}
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
 
-          <button
-            type="submit"
-            className="bg-red-600 text-white w-full py-2 rounded hover:bg-red-700 mt-2"
-          >
-            Submit Interest
-          </button>
-        </form>
+            <div className="mt-6 text-right">
+              <button
+                onClick={handleNext}
+                className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
+              >
+                Continue →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <div className="flex items-center gap-4 mb-4">
+              <img
+                src={product.image}
+                alt={product.title}
+                className="w-16 h-16 rounded object-cover"
+              />
+              <div>
+                <h3 className="font-medium text-base">{product.title}</h3>
+                <p className="text-sm text-gray-400">€{product.price}</p>
+              </div>
+            </div>
+
+            <label className="block text-sm font-medium mb-1">Full Name</label>
+            <input
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full p-2 border rounded mb-4"
+              placeholder="Enter your full name"
+              required
+            />
+
+            <label className="block text-sm font-medium mb-1">
+              Email Address
+            </label>
+            <input
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full p-2 border rounded mb-4"
+              placeholder="your@email.com"
+              required
+              type="email"
+            />
+
+            <label className="block text-sm font-medium mb-1">
+              Phone Number
+            </label>
+            <input
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full p-2 border rounded mb-4"
+              placeholder="Enter your phone number"
+              required
+            />
+
+            <label className="block text-sm font-medium mb-1">
+              Message (optional)
+            </label>
+            <textarea
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              className="w-full p-2 border rounded mb-4"
+              placeholder="Any specific questions or requests?"
+            />
+
+            <div className="text-right">
+              <button
+                onClick={handleFinalSubmit}
+                className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="text-center py-10">
+            <h2 className="text-2xl font-bold text-green-600 mb-4">
+              🎉 Thank You!
+            </h2>
+            <p className="text-gray-700 mb-2">
+              We've received your interest in:
+            </p>
+            <p className="font-medium text-lg">{product.title}</p>
+            <p className="text-sm text-gray-500 mt-2">
+              We'll reach out to you soon via email or phone.
+            </p>
+
+            <button
+              onClick={onClose}
+              className="mt-6 bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200"
+            >
+              Close
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

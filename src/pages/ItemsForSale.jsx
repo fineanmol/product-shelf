@@ -124,6 +124,9 @@ const ItemsForSale = () => {
                     : [...prev, product.id]
                 );
               }}
+              onShowInterest={() => {
+                setTimeout(() => setShowInterestForm(product), 400);
+              }}
             />
           ))}
         </div>

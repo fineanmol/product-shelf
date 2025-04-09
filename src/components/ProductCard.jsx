@@ -1,7 +1,9 @@
-// src/components/ProductCard.jsx
 import React from "react";
 import { currencySymbols, getConditionLabel } from "../utils/utils";
 import HowItWorksHint from "./hint/HowItWorksHint";
+import { FaTruck, FaMapMarkerAlt } from "react-icons/fa";
+import { PiLinkSimpleBold } from "react-icons/pi";
+import { BsSuitHeartFill } from "react-icons/bs";
 
 const ProductCard = ({
   product,
@@ -12,19 +14,19 @@ const ProductCard = ({
   interestCount,
 }) => {
   return (
-    <div className="relative border rounded-xl p-4 shadow-lg bg-white max-w-[392px]">
+    <div className="relative border rounded-2xl p-4 shadow-xl bg-white max-w-sm">
       {/* Status Badge */}
-      <div className="absolute -top-[3px] -left-[1px] z-10">
+      <div className="absolute top-2 left-2 z-10">
         <span
-          className={`text-white px-3 py-1 rounded-tl-md rounded-br-md text-xs font-bold shadow-sm ${
-            product.status === "available" ? "bg-green-600" : "bg-red-600"
+          className={`text-white px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${
+            product.status === "available" ? "bg-green-500" : "bg-red-500"
           }`}
         >
-          {product.status?.toUpperCase()}
+          {product.status?.charAt(0).toUpperCase() + product.status?.slice(1)}
         </span>
       </div>
 
-      {/* Interested Heart */}
+      {/* Heart Icon */}
       <div className="absolute top-2 right-2 z-10">
         <button
           onClick={onHeartClick}
@@ -75,74 +77,73 @@ const ProductCard = ({
         </div>
       </div>
 
-      {/* Details */}
-      <h4 className="text-lg font-semibold mt-4 line-clamp-2">
+      {/* Title & Description */}
+      <h4 className="text-lg font-semibold mt-2 line-clamp-2">
         {product.title}
       </h4>
-      <p className="text-sm text-gray-500 mt-1 line-clamp-3">
+      <p className="text-sm text-gray-500 mt-1 line-clamp-2">
         {product.description}
       </p>
 
-      <div className="mt-4 space-y-1">
-        <p className="text-gray-500 flex justify-between items-center">
-          <span className="font-normal text-gray-700">Price:</span>
-          <span>
-            <span className="text-base font-semibold text-black">
-              {product.price} {currencySymbols[product.currency]}
-            </span>
-            {product.original_price && (
-              <span className="text-gray-400 line-through ml-2">
-                {product.original_price} {currencySymbols[product.currency]}
-              </span>
-            )}
+      {/* Price */}
+      <div className="mt-2">
+        <span className="text-xl font-bold text-black">
+          {currencySymbols[product.currency]}
+          {product.price}
+        </span>
+        {product.original_price && (
+          <span className="text-gray-400 line-through ml-2">
+            {currencySymbols[product.currency]}
+            {product.original_price}
           </span>
-        </p>
-        <p className="text-gray-500 flex justify-between items-center">
-          <span className="font-normal text-gray-700">Condition:</span>
-          <span className="text-black">{getConditionLabel(product.age)}</span>
-        </p>
-
-        <p className="text-gray-500 flex justify-between items-center">
-          <span className="font-normal text-gray-700">Available From:</span>
-          <span className="text-black">{product.available_from}</span>
-        </p>
+        )}
       </div>
 
-      <a
-        href={product.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block mt-4 text-blue-600 hover:underline"
-      >
-        View on {product.source} &rarr;
-      </a>
-
-      {/* Delivery Modes */}
-      {Array.isArray(product.delivery_options) &&
-        product.delivery_options.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {product.delivery_options.map((option) => (
-              <span
-                key={option}
-                className="bg-gray-100 text-sm text-black px-3 py-1 rounded-full flex items-center gap-2"
-              >
-                <img
-                  src="https://w7.pngwing.com/pngs/496/818/png-transparent-check-circle-heroicons-solid-icon.png"
-                  alt="✓"
-                  className="w-4 h-4"
-                />
-                {option}
-              </span>
-            ))}
-          </div>
+      {/* Tags: Condition, Delivery Options */}
+      <div className="flex flex-wrap gap-2 mt-4 text-sm">
+        {product.age && (
+          <span className="bg-gray-100 px-3 py-1 rounded-full">
+            {getConditionLabel(product.age)}
+          </span>
         )}
+        {product.delivery_options?.includes("Shipping") && (
+          <span className="bg-gray-100 px-3 py-1 rounded-full flex items-center gap-1">
+            <FaTruck className="text-gray-500" /> Shipping
+          </span>
+        )}
+        {product.delivery_options?.includes("Pick Up") && (
+          <span className="bg-gray-100 px-3 py-1 rounded-full flex items-center gap-1">
+            <FaMapMarkerAlt className="text-gray-500" /> Pickup
+          </span>
+        )}
+      </div>
 
-      {/* Interest count */}
-      {interestCount !== undefined && (
-        <p className="text-sm text-gray-500 italic mt-2">
-          {interestCount} interested
-        </p>
-      )}
+      <div className="flex justify-between items-center mt-4 text-sm">
+        <a
+          href={product.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 flex items-center gap-1 hover:underline"
+        >
+          <PiLinkSimpleBold /> View on {product.source}
+        </a>
+        <span className="flex items-center gap-1 text-gray-700">
+          <BsSuitHeartFill className="text-red-500 text-sm" />
+          {interestCount || 0} interested
+        </span>
+      </div>
+
+      <button
+        onClick={onShowInterest}
+        className="mt-4 w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition"
+      >
+        💬 Contact to Buy
+      </button>
+
+      <p className="text-center text-xs text-gray-400 mt-2">
+        You'll be contacted after clicking Buy
+      </p>
+
       <HowItWorksHint />
     </div>
   );
