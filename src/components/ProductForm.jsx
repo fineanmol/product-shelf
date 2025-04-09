@@ -6,8 +6,9 @@ import { getAuth } from "firebase/auth";
 
 import ProductFormFields from "./forms/ProductFormFields";
 import ProductPreview from "./forms/ProductPreview";
-import ToggleSwitch from "./forms/ToggleSwitch";
 import DeliveryOptions from "./forms/DeliveryOptions";
+import { buildProductPayload } from "../utils/buildProductPayload";
+import ProductToggles from "./forms/ProductToggles";
 
 const initial = {
   title: "",
@@ -42,18 +43,7 @@ const ProductForm = () => {
     e.preventDefault();
     const auth = getAuth();
     const user = auth.currentUser;
-
-    const payload = {
-      ...formData,
-      price: parseFloat(formData.price),
-      original_price: formData.original_price
-        ? parseFloat(formData.original_price)
-        : undefined,
-      currency: formData.currency || "EUR",
-      added_by: user?.uid || "unknown",
-      timestamp: Date.now(),
-    };
-
+    const payload = buildProductPayload(formData, user, true);
     await push(ref(db, "/"), payload);
     showToast("Product added ✅");
     setFormData(initial);
@@ -72,31 +62,11 @@ const ProductForm = () => {
         canEdit={true}
       />
 
-      <div className="flex justify-around flex-wrap gap-4">
-        <ToggleSwitch
-          label="Status"
-          status={formData.status}
-          checked={formData.status === "available"}
-          onChange={() =>
-            setFormData((prev) => ({
-              ...prev,
-              status: prev.status === "available" ? "reserved" : "available",
-            }))
-          }
-        />
-
-        <ToggleSwitch
-          label="Visible"
-          checked={formData.visible !== false}
-          status={formData.visible}
-          onChange={() =>
-            setFormData((prev) => ({
-              ...prev,
-              visible: !prev.visible,
-            }))
-          }
-        />
-      </div>
+      <ProductToggles
+        formData={formData}
+        setFormData={setFormData}
+        canEdit={true}
+      />
 
       <DeliveryOptions
         selected={formData.delivery_options}

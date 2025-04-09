@@ -1,3 +1,5 @@
+// src/utils/utils.js
+
 export const currencySymbols = {
   EUR: "€",
   USD: "$",
@@ -10,6 +12,11 @@ export const calculateDiscountedPrice = (original, discount) =>
 
 export const calculateDiscountPercent = (original, discounted) =>
   Math.round(((original - discounted) / original) * 100);
+
+export const calculateMinPrice = (original) => {
+  const val = parseFloat(original);
+  return val && !isNaN(val) ? (val * 0.44).toFixed(2) : "";
+};
 
 export const countWords = (text) => text.trim().split(/\s+/).length;
 

@@ -1,14 +1,14 @@
 // src/components/forms/ProductFormFields.jsx
-import React from "react";
-import { countWords } from "../../utils/utils";
-import { CONDITION_OPTIONS } from "../../utils/utils";
-
-const currencySymbols = {
-  EUR: "€",
-  USD: "$",
-  INR: "₹",
-  GBP: "£",
-};
+import React, { useEffect } from "react";
+import {
+  countWords,
+  calculateDiscountedPrice,
+  calculateDiscountPercent,
+  normalizePrice,
+  currencySymbols,
+  CONDITION_OPTIONS,
+} from "../../utils/utils";
+import { getUserAccess } from "../../utils/permissions";
 
 const ProductFormFields = ({
   formData,
@@ -16,12 +16,43 @@ const ProductFormFields = ({
   handleChange,
   canEdit,
 }) => {
+  const { isSuperAdmin } = getUserAccess(formData);
+
   const disabledClass = !canEdit
     ? "bg-gray-100 cursor-not-allowed opacity-70"
     : "";
 
   const safeValue = (value) =>
     value !== undefined && value !== null ? value : "";
+
+  useEffect(() => {
+    if (!canEdit) return;
+
+    const original = normalizePrice(formData.original_price);
+    const discount = formData.discount;
+    const price = normalizePrice(formData.price);
+
+    // Keep price/discount/ in sync
+    if (original && discount >= 20 && discount <= 30) {
+      const updatedPrice = parseFloat(
+        calculateDiscountedPrice(original, discount)
+      );
+      if (updatedPrice !== price) {
+        setFormData((prev) => ({
+          ...prev,
+          price: updatedPrice,
+        }));
+      }
+    } else if (original && price) {
+      const updatedDiscount = calculateDiscountPercent(original, price);
+      if (updatedDiscount !== discount) {
+        setFormData((prev) => ({
+          ...prev,
+          discount: updatedDiscount,
+        }));
+      }
+    }
+  }, [formData.original_price, formData.price, formData.discount, canEdit]);
 
   return (
     <>
@@ -83,7 +114,6 @@ const ProductFormFields = ({
 
       {/* Price Section */}
       <div className="grid grid-cols-3 gap-3">
-        {/* Price */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Price
@@ -104,40 +134,44 @@ const ProductFormFields = ({
           </div>
         </div>
 
-        {/* Original Price */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Original Price
           </label>
           <div className="flex rounded border overflow-hidden">
-            {canEdit ? (
-              <>
-                <input
-                  name="original_price"
-                  value={safeValue(formData.original_price)}
-                  onChange={handleChange}
-                  disabled={!canEdit}
-                  className={`w-full p-2 border rounded text-sm ${disabledClass}`}
-                  placeholder="Optional"
-                />
-                <span className="bg-gray-100 px-3 py-2 text-sm text-gray-600">
-                  {currencySymbols[formData.currency] || formData.currency}
-                </span>
-              </>
-            ) : (
-              <div className="text-sm text-gray-700">
-                {formData.original_price
-                  ? `${formData.original_price} ${
-                      currencySymbols[formData.currency] || formData.currency
-                    }`
-                  : "-"}
-              </div>
-            )}
+            <input
+              name="original_price"
+              value={safeValue(formData.original_price)}
+              onChange={handleChange}
+              disabled={!canEdit}
+              className={`w-full p-2 border rounded text-sm ${disabledClass}`}
+              placeholder="Optional"
+            />
+            <span className="bg-gray-100 px-3 py-2 text-sm text-gray-600">
+              {currencySymbols[formData.currency] || formData.currency}
+            </span>
           </div>
         </div>
 
-        {/* Currency */}
-        <div className="max-w-fit">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Discount (%)
+          </label>
+          <input
+            type="number"
+            name="discount"
+            value={safeValue(formData.discount)}
+            onChange={handleChange}
+            disabled={!canEdit}
+            className={`w-full p-2 border rounded text-sm ${disabledClass}`}
+            placeholder="e.g. 25"
+          />
+        </div>
+      </div>
+
+      {/* Currency / Condition / Sold Out */}
+      <div className="grid grid-cols-3 gap-3 mt-3">
+        <div>
           <label className="block text-sm font-medium text-gray-700">
             Currency
           </label>
@@ -156,10 +190,50 @@ const ProductFormFields = ({
             <option value="GBP">GBP</option>
           </select>
         </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Condition / Age
+          </label>
+          <select
+            name="age"
+            value={formData.age || "New"}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, age: e.target.value }))
+            }
+            disabled={!canEdit}
+            className={`w-full p-2 border rounded text-sm mt-1 ${disabledClass}`}
+          >
+            {CONDITION_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center gap-2 mt-7">
+          <input
+            type="checkbox"
+            id="sold_out"
+            disabled={!canEdit}
+            checked={formData.sold_out === true}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                sold_out: e.target.checked,
+                status: e.target.checked ? "reserved" : "available",
+              }))
+            }
+          />
+          <label htmlFor="sold_out" className="text-sm text-gray-700">
+            Mark as Sold Out
+          </label>
+        </div>
       </div>
 
-      {/* Source and Available From */}
-      <div className="grid grid-cols-3 gap-3">
+      {/* Source & Admin Fields */}
+      <div className="grid grid-cols-3 gap-3 mt-3">
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Source
@@ -197,29 +271,21 @@ const ProductFormFields = ({
             className={`w-fit p-2 border rounded text-sm ${disabledClass}`}
           />
         </div>
-        <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Condition / Age
-          </label>
-          <select
-            name="age"
-            value={formData.age || "New"}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                age: e.target.value,
-              }))
-            }
-            disabled={!canEdit}
-            className={`w-full p-2 border rounded text-sm mt-1 ${disabledClass}`}
-          >
-            {CONDITION_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        {isSuperAdmin && (
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Admin Notes
+            </label>
+            <textarea
+              name="admin_note"
+              value={formData.admin_note || ""}
+              onChange={handleChange}
+              className="w-full p-2 border rounded text-sm"
+              placeholder="Optional notes visible only to super admin"
+              rows={3}
+            />
+          </div>
+        )}
       </div>
     </>
   );
