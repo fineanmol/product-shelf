@@ -21,3 +21,18 @@ export const updateWithCapitalization = (name, value, fieldsToSkip = []) => {
 
 export const normalizePrice = (val) =>
   parseFloat(String(val || "").replace(/[^\d.]/g, "")) || 0;
+
+export const CONDITION_OPTIONS = [
+  { value: "New", label: "🆕 New (Unused)" },
+  { value: "Very Good", label: "👍 Very Good (Minimal signs of use)" },
+  { value: "Good", label: "✅ Good (Used but functional)" },
+];
+
+export const getConditionLabel = (age) => {
+  const iconMap = {
+    New: "🆕",
+    "Very Good": "👍",
+    Good: "✅",
+  };
+  return `${iconMap[age] || ""} ${age}`;
+};

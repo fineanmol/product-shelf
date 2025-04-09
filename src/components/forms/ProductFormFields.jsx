@@ -1,6 +1,7 @@
 // src/components/forms/ProductFormFields.jsx
 import React from "react";
 import { countWords } from "../../utils/utils";
+import { CONDITION_OPTIONS } from "../../utils/utils";
 
 const currencySymbols = {
   EUR: "€",
@@ -195,6 +196,29 @@ const ProductFormFields = ({
             disabled={!canEdit}
             className={`w-fit p-2 border rounded text-sm ${disabledClass}`}
           />
+        </div>
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Condition / Age
+          </label>
+          <select
+            name="age"
+            value={formData.age || "New"}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                age: e.target.value,
+              }))
+            }
+            disabled={!canEdit}
+            className={`w-full p-2 border rounded text-sm mt-1 ${disabledClass}`}
+          >
+            {CONDITION_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </>
