@@ -5,6 +5,7 @@ import ProductCard from "../components/ProductCard";
 import InterestFormModal from "../components/InterestFormModal";
 import emailjs from "emailjs-com";
 import { showToast } from "../utils/showToast";
+import StepsToBuy from "../components/StepsToBuy";
 
 const ItemsForSale = () => {
   const [items, setItems] = useState([]);
@@ -49,10 +50,12 @@ const ItemsForSale = () => {
     };
   }, []);
 
-  const handleInterestSubmit = async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const { name, email, phone } = Object.fromEntries(new FormData(form));
+  const handleInterestSubmit = async ({
+    name,
+    email,
+    phone,
+    delivery_preferences,
+  }) => {
     const product = showInterestForm;
 
     try {
@@ -60,6 +63,7 @@ const ItemsForSale = () => {
         name,
         email,
         phone,
+        delivery_preferences,
         timestamp: Date.now(),
       });
 
@@ -95,7 +99,6 @@ const ItemsForSale = () => {
       <p className="font-semibold mb-4">
         Check if items are available before messaging.
       </p>
-
       {loading ? (
         <p className="text-center text-gray-500 mt-4">Loading products...</p>
       ) : (
@@ -125,7 +128,6 @@ const ItemsForSale = () => {
           ))}
         </div>
       )}
-
       {/* Interest Form */}
       {showInterestForm && (
         <InterestFormModal
@@ -134,6 +136,7 @@ const ItemsForSale = () => {
           onSubmit={handleInterestSubmit}
         />
       )}
+      <StepsToBuy />;
     </div>
   );
 };

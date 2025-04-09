@@ -1,6 +1,7 @@
 // src/components/ProductCard.jsx
 import React from "react";
 import { currencySymbols, getConditionLabel } from "../utils/utils";
+import HowItWorksHint from "./hint/HowItWorksHint";
 
 const ProductCard = ({
   product,
@@ -142,6 +143,7 @@ const ProductCard = ({
           {interestCount} interested
         </p>
       )}
+      <HowItWorksHint />
     </div>
   );
 };
