@@ -16,7 +16,7 @@ const ItemsForSale = () => {
   const [pulseId, setPulseId] = useState(null);
 
   useEffect(() => {
-    const dbRef = ref(db, "/");
+    const dbRef = ref(db, "products");
     const interestsRef = ref(db, "interests/");
 
     const productListener = onValue(dbRef, (snapshot) => {

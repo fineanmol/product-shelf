@@ -13,7 +13,7 @@ const EditProduct = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       const db = getDatabase();
-      const snapshot = await get(ref(db, `/${id}`));
+      const snapshot = await get(ref(db, `products/${id}`));
       if (snapshot.exists()) {
         setProduct({ id, ...snapshot.val() });
       } else {
@@ -23,7 +23,7 @@ const EditProduct = () => {
     fetchProduct();
   }, [id, navigate, refreshToggle]);
 
-  const handleRefresh = () => setRefreshToggle(prev => !prev);
+  const handleRefresh = () => setRefreshToggle((prev) => !prev);
 
   if (!product) {
     return <p className="text-center mt-10">Loading product...</p>;

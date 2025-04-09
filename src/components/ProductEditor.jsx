@@ -1,5 +1,4 @@
-// src/components/ProductEditor.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getDatabase, ref, update, remove } from "firebase/database";
 import { showToast } from "../utils/showToast";
 import { getUserAccess } from "../utils/permissions";
@@ -11,8 +10,7 @@ import { buildProductPayload } from "../utils/buildProductPayload";
 import ProductToggles from "./forms/ProductToggles";
 
 const ProductEditor = ({ product }) => {
-  const { canEdit, isSuperAdmin } = getUserAccess(product);
-
+  const [access, setAccess] = useState({});
   const [formData, setFormData] = useState({
     ...product,
     status: product.status || "available",
@@ -23,6 +21,17 @@ const ProductEditor = ({ product }) => {
   });
 
   const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    const resolveAccess = async () => {
+      const accessResult = await getUserAccess(product);
+      setAccess(accessResult);
+    };
+
+    resolveAccess();
+  }, [product]);
+
+  const { canEdit, isSuperAdmin } = access;
 
   const handleChange = (e) => {
     if (!canEdit) {
@@ -43,7 +52,7 @@ const ProductEditor = ({ product }) => {
       return;
     }
     const payload = buildProductPayload(formData, null, false);
-    update(ref(getDatabase(), `/${product.id}`), payload);
+    update(ref(getDatabase(), `products/${product.id}`), payload);
     showToast("Product saved ✅");
     setShowPreview(false);
   };
@@ -56,7 +65,7 @@ const ProductEditor = ({ product }) => {
 
     const confirmDelete = window.confirm(`Delete product "${formData.title}"?`);
     if (confirmDelete) {
-      await remove(ref(getDatabase(), `/${product.id}`));
+      await remove(ref(getDatabase(), `products/${product.id}`));
       showToast("Product deleted 🗑️");
     }
   };
@@ -75,7 +84,7 @@ const ProductEditor = ({ product }) => {
         <ProductToggles
           formData={formData}
           setFormData={setFormData}
-          canEdit={true}
+          canEdit={canEdit}
         />
       </div>
 

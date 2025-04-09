@@ -44,7 +44,7 @@ const ProductForm = () => {
     const auth = getAuth();
     const user = auth.currentUser;
     const payload = buildProductPayload(formData, user, true);
-    await push(ref(db, "/"), payload);
+    await push(ref(db, "products"), payload);
     showToast("Product added ✅");
     setFormData(initial);
     setShowPreview(false);

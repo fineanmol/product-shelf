@@ -7,6 +7,7 @@ import { normalizePrice } from "../utils/utils";
 const ProductAdminList = () => {
   const [products, setProducts] = useState([]);
   const [interestData, setInterestData] = useState({});
+  const [accessMap, setAccessMap] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [interestSearch, setInterestSearch] = useState({});
   const [sortKey, setSortKey] = useState("updatedAt");
@@ -14,32 +15,48 @@ const ProductAdminList = () => {
 
   useEffect(() => {
     const db = getDatabase();
-    const fetchProducts = async () => {
-      const snapshot = await get(ref(db, "/"));
-      if (snapshot.exists()) {
-        const data = snapshot.val();
+
+    const fetchData = async () => {
+      const productsSnap = await get(ref(db, "products"));
+      const interestsSnap = await get(ref(db, "interests"));
+
+      if (productsSnap.exists()) {
+        const data = productsSnap.val();
         const entries = Object.entries(data).map(([id, value]) => ({
           id,
           ...value,
         }));
+
         setProducts(entries);
+
+        const accessResults = await Promise.all(
+          entries.map((product) =>
+            getUserAccess(product).then((access) => ({
+              id: product.id,
+              access,
+            }))
+          )
+        );
+
+        const map = {};
+        accessResults.forEach(({ id, access }) => {
+          map[id] = access;
+        });
+
+        setAccessMap(map);
+      }
+
+      if (interestsSnap.exists()) {
+        setInterestData(interestsSnap.val());
       }
     };
 
-    const fetchInterests = async () => {
-      const snapshot = await get(ref(db, "interests"));
-      if (snapshot.exists()) {
-        setInterestData(snapshot.val());
-      }
-    };
-
-    fetchProducts();
-    fetchInterests();
+    fetchData();
   }, []);
 
   const handleToggle = async (id, key, value) => {
     const db = getDatabase();
-    await update(ref(db, `/${id}`), { [key]: value });
+    await update(ref(db, `products/${id}`), { [key]: value });
     setProducts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, [key]: value } : p))
     );
@@ -108,7 +125,6 @@ const ProductAdminList = () => {
     <div className="p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start md:items-center mb-4 gap-4">
         <h2 className="lg:text-2xl text-xl font-semibold">All Products</h2>
-
         <div className="flex gap-2 w-full md:w-auto h-10">
           <input
             type="text"
@@ -127,7 +143,6 @@ const ProductAdminList = () => {
           </Link>
         </div>
       </div>
-
       <div className="w-full overflow-x-auto rounded-lg shadow">
         <table className="min-w-full table-auto border rounded-xl overflow-hidden text-sm">
           <thead className="bg-gray-100 text-xs text-gray-700 uppercase">
@@ -169,7 +184,7 @@ const ProductAdminList = () => {
           <tbody className="divide-y divide-gray-100">
             {sortedProducts.map((p) => {
               const interests = interestData[p.id] || {};
-              const { canEdit } = getUserAccess(p);
+              const { canEdit } = accessMap[p.id] || {};
               const filteredInterests = Object.values(interests).filter((i) =>
                 interestSearch[p.id]
                   ? i.name
@@ -252,8 +267,6 @@ const ProductAdminList = () => {
                   <td className="px-4 py-2 text-gray-500 text-xs">
                     {p.updatedAt || "--"}
                   </td>
-
-                  {/* Interested Users */}
                   <td className="px-4 py-2 text-xs max-w-[240px]">
                     <details open={canEdit}>
                       <summary
@@ -308,7 +321,6 @@ const ProductAdminList = () => {
                       </button>
                     </details>
                   </td>
-
                   <td className="px-4 py-2 text-right">
                     {canEdit ? (
                       <Link
