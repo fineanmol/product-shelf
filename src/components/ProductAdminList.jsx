@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getDatabase, ref, get, update } from "firebase/database";
 import { Link } from "react-router-dom";
 import { getUserAccess } from "../utils/permissions";
+import { normalizePrice } from "../utils/utils";
 
 const ProductAdminList = () => {
   const [products, setProducts] = useState([]);
@@ -53,8 +54,8 @@ const ProductAdminList = () => {
     const valB = b[sortKey] ?? "";
 
     if (sortKey === "price") {
-      const priceA = parseFloat(valA.replace(/[^\d.]/g, "")) || 0;
-      const priceB = parseFloat(valB.replace(/[^\d.]/g, "")) || 0;
+      const priceA = normalizePrice(valA);
+      const priceB = normalizePrice(valB);
       return sortOrder === "asc" ? priceA - priceB : priceB - priceA;
     }
 
