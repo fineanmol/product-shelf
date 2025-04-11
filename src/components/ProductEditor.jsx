@@ -8,6 +8,7 @@ import ProductPreview from "./forms/ProductPreview";
 import DeliveryOptions from "./forms/DeliveryOptions";
 import { buildProductPayload } from "../utils/buildProductPayload";
 import ProductToggles from "./forms/ProductToggles";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 const ProductEditor = ({ product }) => {
   const [access, setAccess] = useState({});
@@ -30,6 +31,8 @@ const ProductEditor = ({ product }) => {
 
     resolveAccess();
   }, [product]);
+
+  usePageTitle({ prefix: "Editing Product", value: formData.title });
 
   const { canEdit, isSuperAdmin } = access;
 

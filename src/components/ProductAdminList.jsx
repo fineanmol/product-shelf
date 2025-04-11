@@ -3,6 +3,7 @@ import { getDatabase, ref, get, update } from "firebase/database";
 import { Link } from "react-router-dom";
 import { getUserAccess } from "../utils/permissions";
 import { normalizePrice } from "../utils/utils";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 const ProductAdminList = () => {
   const [products, setProducts] = useState([]);
@@ -12,6 +13,8 @@ const ProductAdminList = () => {
   const [interestSearch, setInterestSearch] = useState({});
   const [sortKey, setSortKey] = useState("updatedAt");
   const [sortOrder, setSortOrder] = useState("desc");
+
+  usePageTitle({ value: "Admin Dashboard" });
 
   useEffect(() => {
     const db = getDatabase();

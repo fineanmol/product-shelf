@@ -1,5 +1,5 @@
 // src/components/ProductForm.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { getDatabase, push, ref } from "firebase/database";
 import { showToast } from "../utils/showToast";
 import { getAuth } from "firebase/auth";
@@ -9,6 +9,7 @@ import ProductPreview from "./forms/ProductPreview";
 import DeliveryOptions from "./forms/DeliveryOptions";
 import { buildProductPayload } from "../utils/buildProductPayload";
 import ProductToggles from "./forms/ProductToggles";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 const initial = {
   title: "",
@@ -49,6 +50,8 @@ const ProductForm = () => {
     setFormData(initial);
     setShowPreview(false);
   };
+
+  usePageTitle({ prefix: "Adding Product", value: formData.title });
 
   return (
     <form
