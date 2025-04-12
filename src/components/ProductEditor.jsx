@@ -5,7 +5,6 @@ import { getUserAccess } from "../utils/permissions";
 
 import ProductFormFields from "./forms/ProductFormFields";
 import ProductPreview from "./forms/ProductPreview";
-import DeliveryOptions from "./forms/DeliveryOptions";
 import { buildProductPayload } from "../utils/buildProductPayload";
 import ProductToggles from "./forms/ProductToggles";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -90,17 +89,6 @@ const ProductEditor = ({ product }) => {
           canEdit={canEdit}
         />
       </div>
-
-      <DeliveryOptions
-        selected={formData.delivery_options}
-        setSelected={(options) =>
-          setFormData((prev) => ({
-            ...prev,
-            delivery_options: options,
-          }))
-        }
-        canEdit={canEdit}
-      />
 
       {canEdit ? (
         <>

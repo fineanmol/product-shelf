@@ -1,12 +1,11 @@
 // src/components/ProductForm.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { getDatabase, push, ref } from "firebase/database";
 import { showToast } from "../utils/showToast";
 import { getAuth } from "firebase/auth";
 
 import ProductFormFields from "./forms/ProductFormFields";
 import ProductPreview from "./forms/ProductPreview";
-import DeliveryOptions from "./forms/DeliveryOptions";
 import { buildProductPayload } from "../utils/buildProductPayload";
 import ProductToggles from "./forms/ProductToggles";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -69,16 +68,6 @@ const ProductForm = () => {
         formData={formData}
         setFormData={setFormData}
         canEdit={true}
-      />
-
-      <DeliveryOptions
-        selected={formData.delivery_options}
-        setSelected={(options) =>
-          setFormData((prev) => ({
-            ...prev,
-            delivery_options: options,
-          }))
-        }
       />
 
       <div className="grid grid-cols-2 gap-3">

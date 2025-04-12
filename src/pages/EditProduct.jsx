@@ -17,7 +17,7 @@ const EditProduct = () => {
       if (snapshot.exists()) {
         setProduct({ id, ...snapshot.val() });
       } else {
-        navigate("/admin"); // Redirect if product not found
+        navigate("/admin/products");
       }
     };
     fetchProduct();
@@ -34,7 +34,7 @@ const EditProduct = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Edit Product</h2>
         <button
-          onClick={() => navigate("/admin")}
+          onClick={() => navigate("/admin/products")}
           className="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
         >
           ← Back to List

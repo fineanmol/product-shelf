@@ -1,9 +1,16 @@
+// src/components/ProductCard.jsx
+
 import React from "react";
 import { currencySymbols, getConditionLabel } from "../utils/utils";
 import HowItWorksHint from "./hint/HowItWorksHint";
-import { FaTruck, FaMapMarkerAlt } from "react-icons/fa";
+import { FaTruck, FaMapMarkerAlt, FaEye } from "react-icons/fa";
 import { PiLinkSimpleBold } from "react-icons/pi";
 import { BsSuitHeartFill } from "react-icons/bs";
+
+// Helper to return a random integer between min and max (inclusive)
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 const ProductCard = ({
   product,
@@ -13,16 +20,106 @@ const ProductCard = ({
   onShowInterest,
   interestCount,
 }) => {
+  const statusColors = {
+    available: "bg-green-500",
+    reserved: "bg-red-500",
+    unknown: "bg-gray-500",
+    soldOut: "bg-gray-600",
+  };
+
+  // If "sold_out" is true in the DB
+  const isSoldOut = product.sold_out === true;
+
+  let statusLabel = "Status";
+  let badgeColor = statusColors["unknown"];
+
+  if (isSoldOut) {
+    statusLabel = "SOLD OUT";
+    badgeColor = statusColors["soldOut"];
+  } else {
+    if (product.status === "available") {
+      statusLabel = "Available";
+      badgeColor = statusColors["available"];
+    } else if (product.status === "reserved") {
+      statusLabel = "Reserved";
+      badgeColor = statusColors["reserved"];
+    }
+  }
+
+  const conditionTag = (age) => (
+    <span className="px-3 py-1 rounded-full border text-xs font-medium flex items-center gap-1 bg-blue-50 border-blue-100 text-blue-600">
+      {getConditionLabel(age)}
+    </span>
+  );
+
+  const shippingTag = (
+    <span
+      title="+ Shipping from 4.89 €"
+      className="px-3 py-1 rounded-full border text-xs font-medium flex items-center gap-1 bg-green-50 border-green-100 text-green-600"
+    >
+      <FaTruck className="text-green-500" /> Shipping
+    </span>
+  );
+
+  const pickupTag = (
+    <span
+      title="Pickup from 10317, Berlin"
+      className="px-3 py-1 rounded-full border text-xs font-medium flex items-center gap-1 bg-orange-50 border-orange-100 text-orange-600"
+    >
+      <FaMapMarkerAlt className="text-orange-500" /> Pickup
+    </span>
+  );
+
+  // Determine displayed visitor count
+  // If product.visitors is a positive number, use it; otherwise generate a random large number.
+  const displayedVisitors =
+    typeof product.visitors === "number" && product.visitors > 0
+      ? product.visitors
+      : getRandomInt(5000, 15000);
+
+  // Price display (check if price == 0 => "Freebie / Giveaway")
+  const renderPrice = () => {
+    if (product.price === 0) {
+      return (
+        <span className="text-xl font-bold text-green-600">
+          Freebie / Giveaway
+        </span>
+      );
+    }
+    return (
+      <>
+        <span className="text-xl font-bold text-green-900">
+          {currencySymbols[product.currency]}
+          {product.price}
+        </span>
+        {product.original_price && (
+          <span className="text-gray-500 line-through ml-2">
+            {currencySymbols[product.currency]}
+            {product.original_price}
+          </span>
+        )}
+        {product.discount && (
+          <span className="text-red-500 ml-2 text-md">
+            -{product.discount}% OFF
+          </span>
+        )}
+      </>
+    );
+  };
+
   return (
-    <div className="relative border rounded-2xl p-4 shadow-xl bg-white max-w-sm">
+    <div
+      className="
+        relative border rounded-2xl p-4 bg-white max-w-sm
+        shadow-xl transition-transform transform
+      "
+    >
       {/* Status Badge */}
       <div className="absolute top-2 left-2 z-10">
         <span
-          className={`text-white px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${
-            product.status === "available" ? "bg-green-500" : "bg-red-500"
-          }`}
+          className={`text-white px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${badgeColor}`}
         >
-          {product.status?.charAt(0).toUpperCase() + product.status?.slice(1)}
+          {statusLabel}
         </span>
       </div>
 
@@ -30,7 +127,9 @@ const ProductCard = ({
       <div className="absolute top-2 right-2 z-10">
         <button
           onClick={onHeartClick}
-          className="absolute top-2 right-2 transition-transform duration-300 transform hover:scale-110"
+          className="transition-transform duration-300 transform hover:scale-110"
+          title="Add to Favorites"
+          disabled={isSoldOut}
         >
           <svg
             width="24"
@@ -49,25 +148,26 @@ const ProductCard = ({
       </div>
 
       {/* Image */}
-      {/* Image with 3D zoom and shadow effect */}
       <div
-        className="w-full flex items-center justify-center bg-white"
+        className="w-full flex items-center justify-center bg-white mb-2"
         style={{
           perspective: "1200px",
-          height: "192px",
-          padding: "2rem",
           minHeight: "200px",
         }}
       >
-        <div className="relative">
+        <div className="relative p-2">
           <img
             src={product.image}
             alt={product.title}
-            className="transition-transform duration-500 ease-in-out transform-gpu object-contain max-w-full max-h-48 hover:scale-110 hover:-rotate-x-2 hover:rotate-y-2 hover:translate-z-10"
+            className="
+              transition-transform duration-500 ease-in-out transform-gpu
+              object-contain max-w-full max-h-48
+              hover:scale-110 hover:-rotate-x-2 hover:rotate-y-2 hover:translate-z-10
+            "
           />
-          {/* Shadow/Reflection */}
+          {/* 3D-ish Shadow/Reflection */}
           <div
-            className="absolute inset-x-0 bottom-0 h-5 mx-auto rounded-full blur-sm opacity-30 bg-black"
+            className="absolute inset-x-0 bottom-0 h-5 mx-auto bg-black rounded-full opacity-30"
             style={{
               width: "80%",
               filter: "blur(8px)",
@@ -78,73 +178,74 @@ const ProductCard = ({
       </div>
 
       {/* Title & Description */}
-      <h4 className="text-lg font-semibold mt-2 line-clamp-2">
+      <h4 className="text-lg text-left font-semibold line-clamp-2 text-gray-800">
         {product.title}
       </h4>
-      <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+      <p className="text-sm text-gray-500 text-left line-clamp-2 mt-1">
         {product.description}
       </p>
 
-      {/* Price */}
-      <div className="mt-2">
-        <span className="text-xl font-bold text-black">
-          {currencySymbols[product.currency]}
-          {product.price}
-        </span>
-        {product.original_price && (
-          <span className="text-gray-400 line-through ml-2">
-            {currencySymbols[product.currency]}
-            {product.original_price}
+      <div className="mt-3">{renderPrice()}</div>
+
+      {/* Condition & Delivery */}
+      <div className="flex flex-wrap gap-2 mt-4">
+        {product.age && conditionTag(product.age)}
+        {product.delivery_options?.includes("Shipping") && shippingTag}
+        {product.delivery_options?.includes("Pick Up") && pickupTag}
+      </div>
+
+      {/* Link / Visitors / Interested */}
+
+      <div className="flex justify-between items-center mt-3 text-sm">
+        {/* Visitors (actual or random large number) */}
+        <div className="flex items-center gap-1 text-gray-700">
+          <a
+            href={product.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 flex items-center gap-1 hover:underline"
+          >
+            <PiLinkSimpleBold /> View on {product.source}
+          </a>
+        </div>
+
+        {/* Interested */}
+        {interestCount > 0 && (
+          <span className="flex items-center gap-1 text-gray-700">
+            <BsSuitHeartFill className="text-red-500 text-sm" />
+            {interestCount || 0} interested
           </span>
         )}
       </div>
 
-      {/* Tags: Condition, Delivery Options */}
-      <div className="flex flex-wrap gap-2 mt-4 text-sm">
-        {product.age && (
-          <span className="bg-gray-100 px-3 py-1 rounded-full">
-            {getConditionLabel(product.age)}
-          </span>
-        )}
-        {product.delivery_options?.includes("Shipping") && (
-          <span className="bg-gray-100 px-3 py-1 rounded-full flex items-center gap-1">
-            <FaTruck className="text-gray-500" /> Shipping
-          </span>
-        )}
-        {product.delivery_options?.includes("Pick Up") && (
-          <span className="bg-gray-100 px-3 py-1 rounded-full flex items-center gap-1">
-            <FaMapMarkerAlt className="text-gray-500" /> Pickup
-          </span>
-        )}
-      </div>
-
-      <div className="flex justify-between items-center mt-4 text-sm">
-        <a
-          href={product.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 flex items-center gap-1 hover:underline"
-        >
-          <PiLinkSimpleBold /> View on {product.source}
-        </a>
-        <span className="flex items-center gap-1 text-gray-700">
-          <BsSuitHeartFill className="text-red-500 text-sm" />
-          {interestCount || 0} interested
-        </span>
-      </div>
-
+      {/* Interested to Buy Button */}
       <button
         onClick={onShowInterest}
-        className="mt-4 w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition"
+        className="
+          mt-4 w-full bg-blue-600 text-white py-2 rounded-xl
+          hover:bg-blue-700 transition-colors
+          focus:outline-none focus:ring-2 focus:ring-blue-400
+          disabled:opacity-70 disabled:cursor-not-allowed
+        "
+        disabled={isSoldOut}
       >
-        Interested to Buy
+        {isSoldOut ? "Sold Out" : "Interested to Buy"}
       </button>
-
       <p className="text-center text-xs text-gray-400 mt-2">
         No payment now. You'll be contacted to confirm.
       </p>
+      <div className="flex justify-between items-center mt-3 text-sm">
+        {/* Visitors (actual or random large number) */}
+        <div className="flex items-center gap-1 text-gray-700">
+          <FaEye className="text-gray-500" />
+          {displayedVisitors}
+        </div>
 
-      <HowItWorksHint />
+        {/* Interested */}
+        <span className="flex items-center gap-1 text-gray-700">
+          <HowItWorksHint />
+        </span>
+      </div>
     </div>
   );
 };

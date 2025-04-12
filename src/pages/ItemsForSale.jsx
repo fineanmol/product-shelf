@@ -22,14 +22,15 @@ const ItemsForSale = () => {
 
   useEffect(() => {
     const dbRef = ref(db, "products");
-    const interestsRef = ref(db, "interests/");
+    const interestsRef = ref(db, "interests");
 
     const productListener = onValue(dbRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
+
         const productList = Object.entries(data)
           .filter(
-            ([key, value]) =>
+            ([, value]) =>
               value &&
               typeof value === "object" &&
               !Array.isArray(value) &&
@@ -62,7 +63,6 @@ const ItemsForSale = () => {
     delivery_preferences,
   }) => {
     const product = showInterestForm;
-
     try {
       await push(ref(db, `interests/${product.id}`), {
         name,
@@ -71,7 +71,6 @@ const ItemsForSale = () => {
         delivery_preferences,
         timestamp: Date.now(),
       });
-
       setInterestedItems((prev) => [...prev, product.id]);
       setShowInterestForm(null);
       showToast("✅ Thanks! Your interest was submitted.");
@@ -81,81 +80,98 @@ const ItemsForSale = () => {
     }
   };
 
+  /** FILTER & SORT LOGIC **/
   const filteredItems = items
+    // 1. Search filter
     .filter((item) =>
       item.title.toLowerCase().includes(searchTerm.toLowerCase())
     )
+
+    // 2. Status filter
     .filter((item) => (statusFilter ? item.status === statusFilter : true))
+
+    // 3. Condition filter
     .filter((item) =>
       conditionFilter ? item.condition === conditionFilter : true
     )
+
+    // Sorting logic
     .sort((a, b) => {
       if (priceSort === "price-low") return a.price - b.price;
       if (priceSort === "price-high") return b.price - a.price;
-      return 0;
+      return 0; // 'latest' - no custom sorting
     });
 
   return (
-    <div className="min-h-screen bg-gray-50 ">
-      {/* Header */}
-      <header className="bg-white shadow p-4 flex justify-center items-center h-20 sticky top-0 z-50 w-full">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 text-center">
-          MarketPlace
-        </h1>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <header className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white py-6 px-4 shadow-lg">
+        <div className="max-w-[80%] mx-auto text-center">
+          <h1 className="text-3xl md:text-4xl font-bold mb-3">
+            Welcome to Marketplace
+          </h1>
+        </div>
       </header>
 
-      <div className="relative">
-        <div className="">
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="px-3 py-2 rounded border w-full mt-4 max-w-[1500px] mx-auto h-14"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* SEARCH & FILTERS */}
+      <div className="max-w-[80%] w-full mx-auto mt-6">
+        <div className="bg-white rounded-lg shadow p-4 flex flex-col gap-4">
+          {/* Row 1: Search, brand, discount toggle */}
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Search */}
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="border rounded px-3 py-2 flex-1 focus:outline-none focus:ring focus:ring-blue-100 transition"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {/* Row 2: Condition, Status, Price Sort */}
+          <div className="flex flex-wrap gap-4">
+            <select
+              className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-100 transition"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="">All Status</option>
+              <option value="available">Available</option>
+              <option value="reserved">Reserved</option>
+            </select>
+
+            <select
+              className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-100 transition"
+              value={conditionFilter}
+              onChange={(e) => setConditionFilter(e.target.value)}
+            >
+              <option value="">All Conditions</option>
+              <option value="new">New</option>
+              <option value="very good">Very Good</option>
+              <option value="good">Good</option>
+              <option value="used">Used</option>
+            </select>
+
+            <select
+              className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-100 transition"
+              value={priceSort}
+              onChange={(e) => setPriceSort(e.target.value)}
+            >
+              <option value="latest">Sort by: Latest</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+            </select>
+          </div>
         </div>
       </div>
-      <div className=" container mx-auto p-4">
-        {/* Filters */}
-        <div className="p-4 flex flex-wrap gap-4">
-          <select
-            className="border rounded px-3 py-2"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="">All Status</option>
-            <option value="available">Available</option>
-            <option value="reserved">Reserved</option>
-          </select>
 
-          <select
-            className="border rounded px-3 py-2"
-            value={conditionFilter}
-            onChange={(e) => setConditionFilter(e.target.value)}
-          >
-            <option value="">All Conditions</option>
-            <option value="new">New</option>
-            <option value="very good">Very Good</option>
-            <option value="good">Good</option>
-            <option value="used">Used</option>
-          </select>
-
-          <select
-            className="border rounded px-3 py-2"
-            value={priceSort}
-            onChange={(e) => setPriceSort(e.target.value)}
-          >
-            <option value="latest">Sort by: Latest</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-          </select>
-        </div>
-
-        {/* Products */}
+      {/* PRODUCTS SECTION */}
+      <div className="max-w-[80%] w-full mx-auto mt-8 flex-1">
         {loading ? (
-          <p className="text-center text-gray-500 mt-4">Loading products...</p>
+          <p className="text-center text-gray-500">Loading products...</p>
+        ) : filteredItems.length === 0 ? (
+          <p className="text-center text-gray-600 mt-6">No products found.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
             {filteredItems.map((product) => (
               <ProductCard
                 key={product.id}
@@ -194,15 +210,19 @@ const ItemsForSale = () => {
             onSubmit={handleInterestSubmit}
           />
         )}
-
-        {/* Steps to Buy */}
-        <StepsToBuy />
-
-        {/* Footer */}
-        <footer className="bg-white text-center text-gray-500 text-sm py-4 mt-10">
-          © 2025 Marketplace. All rights reserved.
-        </footer>
       </div>
+
+      {/* STEPS TO BUY */}
+      <div className="bg-white pt-6 pb-8 mt-4 shadow-inner">
+        <div className="max-w-[80%] w-full mx-auto">
+          <StepsToBuy />
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <footer className="bg-white text-center text-gray-500 text-sm py-4 mt-auto">
+        © {new Date().getFullYear()} Marketplace. All rights reserved.
+      </footer>
     </div>
   );
 };

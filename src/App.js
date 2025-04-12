@@ -1,11 +1,15 @@
 import "./styles/App.css";
 import ItemsForSale from "./pages/ItemsForSale";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Admin from "./pages/Admin";
 import Login from "./pages/Login";
-import EditProduct from "./pages/EditProduct";
-import AddProduct from "./pages/AddProduct";
 import PrivateRoute from "./components/PrivateRoute";
+
+import AdminLayout from "./layouts/AdminLayout"; // New layout component
+import AdminDashboard from "./pages/AdminDashboard"; // Renamed from Admin.jsx
+import AdminProducts from "./pages/AdminProducts"; // New products page
+import AdminUsers from "./pages/AdminUsers"; // New users page
+import AddProduct from "./pages/AddProduct";
+import EditProduct from "./pages/EditProduct";
 
 function App() {
   return (
@@ -15,31 +19,24 @@ function App() {
           <Route path="/" element={<ItemsForSale />} />
           <Route path="/login" element={<Login />} />
 
-          {/* Protected Routes */}
+          {/* Admin (protected) */}
           <Route
             path="/admin"
             element={
               <PrivateRoute>
-                <Admin />
+                <AdminLayout />
               </PrivateRoute>
             }
-          />
-          <Route
-            path="/admin/add"
-            element={
-              <PrivateRoute>
-                <AddProduct />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/edit/:id"
-            element={
-              <PrivateRoute>
-                <EditProduct />
-              </PrivateRoute>
-            }
-          />
+          >
+            <Route index element={<AdminDashboard />} />
+
+            {/* Products */}
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="products/add" element={<AddProduct />} />
+            <Route path="products/edit/:id" element={<EditProduct />} />
+
+            <Route path="users" element={<AdminUsers />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </div>

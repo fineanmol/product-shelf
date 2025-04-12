@@ -190,7 +190,7 @@ const AdminProductTable = () => {
               Export All
             </button>
             <Link
-              to="/admin/add"
+              to="/admin/products/add"
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
               <span className="lg:text-lg text-md whitespace-nowrap">
@@ -443,7 +443,7 @@ const AdminProductTable = () => {
                     {canEdit ? (
                       <div className="flex items-center gap-3 justify-end">
                         <Link
-                          to={`/admin/edit/${p.id}`}
+                          to={`/admin/products/edit/${p.id}`}
                           className="text-blue-600 hover:underline text-sm"
                           title="Edit"
                         >
@@ -452,7 +452,7 @@ const AdminProductTable = () => {
                         <button
                           onClick={() => handleDelete(p.id)}
                           title="Delete"
-                          className="text-red-600 hover:underline"
+                          className="text-gray-500 hover:underline hover:text-black"
                         >
                           <MdDelete size={18} />
                         </button>
