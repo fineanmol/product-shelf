@@ -1,3 +1,4 @@
+// ...imports remain unchanged
 import React, { useEffect, useState } from "react";
 import { getDatabase, ref, get, update } from "firebase/database";
 import { Link } from "react-router-dom";
@@ -18,7 +19,6 @@ const ProductAdminList = () => {
 
   useEffect(() => {
     const db = getDatabase();
-
     const fetchData = async () => {
       const productsSnap = await get(ref(db, "products"));
       const interestsSnap = await get(ref(db, "interests"));
@@ -73,16 +73,10 @@ const ProductAdminList = () => {
     const valA = a[sortKey] ?? "";
     const valB = b[sortKey] ?? "";
 
-    if (sortKey === "price") {
-      const priceA = normalizePrice(valA);
-      const priceB = normalizePrice(valB);
-      return sortOrder === "asc" ? priceA - priceB : priceB - priceA;
-    }
-
-    if (typeof valA === "string" && typeof valB === "string") {
+    if (["price", "min_price", "timestamp", "updatedAt"].includes(sortKey)) {
       return sortOrder === "asc"
-        ? valA.localeCompare(valB)
-        : valB.localeCompare(valA);
+        ? (valA ?? 0) - (valB ?? 0)
+        : (valB ?? 0) - (valA ?? 0);
     }
 
     return sortOrder === "asc"
@@ -151,37 +145,49 @@ const ProductAdminList = () => {
           <thead className="bg-gray-100 text-xs text-gray-700 uppercase">
             <tr className="whitespace-nowrap">
               <th
-                className="text-left px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("title")}
+                className="px-4 py-2 cursor-pointer text-left"
               >
                 Product {renderSortIcon("title")}
               </th>
               <th
-                className="text-left px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("price")}
+                className="px-4 py-2 cursor-pointer text-left"
               >
                 Price {renderSortIcon("price")}
               </th>
               <th
-                className="text-left px-4 py-2 cursor-pointer"
+                onClick={() => handleSort("min_price")}
+                className="px-4 py-2 cursor-pointer text-left"
+              >
+                Min Price {renderSortIcon("min_price")}
+              </th>
+              <th
                 onClick={() => handleSort("status")}
+                className="px-4 py-2 cursor-pointer text-left"
               >
                 Status {renderSortIcon("status")}
               </th>
               <th
-                className="text-left px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("visible")}
+                className="px-4 py-2 cursor-pointer text-left"
               >
                 Visible {renderSortIcon("visible")}
               </th>
               <th
-                className="text-left px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("updatedAt")}
+                className="px-4 py-2 cursor-pointer text-left"
               >
-                Updated {renderSortIcon("updatedAt")}
+                Last Updated {renderSortIcon("updatedAt")}
               </th>
-              <th className="text-left px-4 py-2">Interested</th>
-              <th className="text-right px-4 py-2">Actions</th>
+              <th
+                onClick={() => handleSort("timestamp")}
+                className="px-4 py-2 cursor-pointer text-left"
+              >
+                Product Added {renderSortIcon("timestamp")}
+              </th>
+              <th className="px-4 py-2 text-left">Interested</th>
+              <th className="px-4 py-2 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -202,16 +208,16 @@ const ProductAdminList = () => {
               return (
                 <tr
                   key={p.id}
-                  className="border-b hover:bg-gray-50 transition duration-150"
+                  className="hover:bg-gray-50 transition duration-150"
                 >
-                  <td className="px-4 py-2 min-w-[250px] break-words">
+                  <td className="px-4 py-2 min-w-[200px]">
                     <div className="flex items-center gap-3">
                       <img
                         src={p.image}
                         alt={p.title}
                         className="w-10 h-10 object-cover rounded"
                       />
-                      <div>
+                      <div className="max-w-[160px] truncate" title={p.title}>
                         <div className="font-medium text-gray-900">
                           {p.title}
                         </div>
@@ -224,7 +230,19 @@ const ProductAdminList = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-2">{p.price}</td>
+                  <td className="px-4 py-2">
+                    <input
+                      type="number"
+                      className="w-20 px-2 py-1 text-sm border rounded"
+                      value={p.price}
+                      disabled={!canEdit}
+                      onChange={(e) =>
+                        canEdit &&
+                        handleToggle(p.id, "price", Number(e.target.value))
+                      }
+                    />
+                  </td>
+                  <td className="px-4 py-2">{p.min_price ?? "--"}</td>
                   <td className="px-4 py-2">
                     <button
                       onClick={() =>
@@ -268,10 +286,17 @@ const ProductAdminList = () => {
                     </button>
                   </td>
                   <td className="px-4 py-2 text-gray-500 text-xs">
-                    {p.updatedAt || "--"}
+                    {p.updatedAt
+                      ? new Date(p.updatedAt).toLocaleString()
+                      : "--"}
+                  </td>
+                  <td className="px-4 py-2 text-gray-500 text-xs">
+                    {p.timestamp
+                      ? new Date(p.timestamp).toLocaleDateString()
+                      : "--"}
                   </td>
                   <td className="px-4 py-2 text-xs max-w-[240px]">
-                    <details open={canEdit}>
+                    <details>
                       <summary
                         className={`cursor-pointer font-medium ${
                           canEdit ? "text-blue-600" : "text-gray-400"
