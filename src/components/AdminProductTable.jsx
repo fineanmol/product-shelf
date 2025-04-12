@@ -1,18 +1,25 @@
-// ...imports remain unchanged
 import React, { useEffect, useState } from "react";
-import { getDatabase, ref, get, update } from "firebase/database";
+import { getDatabase, ref, get, update, remove } from "firebase/database";
 import { Link } from "react-router-dom";
 import { getUserAccess } from "../utils/permissions";
-import { normalizePrice } from "../utils/utils";
 import { usePageTitle } from "../hooks/usePageTitle";
+import SearchInput from "./shared/SearchInput";
+import ExportCSVButton from "./shared/ExportCSVButton";
+// React Icons
+import { FiEdit } from "react-icons/fi";
+import { MdDelete } from "react-icons/md";
+import { FaFileExport, FaLock } from "react-icons/fa";
+import { showToast } from "../utils/showToast";
 
-const ProductAdminList = () => {
+const AdminProductTable = () => {
   const [products, setProducts] = useState([]);
   const [interestData, setInterestData] = useState({});
   const [accessMap, setAccessMap] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [interestSearch, setInterestSearch] = useState({});
-  const [sortKey, setSortKey] = useState("updatedAt");
+
+  // Default sort by product "timestamp" in descending order
+  const [sortKey, setSortKey] = useState("timestamp");
   const [sortOrder, setSortOrder] = useState("desc");
 
   usePageTitle({ value: "Admin Dashboard" });
@@ -32,6 +39,7 @@ const ProductAdminList = () => {
 
         setProducts(entries);
 
+        // Gather edit permissions
         const accessResults = await Promise.all(
           entries.map((product) =>
             getUserAccess(product).then((access) => ({
@@ -65,20 +73,36 @@ const ProductAdminList = () => {
     );
   };
 
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
+    if (!confirmDelete) return;
+
+    const db = getDatabase();
+    await remove(ref(db, `products/${id}`));
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+    showToast("✅ Product deleted successfully.");
+  };
+
+  // Filter products by search term in the title
   const filteredProducts = products.filter((product) =>
     product.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Sort products based on sortKey/sortOrder
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     const valA = a[sortKey] ?? "";
     const valB = b[sortKey] ?? "";
 
+    // Numeric fields
     if (["price", "min_price", "timestamp", "updatedAt"].includes(sortKey)) {
       return sortOrder === "asc"
         ? (valA ?? 0) - (valB ?? 0)
         : (valB ?? 0) - (valA ?? 0);
     }
 
+    // String fields
     return sortOrder === "asc"
       ? String(valA).localeCompare(String(valB))
       : String(valB).localeCompare(String(valA));
@@ -102,20 +126,49 @@ const ProductAdminList = () => {
     );
   };
 
-  const handleExportCSV = (productId) => {
-    const entries = interestData[productId]
-      ? Object.values(interestData[productId])
-      : [];
-    const csv = [
-      ["Name", "Email", "Phone"].join(","),
-      ...entries.map((e) => [e.name, e.email, e.phone].join(",")),
-    ].join("\n");
+  // Export all products to CSV/Excel
+  const handleExportAll = () => {
+    // Decide which fields to export
+    const headers = [
+      "id",
+      "title",
+      "price",
+      "min_price",
+      "status",
+      "visible",
+      "timestamp",
+      "updatedAt",
+    ];
 
-    const blob = new Blob([csv], { type: "text/csv" });
+    // Transform each product into a row of CSV data
+    const csvRows = [headers.join(",")];
+    sortedProducts.forEach((p) => {
+      const row = [
+        p.id,
+        `"${p.title ?? ""}"`, // wrap in quotes for text fields
+        p.price ?? "",
+        p.min_price ?? "",
+        p.status ?? "",
+        p.visible === false ? "hidden" : "visible",
+        p.timestamp ?? "",
+        p.updatedAt ?? "",
+      ];
+      csvRows.push(row.join(","));
+    });
+
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: "text/csv" });
     const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${productId}_interests.csv`;
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `all_products.csv`;
     link.click();
+  };
+
+  // Helper to calculate "days live"
+  const getDaysLive = (timestamp) => {
+    if (!timestamp) return null;
+    const days = Math.floor((Date.now() - timestamp) / (1000 * 60 * 60 * 24));
+    return days;
   };
 
   return (
@@ -123,23 +176,31 @@ const ProductAdminList = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start md:items-center mb-4 gap-4">
         <h2 className="lg:text-2xl text-xl font-semibold">All Products</h2>
         <div className="flex gap-2 w-full md:w-auto h-10">
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="border px-3 py-2 rounded w-full md:w-64"
+          <SearchInput
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={setSearchTerm}
+            placeholder="Search products..."
           />
-          <Link
-            to="/admin/add"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            <span className="lg:text-lg text-md whitespace-nowrap">
-              Add Product
-            </span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportAll}
+              className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700 flex items-center"
+            >
+              <FaFileExport className="mr-1" />
+              Export All
+            </button>
+            <Link
+              to="/admin/add"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              <span className="lg:text-lg text-md whitespace-nowrap">
+                Add Product
+              </span>
+            </Link>
+          </div>
         </div>
       </div>
+
       <div className="w-full overflow-x-auto rounded-lg shadow">
         <table className="min-w-full table-auto border rounded-xl overflow-hidden text-sm">
           <thead className="bg-gray-100 text-xs text-gray-700 uppercase">
@@ -205,11 +266,14 @@ const ProductAdminList = () => {
                   : true
               );
 
+              const daysLive = getDaysLive(p.timestamp);
+
               return (
                 <tr
                   key={p.id}
                   className="hover:bg-gray-50 transition duration-150"
                 >
+                  {/* Product Title & Days Live */}
                   <td className="px-4 py-2 min-w-[200px]">
                     <div className="flex items-center gap-3">
                       <img
@@ -217,19 +281,31 @@ const ProductAdminList = () => {
                         alt={p.title}
                         className="w-10 h-10 object-cover rounded"
                       />
-                      <div className="max-w-[160px] truncate" title={p.title}>
-                        <div className="font-medium text-gray-900">
+                      <div className="max-w-[160px] whitespace-nowrap overflow-hidden overflow-ellipsis">
+                        <div
+                          className="font-medium text-gray-900"
+                          title={p.title}
+                        >
                           {p.title}
                         </div>
                         {!canEdit && (
-                          <div className="text-xs text-yellow-600 italic">
+                          <div className="text-xs text-yellow-600 italic flex items-center gap-1">
+                            <FaLock />
                             Read-only
                           </div>
                         )}
-                        <div className="text-gray-500 text-xs">{p.source}</div>
+                        <div className="text-gray-500 text-xs">
+                          {daysLive !== null
+                            ? `Listed ${daysLive} day${
+                                daysLive === 1 ? "" : "s"
+                              } ago`
+                            : "--"}
+                        </div>
                       </div>
                     </div>
                   </td>
+
+                  {/* Price */}
                   <td className="px-4 py-2">
                     <input
                       type="number"
@@ -242,7 +318,11 @@ const ProductAdminList = () => {
                       }
                     />
                   </td>
+
+                  {/* Min Price */}
                   <td className="px-4 py-2">{p.min_price ?? "--"}</td>
+
+                  {/* Status */}
                   <td className="px-4 py-2">
                     <button
                       onClick={() =>
@@ -266,6 +346,8 @@ const ProductAdminList = () => {
                       {p.status || "Unknown"}
                     </button>
                   </td>
+
+                  {/* Visible */}
                   <td className="px-4 py-2">
                     <button
                       onClick={() =>
@@ -285,16 +367,22 @@ const ProductAdminList = () => {
                       {p.visible === false ? "Hidden" : "Visible"}
                     </button>
                   </td>
+
+                  {/* Last Updated */}
                   <td className="px-4 py-2 text-gray-500 text-xs">
                     {p.updatedAt
                       ? new Date(p.updatedAt).toLocaleString()
                       : "--"}
                   </td>
+
+                  {/* Product Added */}
                   <td className="px-4 py-2 text-gray-500 text-xs">
                     {p.timestamp
                       ? new Date(p.timestamp).toLocaleDateString()
                       : "--"}
                   </td>
+
+                  {/* Interested Section */}
                   <td className="px-4 py-2 text-xs max-w-[240px]">
                     <details>
                       <summary
@@ -336,29 +424,42 @@ const ProductAdminList = () => {
                           </li>
                         ))}
                       </ul>
-                      <button
-                        disabled={!canEdit}
-                        onClick={() => handleExportCSV(p.id)}
-                        className={`mt-2 px-3 py-1 rounded text-xs ${
-                          canEdit
-                            ? "bg-gray-100 hover:bg-gray-200"
-                            : "bg-gray-50 text-gray-400 cursor-not-allowed"
-                        }`}
-                      >
-                        Export CSV
-                      </button>
+                      {canEdit && (
+                        <ExportCSVButton
+                          data={filteredInterests.map((e) => ({
+                            name: e.name,
+                            email: e.email,
+                            phone: e.phone,
+                          }))}
+                          headers={["name", "email", "phone"]}
+                          filename={`${p.id}_interests.csv`}
+                        />
+                      )}
                     </details>
                   </td>
+
+                  {/* Actions */}
                   <td className="px-4 py-2 text-right">
                     {canEdit ? (
-                      <Link
-                        to={`/admin/edit/${p.id}`}
-                        className="text-blue-600 hover:underline text-sm"
-                      >
-                        Edit
-                      </Link>
+                      <div className="flex items-center gap-3 justify-end">
+                        <Link
+                          to={`/admin/edit/${p.id}`}
+                          className="text-blue-600 hover:underline text-sm"
+                          title="Edit"
+                        >
+                          <FiEdit size={16} />
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(p.id)}
+                          title="Delete"
+                          className="text-red-600 hover:underline"
+                        >
+                          <MdDelete size={18} />
+                        </button>
+                      </div>
                     ) : (
-                      <span className="text-xs text-yellow-600 italic">
+                      <span className="text-xs text-yellow-600 italic flex items-center gap-1 justify-end">
+                        <FaLock />
                         Read-only
                       </span>
                     )}
@@ -373,4 +474,4 @@ const ProductAdminList = () => {
   );
 };
 
-export default ProductAdminList;
+export default AdminProductTable;

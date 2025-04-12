@@ -6,20 +6,32 @@ export const getUserAccess = async (product) => {
   const auth = getAuth();
   const currentUser = auth.currentUser;
 
-  const isLoggedIn = !!currentUser;
-  let isSuperAdmin = false;
-
-  if (currentUser) {
-    const db = getDatabase();
-    const snap = await get(ref(db, `superAdmins/${currentUser.uid}`));
-    isSuperAdmin = snap.exists();
+  // 1. If no user is logged in, everything is false.
+  if (!currentUser) {
+    return {
+      isLoggedIn: false,
+      isSuperAdmin: false,
+      isAuthor: false,
+      canEdit: false,
+      user: null,
+    };
   }
 
-  const isAuthor = currentUser?.uid === product?.added_by;
+  const db = getDatabase();
+  const adminRef = ref(db, `superAdmins/${currentUser.uid}`);
+  const snap = await get(adminRef);
+
+  // 2. If snap.val() === true, the user is super admin.
+  const isSuperAdmin = snap.exists() && snap.val() === true;
+
+  // 3. isAuthor checks product’s 'added_by'.
+  const isAuthor = currentUser.uid === product?.added_by;
+
+  // 4. canEdit if the user is either the author or a super admin.
   const canEdit = isAuthor || isSuperAdmin;
 
   return {
-    isLoggedIn,
+    isLoggedIn: true,
     isSuperAdmin,
     isAuthor,
     canEdit,

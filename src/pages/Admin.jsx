@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import ProductForm from "../components/ProductForm";
-import ProductAdminList from "../components/ProductAdminList";
+import AdminProductTable from "../components/AdminProductTable";
+import SummaryCards from "../components/admin/SummaryCards";
+import InterestsTable from "../components/admin/InterestsTable";
 
 const Admin = () => {
   const [user, setUser] = useState(null);
@@ -29,7 +30,11 @@ const Admin = () => {
   return (
     <div className="p-2 md:p-6 mx-auto text-left">
       <div className="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-4 mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold">Admin Panel</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold">Dashboard Overview</h2>
+        <p className="text-sm text-gray-500">
+          Welcome back, {user.displayName || user.email}!
+          <br />
+        </p>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
           {/* User Info */}
@@ -56,8 +61,9 @@ const Admin = () => {
           </button>
         </div>
       </div>
-
-      <ProductAdminList />
+      <SummaryCards />
+      <AdminProductTable />
+      <InterestsTable />
     </div>
   );
 };

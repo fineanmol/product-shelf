@@ -1,86 +1,506 @@
-[
-  {
-    "title": "Soft Touch Earphone Case for AirPods (4th Gen)",
-    "description": "Shockproof, drop-proof, ultra slim, scratch and abrasion-resistant protective case for Apple AirPods (4th Gen). Includes a carabiner and offers 360° protection with soft-touch finish.",
-    "image": "https://m.media-amazon.com/images/I/616ECA+j1gL._AC_SY300_SX300_.jpg",
-    "price": "14.99€",
-    "original_price": "19.99€",
-    "age": "New",
-    "available_from": "Now",
-    "status": "available",
-    "source": "Amazon",
-    "url": "https://www.amazon.de/-/en/dp/B0DVTJ23MY?th=1&linkCode=ll1&tag=fineanmol-21&linkId=49cd8f94fb3760a33c104a183777ed74&language=en_GB&ref_=as_li_ss_tl"
+{
+  "interests": {
+    "1": {
+      "-ONMD7Z8bQ6EWEhePO-q": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "07827327604",
+        "timestamp": 1744146303408
+      },
+      "-ONMDdnZ3H-byal7DlDl": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "015510200497",
+        "timestamp": 1744146439615
+      },
+      "-ONNFpyPvO0mfcAM4wMp": {
+        "delivery_preferences": ["Shipping"],
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "7827327604",
+        "timestamp": 1744163790929
+      },
+      "-ONNFsHFTYGEQo2I9lbO": {
+        "delivery_preferences": ["Pick Up"],
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "7827327604",
+        "timestamp": 1744163800391
+      },
+      "-ONNFu9YNeXzUsj-3Fib": {
+        "delivery_preferences": ["Pick Up", "Shipping"],
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "7827327604",
+        "timestamp": 1744163808090
+      },
+      "-ONRCQnhOubuAsYL-9vo": {
+        "delivery_preferences": ["Pick Up"],
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "7827327604",
+        "timestamp": 1744230006315
+      },
+      "-ONRHeVZUckWQxLiebMN": {
+        "delivery_preferences": ["Shipping"],
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "07827327604",
+        "timestamp": 1744231377137
+      },
+      "-ONRJN_nP-c0YI0HjuGT": {
+        "delivery_preferences": ["Pick Up"],
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "7827327604",
+        "timestamp": 1744231828034
+      },
+      "-ONRTJBtN-yUFqcDJ_S3": {
+        "delivery_preferences": ["Shipping"],
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "07827327604",
+        "timestamp": 1744234431380
+      }
+    },
+    "2": {
+      "-ONMDPvyBpdW9AjsPqQa": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "07827327604",
+        "timestamp": 1744146378713
+      },
+      "-ONMscH164W0QJuP2Uw8": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "07827327604",
+        "timestamp": 1744157443451
+      }
+    },
+    "3": {
+      "-ONMsgwSsnihGImvCrmZ": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "015510200497",
+        "timestamp": 1744157462550
+      },
+      "-ONMsi3-sbqAUFl7E9_J": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "07827327604",
+        "timestamp": 1744157467129
+      },
+      "-ONMsjPZaWA_z0nZyszF": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "07827327604",
+        "timestamp": 1744157472669
+      },
+      "-ONMtFwstMww_GmulNtP": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "+7827327604",
+        "timestamp": 1744157610033
+      },
+      "-ONMtl4kw4FnSnw_Kz3i": {
+        "email": "agarwal.anmol2004@gmail.co",
+        "name": "ajks ansas. /a./s&ams.  asas",
+        "phone": "7827327604",
+        "timestamp": 1744157741673
+      },
+      "-ONMznVFP9rRAUsOpWTT": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "15510200497",
+        "timestamp": 1744159324406
+      },
+      "-ONN-nwju_6j47ngN56w": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "7827327604",
+        "timestamp": 1744159588374
+      }
+    },
+    "6": {
+      "-ONMc-W99k_j95rH1Jkf": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "07827327604",
+        "timestamp": 1744153086173
+      },
+      "-ONN1t8nVIClb9opQtoS": {
+        "email": "coffeewithanmol@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "7827327604",
+        "timestamp": 1744160133978
+      },
+      "-ONN2NXWvpAL4RMGZVKv": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "15510200497",
+        "timestamp": 1744160262536
+      },
+      "-ONN2vI48fK1_CCyyCQJ": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "7827327604",
+        "timestamp": 1744160404908
+      },
+      "-ONN51VptjPJyh5Mk0ST": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "7827327604",
+        "timestamp": 1744160958748
+      }
+    },
+    "-ONMbvOgNdyaw5AwmwaZ": {
+      "-ONMpsE99EaNIo0z-kE-": {
+        "email": "agarwal.anmol2004@gmail.com",
+        "name": "Anmol Agarwal",
+        "phone": "07827327604",
+        "timestamp": 1744156722370
+      }
+    }
   },
-  {
-    "title": "Tempered Glass Screen Protector for Samsung A36 5G / A56 5G",
-    "description": "Anti-shatter, scratch-resistant and drop-protective screen protector with flawless touch response and fingerprint resistance. Includes easy installation kit and is designed for use with Samsung Galaxy A36 5G and A56 5G.",
-    "image": "https://m.media-amazon.com/images/I/61UE0h3qUIL._AC_SX679_.jpg",
-    "price": "13.99€",
-    "original_price": "19.99€",
-    "age": "New",
-    "available_from": "Now",
-    "status": "available",
-    "source": "Amazon",
-    "url": "https://www.amazon.de/-/en/dp/B0DZ9FLF7T?&linkCode=ll1&tag=fineanmol-21&linkId=ff803a385b64f9a809dd05d4ea0cba5a&language=en_GB&ref_=as_li_ss_tl"
+  "products": {
+    "0": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "admin_note": "",
+      "age": "New",
+      "available_from": "Now",
+      "condition": "Good",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up", "Shipping"],
+      "description": "Shockproof, drop-proof, ultra slim, scratch and abrasion-resistant protective case for Apple AirPods (4th Gen). Includes a carabiner and offers 360° protection with soft-touch finish.",
+      "discount": 70,
+      "id": "0",
+      "image": "https://m.media-amazon.com/images/I/616ECA+j1gL._AC_SY300_SX300_.jpg",
+      "original_price": 19.99,
+      "price": 6,
+      "source": "Amazon",
+      "status": "available",
+      "timestamps": {
+        "created": 1744224553760,
+        "updated": 1744224553760
+      },
+      "title": "Soft touch earphone case for airpods (4th gen)",
+      "updatedAt": 1744225862819,
+      "url": "https://www.amazon.de/-/en/dp/B0DVTJ23MY?th=1&linkCode=ll1&tag=fineanmol-21&linkId=49cd8f94fb3760a33c104a183777ed74&language=en_GB&ref_=as_li_ss_tl",
+      "visible": true
+    },
+    "1": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "admin_note": "",
+      "available_from": "Now",
+      "condition": "New",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up", "Shipping"],
+      "description": "Anti-shatter, scratch-resistant and drop-protective screen protector with flawless touch response and fingerprint resistance. Includes easy installation kit and is designed for use with Samsung Galaxy A36 5G and A56 5G.",
+      "discount": 0,
+      "image": "https://m.media-amazon.com/images/I/61UE0h3qUIL._AC_SX679_.jpg",
+      "original_price": 19.99,
+      "price": 13.99,
+      "source": "Amazon",
+      "status": "available",
+      "timestamps": {
+        "created": 1744224553760,
+        "updated": 1744224553760
+      },
+      "title": "Tempered Glass Screen Protector for Samsung A36 5G / A56 5G",
+      "url": "https://www.amazon.de/-/en/dp/B0DZ9FLF7T?&linkCode=ll1&tag=fineanmol-21&linkId=ff803a385b64f9a809dd05d4ea0cba5a&language=en_GB&ref_=as_li_ss_tl",
+      "visible": true
+    },
+    "2": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "admin_note": "",
+      "available_from": "Now",
+      "condition": "New",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up", "Shipping"],
+      "description": "Blue lanyard with integrated bottle opener. Features a carabiner hook for attaching keys or ID cards. Comfortable to wear, practical for daily use, and printed on the outside.",
+      "discount": 0,
+      "image": "https://m.media-amazon.com/images/I/71rpkeyvZoL._AC_SX679_.jpg",
+      "original_price": 3.95,
+      "price": 2.75,
+      "source": "Amazon",
+      "status": "available",
+      "timestamps": {
+        "created": 1744224553760,
+        "updated": 1744224553760
+      },
+      "title": "BGS 91021 Lanyard with Bottle Opener",
+      "url": "https://www.amazon.de/-/en/dp/B0DWSYHTG8?&linkCode=ll1&tag=fineanmol-21&linkId=8dc5a656171ca395e8943d2c76504051&language=en_GB&ref_=as_li_ss_tl",
+      "visible": true
+    },
+    "3": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "admin_note": "",
+      "available_from": "Now",
+      "condition": "New",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up", "Shipping"],
+      "description": "Updated ergonomic 3D design sleep mask with light-blocking and breathable materials. Features adjustable elastic band, suitable for men and women, perfect for travel or daily use.",
+      "discount": 0,
+      "image": "https://m.media-amazon.com/images/I/71G0tklTcEL._AC_SX522_.jpg",
+      "original_price": 8.99,
+      "price": 6.75,
+      "source": "Amazon",
+      "status": "available",
+      "timestamps": {
+        "created": 1744224553760,
+        "updated": 1744224553760
+      },
+      "title": "Laitver 3D Sleep Mask for Side Sleepers (2025 Update) - Purple",
+      "url": "https://www.amazon.de/-/en/dp/B0DYJSPTJN?&linkCode=ll1&tag=fineanmol-21&linkId=9979fbad28c778c989418a4d21c9e08b&language=en_GB&ref_=as_li_ss_tl",
+      "visible": true
+    },
+    "4": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "admin_note": "",
+      "available_from": "Now",
+      "condition": "New",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up", "Shipping"],
+      "description": "Breathable sports shoes for girls and children, featuring a lightweight and comfortable design with velcro strap and cushioned sole. Perfect for indoor sports, running, or everyday wear.",
+      "discount": 0,
+      "image": "https://m.media-amazon.com/images/I/71Xo0juZYDL._AC_SY695_.jpg",
+      "original_price": 25.99,
+      "price": 20.79,
+      "source": "Amazon",
+      "status": "available",
+      "timestamps": {
+        "created": 1744224553760,
+        "updated": 1744224553760
+      },
+      "title": "Hxiclrm Indoor Shoes Girls Trainers - Pink Purple (EU 39)",
+      "url": "https://www.amazon.de/-/en/dp/B0DY7FFPCJ?th=1&psc=1&linkCode=ll1&tag=fineanmol-21&linkId=9f5482401d1d3fa67c605d8ae2c843a4&language=en_GB&ref_=as_li_ss_tl",
+      "visible": true
+    },
+    "5": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "admin_note": "",
+      "available_from": "Now",
+      "condition": "New",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up", "Shipping"],
+      "description": "Powerful USB-C dock with 2x 4K@60Hz HDMI, VGA, Gigabit Ethernet, 2x USB-C 3.0, 5x USB-A, SD/TF card slots, 3.5mm audio, and 100W PD charging. Ideal for multitasking, screen locking, and expanding displays on MacBooks and Dell laptops.",
+      "discount": 0,
+      "image": "https://m.media-amazon.com/images/I/71CIdPndsML._AC_SX679_.jpg",
+      "original_price": 65.99,
+      "price": 46.19,
+      "source": "Amazon",
+      "status": "available",
+      "timestamps": {
+        "created": 1744224553760,
+        "updated": 1744224553760
+      },
+      "title": "NOVOO 15-in-1 USB C Docking Station Triple Display Hub",
+      "url": "https://www.amazon.de/-/en/dp/B0DSC8B7L2?&linkCode=ll1&tag=fineanmol-21&linkId=c1b7366eb4b6133a13ab139190285e85&language=en_GB&ref_=as_li_ss_tl",
+      "visible": true
+    },
+    "6": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "admin_note": "",
+      "available_from": "Now",
+      "condition": "New",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up", "Shipping"],
+      "description": "Creative magnetic building toy set with 100 pieces and 39 model designs for kids. Encourages innovation, fine motor skills, spatial awareness, and problem-solving. Safe, durable, and a perfect gift for birthdays or holidays.",
+      "discount": 0,
+      "image": "https://m.media-amazon.com/images/I/81+a1Z-4ErL._AC_SX679_.jpg",
+      "original_price": 59.99,
+      "price": 44.99,
+      "source": "Amazon",
+      "status": "available",
+      "timestamps": {
+        "created": 1744224553760,
+        "updated": 1744224553760
+      },
+      "title": "GobiDex Magnetic Building Blocks Pack of 100 - Zomblock Set (2025 Edition)",
+      "url": "https://www.amazon.de/-/en/dp/B0DLNG1VMD?th=1&linkCode=ll1&tag=fineanmol-21&linkId=fcf878e734441aff7725fca45e8b4913&language=en_GB&ref_=as_li_ss_tl",
+      "visible": true
+    },
+    "-ONMbvOgNdyaw5AwmwaZ": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "admin_note": "",
+      "available_from": "Now",
+      "condition": "",
+      "currency": "EUR",
+      "delivery_options": ["pickup", "shipping", "Pick Up"],
+      "description": "2600 lumens bicycle light: 5 LEDs, 4 light modes, 8000 mAh large capacity, the working time of the bicycle lights is approx. 2-8 hours, which can meet your lighting requirements for long journeys.\nBuilt-in battery use: the bicycle light has a built-in 8000 mAh battery. It can be used as a power bank. Connect the charging cable to the bicycle light when switched on and use the USB C port to charge your mobile phone on the go. Continue to enjoy all the functions of the bicycle headlight while your phone, electronic watch...is charging.",
+      "discount": 20,
+      "image": "https://m.media-amazon.com/images/I/718aaiHnNXL.__AC_SX300_SY300_QL70_ML2_.jpg",
+      "original_price": 45,
+      "price": 45,
+      "source": "Amazon",
+      "status": "reserved",
+      "timestamps": {
+        "created": 1744153065047,
+        "updated": 1744153065047
+      },
+      "title": "UPPEL Bicycle Light Front 2600 Lumens USB C Charging Port 5 LEDs 4 Light Modes Easy Installation Best Aluminium Bicycle Lamp Front",
+      "url": "https://www.amazon.de/-/en/dp/B0DK6JH3SP?&linkCode=ll1&tag=fineanmol-21&linkId=a42c0b146d7cb25086936d70bb14ece1&language=en_GB&ref_=as_li_ss_tl",
+      "visible": true
+    },
+    "-ONQGszKprQi_n0cflwI": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "admin_note": "",
+      "available_from": "Now",
+      "condition": "New",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up"],
+      "description": "Dummy Product Listing",
+      "discount": 15,
+      "image": "https://m.media-amazon.com/images/I/71fvAoFGQHL._AC_SX679_.jpg",
+      "min_price": 17.6,
+      "original_price": 39.99,
+      "price": 33.99,
+      "source": "Amazon",
+      "status": "available",
+      "timestamps": {
+        "created": 1744214396722,
+        "updated": 1744219133236
+      },
+      "title": "Backpack, Large Changing Bag, Backpack with Changing Mat, Dummy Holder, Pram Straps",
+      "url": "https://amzn.to/3E1Y9If",
+      "visible": true
+    },
+    "-ONQjz3AXDq6h0RC2vJ1": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "admin_note": "Product Gonna use at home",
+      "available_from": "Now",
+      "condition": "Very Good",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up", "Shipping"],
+      "description": "Stable and durable - The bin stand has a reinforced base, a metal ring and a practical hinged lid. The sustainable and robust bamboo ensures durability even with intensive use\nWashable inner pocket - There is a removable inner pocket for the waste bin that is washable. This protects as an interlayer for leaky bin bags\nPerfect size - The container has been specially designed for yellow bags. The bin liners can be completely filled and still easily removed. Other common recycling and garbage bags can also be used\nSecure hold for all bag sizes - Large bags such as ",
+      "discount": 20,
+      "image": "https://m.media-amazon.com/images/I/81tvWmf1nBL._AC_SX679_.jpg",
+      "min_price": 15.38,
+      "original_price": 34.95,
+      "price": 27.96,
+      "source": "Amazon",
+      "status": "available",
+      "timestamps": {
+        "created": 1744222286050,
+        "updated": 1744223362301
+      },
+      "title": "Yellow Sack Bin Made of Bamboo, Includes Washable Inner Pocket, Yellow Sack Stand, Sturdy, Double Reinforced with Lid, Yellow Bag Container",
+      "url": "https://amzn.to/43Ox4CQ",
+      "visible": true
+    },
+    "-ON_YcUAtE1tl1w7KSgL": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "age": "New",
+      "available_from": "Now",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up", "Shipping"],
+      "description": "Waterproof design: thanks to the waterproof membrane of our men's hiking shoes, you no longer have to worry about splashing water, because these waterproof shoes keep your feet dry all day.",
+      "discount": 20,
+      "id": "-ON_YcUAtE1tl1w7KSgL",
+      "image": "https://m.media-amazon.com/images/I/61G-S7DX+iL._AC_SY695_.jpg",
+      "min_price": "26.40",
+      "original_price": 59.99,
+      "price": 47.99,
+      "source": "Amazon",
+      "status": "available",
+      "timestamp": 1744386820068,
+      "title": "Men's Hiking Shoes Waterproof Lightweight Non-Slip Trekking Shoes Outdoor Shoes",
+      "updatedAt": 1744412521052,
+      "url": "https://amzn.to/4czSHsW",
+      "visible": true
+    },
+    "-ON_ZVMU1dztEUv0QPWk": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "age": "New",
+      "available_from": "Now",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up", "Shipping"],
+      "description": "Ultra high-speed: Cat8 Ethernet cable is unrivalled performance, speeds up to 40 Gbps, frequency up to 2000 MHz, lightning-fast connections, perfect for advanced applications such as servers, cloud computing and HD video, high-speed Internet access and transferring large files over the network, smooth internet speeds, no delay.",
+      "discount": 20,
+      "id": "-ON_ZVMU1dztEUv0QPWk",
+      "image": "https://m.media-amazon.com/images/I/71gu8HIt3RL._SL1500_.jpg",
+      "min_price": "13.20",
+      "original_price": 29.99,
+      "price": 23.99,
+      "source": "Amazon",
+      "status": "available",
+      "timestamp": 1744387048940,
+      "title": "LAN Cable, 20 Metres, Cat8 Network Cable 40 Gbps 2000 MHz High Speed Gigabit S/FTP Ethernet Cable,",
+      "updatedAt": 1744412576634,
+      "url": "https://amzn.to/428JqUX",
+      "visible": true
+    },
+    "-ON_ZzXFiTMMr3Wx8s-I": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "age": "New",
+      "available_from": "Now",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up", "Shipping"],
+      "description": "NIVEA Fresh Sensation Deodorant Spray, Deodorant for 72 Hours Antiperspirant Protection Against Sweat and Odour, Deodorant Spray with Antibacterial Effect and Fruity Fragrance (150 ml)",
+      "discount": 20,
+      "id": "-ON_ZzXFiTMMr3Wx8s-I",
+      "image": "https://m.media-amazon.com/images/I/61xNRS9sDYL._SL1500_.jpg",
+      "min_price": "1.10",
+      "original_price": 2.51,
+      "price": 2.01,
+      "source": "Amazon",
+      "status": "reserved",
+      "timestamp": 1744387176621,
+      "title": "NIVEA Fresh Sensation Deodorant Spray, Deodorant for 72 Hours",
+      "updatedAt": 1744412550268,
+      "url": "https://amzn.to/3GgIzsI",
+      "visible": true
+    },
+    "-ON__Wnc12BUKmpS-XRR": {
+      "added_by": "p0RgBrfJ8HNE9RE3ROwGPF8etZD2",
+      "added_email": "agarwal.anmol2004@gmail.com",
+      "age": "New",
+      "available_from": "Now",
+      "currency": "EUR",
+      "delivery_options": ["Pick Up", "Shipping"],
+      "description": "LED Computer Monitor Light Bar Screenbar, USB Charging Office Screen Lamp with Touch Control and Remote Control, Continuously Dimmable Brightness & Colour Temperature Eye Protection for PC",
+      "discount": 20,
+      "id": "-ON__Wnc12BUKmpS-XRR",
+      "image": "https://m.media-amazon.com/images/I/61d1cQKOvYL._AC_SX679_.jpg",
+      "min_price": "19.80",
+      "original_price": 44.99,
+      "price": 35.99,
+      "source": "Amazon",
+      "status": "available",
+      "timestamp": 1744387316998,
+      "title": "LED Computer Monitor Light Bar Screenbar, USB",
+      "updatedAt": 1744412561002,
+      "url": "https://amzn.to/3Rb1bNd",
+      "visible": true
+    }
   },
-  {
-    "title": "BGS 91021 Lanyard with Bottle Opener",
-    "description": "Blue lanyard with integrated bottle opener. Features a carabiner hook for attaching keys or ID cards. Comfortable to wear, practical for daily use, and printed on the outside.",
-    "image": "https://m.media-amazon.com/images/I/71rpkeyvZoL._AC_SX679_.jpg",
-    "price": "2.75€",
-    "original_price": "3.95€",
-    "age": "New",
-    "available_from": "Now",
-    "status": "available",
-    "source": "Amazon",
-    "url": "https://www.amazon.de/-/en/dp/B0DWSYHTG8?&linkCode=ll1&tag=fineanmol-21&linkId=8dc5a656171ca395e8943d2c76504051&language=en_GB&ref_=as_li_ss_tl"
+  "superAdmins": {
+    "SsjgSlpi0VhP9KsijMm0ckK9vgd2": true,
+    "p0RgBrfJ8HNE9RE3ROwGPF8etZD2": true
   },
-  {
-    "title": "Laitver 3D Sleep Mask for Side Sleepers (2025 Update) - Purple",
-    "description": "Updated ergonomic 3D design sleep mask with light-blocking and breathable materials. Features adjustable elastic band, suitable for men and women, perfect for travel or daily use.",
-    "image": "https://m.media-amazon.com/images/I/71G0tklTcEL._AC_SX522_.jpg",
-    "price": "6.75€",
-    "original_price": "8.99€",
-    "age": "New",
-    "available_from": "Now",
-    "status": "available",
-    "source": "Amazon",
-    "url": "https://www.amazon.de/-/en/dp/B0DYJSPTJN?&linkCode=ll1&tag=fineanmol-21&linkId=9979fbad28c778c989418a4d21c9e08b&language=en_GB&ref_=as_li_ss_tl"
-  },
-  {
-    "title": "Hxiclrm Indoor Shoes Girls Trainers - Pink Purple (EU 39)",
-    "description": "Breathable sports shoes for girls and children, featuring a lightweight and comfortable design with velcro strap and cushioned sole. Perfect for indoor sports, running, or everyday wear.",
-    "image": "https://m.media-amazon.com/images/I/71Xo0juZYDL._AC_SY695_.jpg",
-    "price": "20.79€",
-    "original_price": "25.99€",
-    "age": "New",
-    "available_from": "Now",
-    "status": "available",
-    "source": "Amazon",
-    "url": "https://www.amazon.de/-/en/dp/B0DY7FFPCJ?th=1&psc=1&linkCode=ll1&tag=fineanmol-21&linkId=9f5482401d1d3fa67c605d8ae2c843a4&language=en_GB&ref_=as_li_ss_tl"
-  },
-  {
-    "title": "NOVOO 15-in-1 USB C Docking Station Triple Display Hub",
-    "description": "Powerful USB-C dock with 2x 4K@60Hz HDMI, VGA, Gigabit Ethernet, 2x USB-C 3.0, 5x USB-A, SD/TF card slots, 3.5mm audio, and 100W PD charging. Ideal for multitasking, screen locking, and expanding displays on MacBooks and Dell laptops.",
-    "image": "https://m.media-amazon.com/images/I/71CIdPndsML._AC_SX679_.jpg",
-    "price": "46.19€",
-    "original_price": "65.99€",
-    "age": "New",
-    "available_from": "Now",
-    "status": "available",
-    "source": "Amazon",
-    "url": "https://www.amazon.de/-/en/dp/B0DSC8B7L2?&linkCode=ll1&tag=fineanmol-21&linkId=c1b7366eb4b6133a13ab139190285e85&language=en_GB&ref_=as_li_ss_tl"
-  },
-  {
-    "title": "GobiDex Magnetic Building Blocks Pack of 100 - Zomblock Set (2025 Edition)",
-    "description": "Creative magnetic building toy set with 100 pieces and 39 model designs for kids. Encourages innovation, fine motor skills, spatial awareness, and problem-solving. Safe, durable, and a perfect gift for birthdays or holidays.",
-    "image": "https://m.media-amazon.com/images/I/81+a1Z-4ErL._AC_SX679_.jpg",
-    "price": "44.99€",
-    "original_price": "59.99€",
-    "age": "New",
-    "available_from": "Now",
-    "status": "available",
-    "source": "Amazon",
-    "url": "https://www.amazon.de/-/en/dp/B0DLNG1VMD?th=1&linkCode=ll1&tag=fineanmol-21&linkId=fcf878e734441aff7725fca45e8b4913&language=en_GB&ref_=as_li_ss_tl"
+  "users": {
+    "SsjgSlpi0VhP9KsijMm0ckK9vgd2": {
+      "email": "ch.sakshiasb@gmail.com",
+      "name": "Sakshi Chaudhary",
+      "password": "google-auth",
+      "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocLQp0nQ7owGYNFiiCOljKumt3nY24ReQrzjb42riLGaTZetpg=s96-c"
+    },
+    "p0RgBrfJ8HNE9RE3ROwGPF8etZD2": {
+      "email": "agarwal.anmol2004@gmail.com",
+      "name": "Anmol Agarwal"
+    }
   }
-]
+}
