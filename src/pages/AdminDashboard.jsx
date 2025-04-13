@@ -5,6 +5,7 @@ import SummaryCards from "../components/admin/SummaryCards";
 import { Link } from "react-router-dom";
 import InterestsTable from "../components/admin/InterestsTable";
 import DashboardProducts from "../components/admin/DashboardProducts";
+import AddAmazonProduct from "./AddAmazonProduct";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ const AdminDashboard = () => {
           Welcome back {currentUser?.displayName || "Admin"}
         </p>
       </div>
+      <AddAmazonProduct />
 
       {/* Summary Cards */}
       <div className="bg-white p-4 sm:p-6 shadow-md rounded-lg">
