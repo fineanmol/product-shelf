@@ -36,7 +36,22 @@ const ProductFormFields = ({
   handleChange,
   canEdit,
 }) => {
-  const { isSuperAdmin } = getUserAccess(formData);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  useEffect(() => {
+    async function fetchUserAccess() {
+      try {
+        const access = await getUserAccess(formData);
+        setIsSuperAdmin(access.isSuperAdmin);
+      } catch (error) {
+        console.error("Error fetching user access:", error);
+      }
+    }
+
+    if (formData) {
+      fetchUserAccess();
+    }
+  }, [formData]);
 
   // Track which field the user last edited: "price" or "discount".
   const [lastChanged, setLastChanged] = useState(null);

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { useNavigate, Link, Outlet } from "react-router-dom";
-import { FaBars } from "react-icons/fa";
+import { FaBars, FaGlobe } from "react-icons/fa";
 import AdminSidebar from "../components/admin/AdminSidebar";
 
 function AdminLayout() {
@@ -38,14 +38,14 @@ function AdminLayout() {
 
   return (
     <div className="flex h-screen bg-gray-100 text-gray-800">
-      {/* Sidebar (collapsible) */}
+      {/* Sidebar */}
       {sidebarOpen && <AdminSidebar onClose={() => setSidebarOpen(false)} />}
 
-      {/* Main content */}
+      {/* Main Content */}
       <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Top navbar */}
+        {/* Top Navbar */}
         <header className="flex items-center justify-between bg-white px-4 py-2 shadow">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             {!sidebarOpen && (
               <button
                 onClick={() => setSidebarOpen(true)}
@@ -61,9 +61,24 @@ function AdminLayout() {
             >
               Admin Dashboard
             </Link>
+
+            {/* ✨ Visit Website Link */}
+            <a
+              href={
+                process.env.NODE_ENV === "development"
+                  ? "http://localhost:3000/"
+                  : "https://product-shelf-inventory.web.app/"
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium text-sm px-3 py-1.5 rounded-md transition whitespace-nowrap"
+            >
+              <FaGlobe className="text-base" />
+              <span className="hidden sm:inline">Visit Website</span>
+            </a>
           </div>
 
-          {/* User avatar + dropdown */}
+          {/* User Avatar + Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
@@ -95,7 +110,7 @@ function AdminLayout() {
           </div>
         </header>
 
-        {/* Inner content */}
+        {/* Page Content */}
         <main className="flex-1 overflow-auto p-4 md:p-6">
           <Outlet />
         </main>
