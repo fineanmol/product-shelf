@@ -34,8 +34,9 @@ const InterestFormModal = ({ product, onClose, onSubmit }) => {
         .catch(() => showToast("❌ Could not share. Please try again."));
     } else {
       // Fallback: copy to clipboard
-      navigator.clipboard.writeText(productLink);
-      showToast("🔗 Link copied to clipboard!");
+      const url = `${window.location.origin}/product/${product.id}`;
+      navigator.clipboard.writeText(url);
+      showToast("Product link copied!");
     }
   };
 
@@ -170,7 +171,11 @@ const InterestFormModal = ({ product, onClose, onSubmit }) => {
                 </div>
                 <div
                   className="flex items-center gap-1 text-gray-500 text-xs mt-1 cursor-pointer hover:text-gray-600"
-                  onClick={handleShare}
+                  onClick={() => {
+                    const url = `${window.location.origin}/product/${product.id}`;
+                    navigator.clipboard.writeText(url);
+                    showToast("Product link copied!");
+                  }}
                 >
                   <FaShareAlt />
                   <span>Share Product</span>
@@ -328,7 +333,7 @@ const InterestFormModal = ({ product, onClose, onSubmit }) => {
             </p>
             <p className="font-medium text-lg">{product.title}</p>
             <p className="text-sm text-gray-500 mt-2">
-              We’ll reach out to you soon via email or phone.
+              We'll reach out to you soon via email or phone.
             </p>
 
             <button

@@ -3,6 +3,7 @@ import ItemsForSale from "./pages/ItemsForSale";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import PrivateRoute from "./components/PrivateRoute";
+import ProductPage from "./pages/ProductPage";
 
 import AdminLayout from "./layouts/AdminLayout"; // New layout component
 import AdminDashboard from "./pages/AdminDashboard"; // Renamed from Admin.jsx
@@ -18,6 +19,7 @@ function App() {
         <Routes>
           <Route path="/" element={<ItemsForSale />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/product/:id" element={<ProductPage />} />
 
           {/* Admin (protected) */}
           <Route

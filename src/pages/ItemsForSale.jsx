@@ -7,6 +7,8 @@ import InterestFormModal from "../components/InterestFormModal";
 import emailjs from "emailjs-com";
 import { showToast } from "../utils/showToast";
 import StepsToBuy from "../components/StepsToBuy";
+import { useNavigate } from "react-router-dom";
+import Header from "../components/Header";
 
 const ItemsForSale = () => {
   const [items, setItems] = useState([]);
@@ -19,6 +21,7 @@ const ItemsForSale = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [conditionFilter, setConditionFilter] = useState("");
   const [priceSort, setPriceSort] = useState("latest");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const dbRef = ref(db, "products");
@@ -105,13 +108,7 @@ const ItemsForSale = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <header className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white py-6 px-4 shadow-lg">
-        <div className="max-w-[80%] mx-auto text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">
-            Welcome to Marketplace
-          </h1>
-        </div>
-      </header>
+      <Header title="Welcome to Marketplace" />
 
       {/* SEARCH & FILTERS */}
       <div className="max-w-[80%] w-full mx-auto mt-6">
@@ -198,6 +195,8 @@ const ItemsForSale = () => {
                 onShowInterest={() => {
                   setTimeout(() => setShowInterestForm(product), 400);
                 }}
+                onImageClick={() => navigate(`/product/${product.id}`)}
+                onTitleClick={() => navigate(`/product/${product.id}`)}
               />
             ))}
           </div>

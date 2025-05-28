@@ -19,6 +19,8 @@ const ProductCard = ({
   onHeartClick,
   onShowInterest,
   interestCount,
+  onImageClick,
+  onTitleClick,
 }) => {
   const statusColors = {
     available: "bg-green-500",
@@ -163,6 +165,8 @@ const ProductCard = ({
               transition-transform duration-500 ease-in-out transform-gpu
               object-contain max-w-full max-h-48
               hover:scale-110 hover:-rotate-x-2 hover:rotate-y-2 hover:translate-z-10
+              cursor-pointer hover:scale-105 transition-transform duration-200
+              onClick={onImageClick}
             "
           />
           {/* 3D-ish Shadow/Reflection */}
@@ -178,7 +182,10 @@ const ProductCard = ({
       </div>
 
       {/* Title & Description */}
-      <h4 className="text-lg text-left font-semibold line-clamp-2 text-gray-800">
+      <h4
+        className="text-lg text-left font-semibold line-clamp-2 text-gray-800 cursor-pointer hover:text-blue-600 transition-colors duration-200"
+        onClick={onTitleClick}
+      >
         {product.title}
       </h4>
       <p className="text-sm text-gray-500 text-left line-clamp-2 mt-1">
