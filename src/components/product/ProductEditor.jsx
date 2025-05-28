@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { getDatabase, ref, update, remove } from "firebase/database";
-import { showToast } from "../utils/showToast";
-import { getUserAccess } from "../utils/permissions";
+import { showToast } from "../../utils/showToast";
+import { getUserAccess } from "../../utils/permissions";
 
-import ProductFormFields from "./forms/ProductFormFields";
-import ProductPreview from "./forms/ProductPreview";
-import { buildProductPayload } from "../utils/buildProductPayload";
-import ProductToggles from "./forms/ProductToggles";
-import { usePageTitle } from "../hooks/usePageTitle";
+import ProductFormFields from "./ProductFormFields";
+import ProductPreview from "./ProductPreview";
+import { buildProductPayload } from "../../utils/buildProductPayload";
+import ProductToggles from "./ProductToggles";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 const ProductEditor = ({ product }) => {
   const [access, setAccess] = useState({});

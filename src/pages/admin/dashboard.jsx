@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import SummaryCards from "../components/admin/SummaryCards";
+import SummaryCards from "../../components/admin/SummaryCards";
 import { Link } from "react-router-dom";
-import InterestsTable from "../components/admin/InterestsTable";
-import DashboardProducts from "../components/admin/DashboardProducts";
-import AddAmazonProduct from "./AddAmazonProduct";
+import InterestsTable from "../../components/admin/InterestsTable";
+import DashboardProducts from "../../components/admin/DashboardProducts";
+import AddAmazonProduct from "./add-amazon-product";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();

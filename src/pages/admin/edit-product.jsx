@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getDatabase, ref, get } from "firebase/database";
-import ProductEditor from "../components/ProductEditor";
+import ProductEditor from "../../components/product/ProductEditor";
 
 const EditProduct = () => {
   const { id } = useParams();

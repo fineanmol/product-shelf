@@ -1,12 +1,6 @@
 // src/components/forms/ProductPreview.jsx
 import React from "react";
-
-const currencySymbols = {
-  EUR: "€",
-  USD: "$",
-  INR: "₹",
-  GBP: "£",
-};
+import { currencySymbols } from "../../utils/utils";
 
 const ProductPreview = ({ formData, onClose }) => {
   return (

@@ -35,23 +35,9 @@ const ProductFormFields = ({
   setFormData,
   handleChange,
   canEdit,
+  isSuperAdmin: isSuperAdminProp,
 }) => {
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-
-  useEffect(() => {
-    async function fetchUserAccess() {
-      try {
-        const access = await getUserAccess(formData);
-        setIsSuperAdmin(access.isSuperAdmin);
-      } catch (error) {
-        console.error("Error fetching user access:", error);
-      }
-    }
-
-    if (formData) {
-      fetchUserAccess();
-    }
-  }, [formData]);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(isSuperAdminProp ?? false);
 
   // Track which field the user last edited: "price" or "discount".
   const [lastChanged, setLastChanged] = useState(null);
@@ -136,6 +122,20 @@ const ProductFormFields = ({
     lastChanged,
     setFormData,
   ]);
+
+  useEffect(() => {
+    if (typeof isSuperAdminProp === "undefined" && formData) {
+      async function fetchUserAccess() {
+        try {
+          const access = await getUserAccess(formData);
+          setIsSuperAdmin(access.isSuperAdmin);
+        } catch (error) {
+          console.error("Error fetching user access:", error);
+        }
+      }
+      fetchUserAccess();
+    }
+  }, [formData, isSuperAdminProp]);
 
   // Specialized onChange for "price" or "discount"
   const handlePriceDiscountChange = (e) => {

@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ref, get } from "firebase/database";
 import { db } from "../firebase";
-import InterestFormModal from "../components/InterestFormModal";
+import ProductInterestModal from "../components/product/ProductInterestModal";
 import StepsToBuy from "../components/StepsToBuy";
 import { showToast } from "../utils/showToast";
 import { FaShareAlt, FaHome, FaChevronRight } from "react-icons/fa";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import Header from "../components/Header";
 
-const ProductPage = () => {
+const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -170,7 +170,7 @@ const ProductPage = () => {
         <StepsToBuy />
       </div>
       {showInterestForm && (
-        <InterestFormModal
+        <ProductInterestModal
           product={product}
           onClose={() => setShowInterestForm(false)}
           onSubmit={() => setShowInterestForm(false)}
@@ -184,4 +184,4 @@ const ProductPage = () => {
   );
 };
 
-export default ProductPage;
+export default ProductDetails;

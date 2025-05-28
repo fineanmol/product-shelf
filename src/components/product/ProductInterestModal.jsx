@@ -1,7 +1,7 @@
 // src/components/InterestFormModal.jsx
 
 import React, { useState } from "react";
-import { showToast } from "../utils/showToast";
+import { showToast } from "../../utils/showToast";
 import {
   FaTruck,
   FaStore,
@@ -10,7 +10,7 @@ import {
   FaShippingFast,
 } from "react-icons/fa";
 
-const InterestFormModal = ({ product, onClose, onSubmit }) => {
+const ProductInterestModal = ({ product, onClose, onSubmit }) => {
   const [step, setStep] = useState(1);
   const [deliveryPref, setDeliveryPref] = useState(null);
   const [formData, setFormData] = useState({
@@ -349,4 +349,4 @@ const InterestFormModal = ({ product, onClose, onSubmit }) => {
   );
 };
 
-export default InterestFormModal;
+export default ProductInterestModal;

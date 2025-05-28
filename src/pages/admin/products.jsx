@@ -1,7 +1,7 @@
 // src/pages/AdminProducts.jsx
 import React from "react";
 import { Link } from "react-router-dom";
-import AdminProductTable from "../components/AdminProductTable";
+import AdminProductTable from "../../components/AdminProductTable";
 
 function AdminProducts() {
   return (

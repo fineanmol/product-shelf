@@ -1,25 +1,24 @@
 import "./styles/App.css";
-import ItemsForSale from "./pages/ItemsForSale";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/home";
+import ProductDetails from "./pages/product-details";
 import Login from "./pages/Login";
 import PrivateRoute from "./components/PrivateRoute";
-import ProductPage from "./pages/ProductPage";
-
-import AdminLayout from "./layouts/AdminLayout"; // New layout component
-import AdminDashboard from "./pages/AdminDashboard"; // Renamed from Admin.jsx
-import AdminProducts from "./pages/AdminProducts"; // New products page
-import AdminUsers from "./pages/AdminUsers"; // New users page
-import AddProduct from "./pages/AddProduct";
-import EditProduct from "./pages/EditProduct";
+import AdminLayout from "./layouts/AdminLayout";
+import Dashboard from "./pages/admin/dashboard";
+import Products from "./pages/admin/products";
+import AddProduct from "./pages/admin/add-product";
+import EditProduct from "./pages/admin/edit-product";
+import Users from "./pages/admin/users";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<ItemsForSale />} />
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
 
           {/* Admin (protected) */}
           <Route
@@ -30,14 +29,11 @@ function App() {
               </PrivateRoute>
             }
           >
-            <Route index element={<AdminDashboard />} />
-
-            {/* Products */}
-            <Route path="products" element={<AdminProducts />} />
+            <Route index element={<Dashboard />} />
+            <Route path="products" element={<Products />} />
             <Route path="products/add" element={<AddProduct />} />
             <Route path="products/edit/:id" element={<EditProduct />} />
-
-            <Route path="users" element={<AdminUsers />} />
+            <Route path="users" element={<Users />} />
           </Route>
         </Routes>
       </BrowserRouter>

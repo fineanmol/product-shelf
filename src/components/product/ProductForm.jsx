@@ -1,14 +1,15 @@
-// src/components/ProductForm.jsx
-import React, { useState } from "react";
+// src/components/product/ProductForm.jsx
+import React, { useState, useEffect } from "react";
 import { getDatabase, push, ref } from "firebase/database";
-import { showToast } from "../utils/showToast";
+import { showToast } from "../../utils/showToast";
 import { getAuth } from "firebase/auth";
+import { getUserAccess } from "../../utils/permissions";
 
-import ProductFormFields from "./forms/ProductFormFields";
-import ProductPreview from "./forms/ProductPreview";
-import { buildProductPayload } from "../utils/buildProductPayload";
-import ProductToggles from "./forms/ProductToggles";
-import { usePageTitle } from "../hooks/usePageTitle";
+import ProductFormFields from "./ProductFormFields";
+import ProductPreview from "./ProductPreview";
+import { buildProductPayload } from "../../utils/buildProductPayload";
+import ProductToggles from "./ProductToggles";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 const initial = {
   title: "",
@@ -29,7 +30,20 @@ const initial = {
 const ProductForm = () => {
   const [formData, setFormData] = useState(initial);
   const [showPreview, setShowPreview] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const db = getDatabase();
+
+  useEffect(() => {
+    async function fetchAccess() {
+      try {
+        const access = await getUserAccess(formData);
+        setIsSuperAdmin(access.isSuperAdmin);
+      } catch (error) {
+        setIsSuperAdmin(false);
+      }
+    }
+    fetchAccess();
+  }, [formData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,6 +76,7 @@ const ProductForm = () => {
         setFormData={setFormData}
         handleChange={handleChange}
         canEdit={true}
+        isSuperAdmin={isSuperAdmin}
       />
 
       <ProductToggles

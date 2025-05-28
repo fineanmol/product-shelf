@@ -1,8 +1,8 @@
 // src/components/ProductCard.jsx
 
 import React from "react";
-import { currencySymbols, getConditionLabel } from "../utils/utils";
-import HowItWorksHint from "./hint/HowItWorksHint";
+import { currencySymbols, getConditionLabel } from "../../utils/utils";
+import HowItWorksHint from "../hint/HowItWorksHint";
 import { FaTruck, FaMapMarkerAlt, FaEye } from "react-icons/fa";
 import { PiLinkSimpleBold } from "react-icons/pi";
 import { BsSuitHeartFill } from "react-icons/bs";

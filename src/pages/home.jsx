@@ -2,15 +2,15 @@
 import React, { useEffect, useState } from "react";
 import { ref, push, onValue } from "firebase/database";
 import { db } from "../firebase";
-import ProductCard from "../components/ProductCard";
-import InterestFormModal from "../components/InterestFormModal";
+import ProductCard from "../components/product/ProductCard";
+import ProductInterestModal from "../components/product/ProductInterestModal";
 import emailjs from "emailjs-com";
 import { showToast } from "../utils/showToast";
 import StepsToBuy from "../components/StepsToBuy";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 
-const ItemsForSale = () => {
+const Home = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showInterestForm, setShowInterestForm] = useState(null);
@@ -204,7 +204,7 @@ const ItemsForSale = () => {
 
         {/* Interest Modal */}
         {showInterestForm && (
-          <InterestFormModal
+          <ProductInterestModal
             product={showInterestForm}
             onClose={() => setShowInterestForm(null)}
             onSubmit={handleInterestSubmit}
@@ -227,4 +227,4 @@ const ItemsForSale = () => {
   );
 };
 
-export default ItemsForSale;
+export default Home;
