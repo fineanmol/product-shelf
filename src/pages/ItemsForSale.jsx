@@ -99,7 +99,8 @@ const ItemsForSale = () => {
     .sort((a, b) => {
       if (priceSort === "price-low") return a.price - b.price;
       if (priceSort === "price-high") return b.price - a.price;
-      return 0; // 'latest' - no custom sorting
+      // 'latest' - sort by timestamp descending (latest first)
+      return (b.timestamp || 0) - (a.timestamp || 0);
     });
 
   return (
