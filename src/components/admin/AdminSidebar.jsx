@@ -1,7 +1,7 @@
 // src/components/AdminSidebar.jsx
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaTimes, FaHome, FaBox, FaUsers } from "react-icons/fa";
+import { FaTimes, FaHome, FaBox, FaUsers, FaCommentDots } from "react-icons/fa";
 
 function AdminSidebar({ onClose }) {
   const location = useLocation();
@@ -10,6 +10,7 @@ function AdminSidebar({ onClose }) {
     { to: "/admin", label: "Dashboard", icon: <FaHome /> },
     { to: "/admin/products", label: "Products", icon: <FaBox /> },
     { to: "/admin/users", label: "Users", icon: <FaUsers /> },
+    { to: "/admin/feedback", label: "Feedback", icon: <FaCommentDots /> },
   ];
 
   return (

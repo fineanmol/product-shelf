@@ -10,6 +10,7 @@ import StepsToBuy from "../components/StepsToBuy";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { logEvent } from "firebase/analytics";
+import FeedbackButton from "../components/FeedbackButton";
 
 const Home = () => {
   const [items, setItems] = useState([]);
@@ -235,6 +236,8 @@ const Home = () => {
       <footer className="bg-white text-center text-gray-500 text-sm py-4 mt-auto">
         © {new Date().getFullYear()} Marketplace. All rights reserved.
       </footer>
+
+      <FeedbackButton />
     </div>
   );
 };

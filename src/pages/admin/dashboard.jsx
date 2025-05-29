@@ -8,6 +8,7 @@ import DashboardProducts from "../../components/admin/DashboardProducts";
 import AddAmazonProduct from "./add-amazon-product";
 import { analytics } from "../../firebase";
 import { logEvent } from "firebase/analytics";
+import { FaPlus } from "react-icons/fa";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -36,10 +37,12 @@ const AdminDashboard = () => {
           Welcome back {currentUser?.displayName || "Admin"}
         </p>
       </div>
+
       <AddAmazonProduct />
 
       {/* Summary Cards */}
       <div className="bg-white p-4 sm:p-6 shadow-md rounded-lg">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Overview</h2>
         <SummaryCards />
       </div>
 
@@ -49,8 +52,9 @@ const AdminDashboard = () => {
           <h2 className="text-xl font-semibold text-gray-800">Your Products</h2>
           <Link
             to="/admin/products/add"
-            className="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700"
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
+            <FaPlus />
             Add Product
           </Link>
         </div>
