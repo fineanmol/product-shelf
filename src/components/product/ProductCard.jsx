@@ -82,7 +82,9 @@ const ProductCard = ({
   // Price display (check if price == 0 => "Freebie / Giveaway")
   const renderPrice = () => {
     if (product.price === 0) {
-      return <span className="text-xl font-bold text-green-600">Giveaway</span>;
+      return (
+        <span className="text-xl font-bold text-green-600">Free/Giveaway</span>
+      );
     }
     return (
       <>
@@ -162,8 +164,8 @@ const ProductCard = ({
               object-contain max-w-full max-h-48
               hover:scale-110 hover:-rotate-x-2 hover:rotate-y-2 hover:translate-z-10
               cursor-pointer hover:scale-105 transition-transform duration-200
-              onClick={onImageClick}
             "
+            onClick={onImageClick}
           />
           {/* 3D-ish Shadow/Reflection */}
           <div

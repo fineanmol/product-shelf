@@ -143,70 +143,94 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Use the new Header component with hero variant */}
-      <Header
-        title="Your Local Marketplace"
-        subtitle="Discover amazing products at great prices on MarketSpace - your trusted local marketplace."
-        variant="hero"
-        showSearch={true}
-        searchValue={searchTerm}
-        onSearchChange={(e) => setSearchTerm(e.target.value)}
+      {/* Compact Hero with Integrated Search & Filters */}
+      <Header 
+        title="MarketSpace"
+        subtitle="Your trusted local marketplace"
+        variant="simple"
         currentUser={currentUser}
       />
 
-      {/* SEARCH & FILTERS */}
-      <div className="w-full bg-gray-100 border-b">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-xl shadow-sm border p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              <FaSearch className="inline mr-2" />
-              Filter & Sort Products
-            </h3>
-
-            {/* Filters */}
-            <div className="flex flex-wrap gap-4">
-              <select
-                className="flex-1 min-w-48 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="">All Status</option>
-                <option value="available">Available</option>
-                <option value="reserved">Reserved</option>
-              </select>
-
-              <select
-                className="flex-1 min-w-48 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={conditionFilter}
-                onChange={(e) => setConditionFilter(e.target.value)}
-              >
-                <option value="">All Conditions</option>
-                <option value="new">New</option>
-                <option value="very good">Very Good</option>
-                <option value="good">Good</option>
-                <option value="used">Used</option>
-              </select>
-
-              <select
-                className="flex-1 min-w-48 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={priceSort}
-                onChange={(e) => setPriceSort(e.target.value)}
-              >
-                <option value="latest">Sort by: Latest</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-              </select>
+      {/* Integrated Search & Filters Section */}
+      <div className="bg-gradient-to-r from-blue-50 to-blue-100 border-b">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          {/* Search Bar */}
+          <div className="mb-4">
+            <div className="relative max-w-2xl mx-auto">
+              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search for products..."
+                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg shadow-sm"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
+          </div>
+
+          {/* Compact Filters Row */}
+          <div className="flex flex-wrap gap-3 justify-center">
+            <select
+              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm text-sm"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="">All Status</option>
+              <option value="available">Available</option>
+              <option value="reserved">Reserved</option>
+            </select>
+
+            <select
+              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm text-sm"
+              value={conditionFilter}
+              onChange={(e) => setConditionFilter(e.target.value)}
+            >
+              <option value="">All Conditions</option>
+              <option value="new">New</option>
+              <option value="very good">Very Good</option>
+              <option value="good">Good</option>
+              <option value="used">Used</option>
+            </select>
+
+            <select
+              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm text-sm"
+              value={priceSort}
+              onChange={(e) => setPriceSort(e.target.value)}
+            >
+              <option value="latest">Sort: Latest</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+            </select>
           </div>
         </div>
       </div>
 
       {/* PRODUCTS SECTION */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Available Items ({filteredItems.length})
-          </h2>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">
+              {filteredItems.length > 0 
+                ? `${filteredItems.length} Products Available` 
+                : 'No Products Found'
+              }
+            </h2>
+            {searchTerm && (
+              <p className="text-sm text-gray-600 mt-1">
+                Results for "{searchTerm}"
+              </p>
+            )}
+          </div>
+          
+          {!currentUser && (
+            <button
+              onClick={() => navigate("/login")}
+              className="hidden sm:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              <FaPlus className="text-sm" />
+              Sell Items
+            </button>
+          )}
         </div>
 
         {loading ? (
