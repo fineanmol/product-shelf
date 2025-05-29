@@ -105,7 +105,29 @@ const Login = () => {
     try {
       const auth = getAuth();
       const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
+      
+      // Configure Google Auth Provider
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+
+      // Use a try-catch block specifically for the popup
+      let userCredential;
+      try {
+        userCredential = await signInWithPopup(auth, provider);
+      } catch (popupError) {
+        // Handle popup blocked or closed
+        if (popupError.code === 'auth/popup-blocked') {
+          alert('Please allow popups for this website to sign in with Google.');
+          return;
+        }
+        if (popupError.code === 'auth/popup-closed-by-user') {
+          alert('Sign in was cancelled. Please try again.');
+          return;
+        }
+        throw popupError;
+      }
+
       const user = userCredential.user;
 
       // Check if user is disabled
@@ -209,7 +231,7 @@ const Login = () => {
               <p className="text-gray-600">Sign in to access your dashboard</p>
             </div>
 
-            <form onSubmit={handleGoogleLogin} className="space-y-6">
+            <form onSubmit={handleEmailLogin} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address

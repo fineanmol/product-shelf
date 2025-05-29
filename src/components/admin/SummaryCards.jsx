@@ -10,6 +10,7 @@ function SummaryCards() {
   const [feedbackCount, setFeedbackCount] = useState(0);
   const [pendingFeedbackCount, setPendingFeedbackCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -19,6 +20,7 @@ function SummaryCards() {
       try {
         // Get current user role
         const userRoleData = await getCurrentUserRole();
+        setUserRole(userRoleData);
         
         // Fetch products
         const productsSnapshot = await get(ref(db, "products"));
@@ -57,21 +59,18 @@ function SummaryCards() {
         
         setInterestCount(totalInterests);
 
-        // Fetch feedback (usually global, but can be filtered if needed)
-        const feedbackSnapshot = await get(ref(db, "feedback"));
-        const feedbackData = feedbackSnapshot.val() || {};
-        const feedbackArray = Object.values(feedbackData);
-        
+        // Fetch feedback (only for super admins)
         if (userRoleData.isSuperAdmin) {
-          // Super admins see all feedback
+          const feedbackSnapshot = await get(ref(db, "feedback"));
+          const feedbackData = feedbackSnapshot.val() || {};
+          const feedbackArray = Object.values(feedbackData);
+          
           setFeedbackCount(feedbackArray.length);
           const pendingCount = feedbackArray.filter(
             item => !item.status || item.status === 'todo' || item.status === 'in progress'
           ).length;
           setPendingFeedbackCount(pendingCount);
         } else {
-          // For editors, you might want to filter feedback related to their products
-          // For now, showing 0 since feedback is typically admin-only
           setFeedbackCount(0);
           setPendingFeedbackCount(0);
         }
@@ -103,7 +102,7 @@ function SummaryCards() {
     );
   }
 
-  const cards = [
+  const baseCards = [
     {
       title: "My Products",
       value: productCount,
@@ -115,7 +114,10 @@ function SummaryCards() {
       value: interestCount,
       icon: <FaUsers className="text-green-600" />,
       bgColor: "bg-green-100",
-    },
+    }
+  ];
+
+  const adminOnlyCards = [
     {
       title: "Total Feedback",
       value: feedbackCount,
@@ -129,6 +131,8 @@ function SummaryCards() {
       bgColor: "bg-orange-100",
     }
   ];
+
+  const cards = userRole?.isSuperAdmin ? [...baseCards, ...adminOnlyCards] : baseCards;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">

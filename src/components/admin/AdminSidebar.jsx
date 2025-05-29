@@ -3,14 +3,22 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaTimes, FaHome, FaBox, FaUsers, FaCommentDots } from "react-icons/fa";
 
-function AdminSidebar({ onClose }) {
+function AdminSidebar({ onClose, userRole }) {
   const location = useLocation();
 
-  const links = [
+  const baseLinks = [
     { to: "/admin", label: "Dashboard", icon: <FaHome /> },
     { to: "/admin/products", label: "Products", icon: <FaBox /> },
+  ];
+
+  const adminOnlyLinks = [
     { to: "/admin/users", label: "Users", icon: <FaUsers /> },
     { to: "/admin/feedback", label: "Feedback", icon: <FaCommentDots /> },
+  ];
+
+  const links = [
+    ...baseLinks,
+    ...(userRole?.isSuperAdmin ? adminOnlyLinks : []),
   ];
 
   const handleLinkClick = () => {
@@ -55,14 +63,12 @@ function AdminSidebar({ onClose }) {
               to={link.to}
               onClick={handleLinkClick}
               className={`flex items-center p-3 rounded-lg transition-colors ${
-                isActive 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-gray-700 hover:bg-gray-100'
+                isActive
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-700 hover:bg-gray-100"
               }`}
             >
-              <span className="mr-3 text-lg">
-                {link.icon}
-              </span>
+              <span className="mr-3 text-lg">{link.icon}</span>
               <span className="font-medium">{link.label}</span>
             </Link>
           );
@@ -73,7 +79,9 @@ function AdminSidebar({ onClose }) {
       <div className="p-4 border-t border-gray-200 bg-gray-50">
         <div className="text-center">
           <p className="text-xs text-gray-500">Admin Panel v2.0</p>
-          <p className="text-xs text-gray-400">{new Date().getFullYear()} • Marketplace</p>
+          <p className="text-xs text-gray-400">
+            {new Date().getFullYear()} • Marketplace
+          </p>
         </div>
       </div>
     </div>
