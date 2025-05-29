@@ -136,19 +136,8 @@ const AdminFeedback = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Feedback</h1>
-          <p className="text-gray-600">Manage feature requests and bug reports</p>
-        </div>
-        <div className="text-sm text-gray-500">
-          Total: {feedback.length} | Filtered: {filteredFeedback.length}
-        </div>
-      </div>
-
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4">
+      <div className="bg-white rounded-lg shadow-sm border p-6">
         <div className="flex flex-wrap gap-4">
           {/* Search */}
           <div className="flex-1 min-w-64">
@@ -204,7 +193,18 @@ const AdminFeedback = () => {
       </div>
 
       {/* Feedback List */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+        <div className="bg-gray-50 border-b p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-gray-900">All Feedback</h3>
+              <p className="text-gray-600 text-sm">
+                Total: {feedback.length} | Filtered: {filteredFeedback.length}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {filteredFeedback.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             <FaExclamationTriangle className="text-4xl mx-auto mb-4 text-gray-300" />

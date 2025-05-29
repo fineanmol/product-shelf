@@ -8,7 +8,7 @@ import DashboardProducts from "../../components/admin/DashboardProducts";
 import AddAmazonProduct from "./add-amazon-product";
 import { analytics } from "../../firebase";
 import { logEvent } from "firebase/analytics";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaBox, FaHeart } from "react-icons/fa";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -28,43 +28,85 @@ const AdminDashboard = () => {
     return () => unsubscribe();
   }, [navigate]);
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
+
   return (
-    <div className="min-h-screen flex flex-col gap-6">
-      {/* Header Section */}
-      <div className="bg-white p-4 sm:p-6 shadow-md rounded-lg">
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
-        <p className="text-md text-gray-500 mt-1">
-          Welcome back {currentUser?.displayName || "Admin"}
-        </p>
-      </div>
-
-      <AddAmazonProduct />
-
-      {/* Summary Cards */}
-      <div className="bg-white p-4 sm:p-6 shadow-md rounded-lg">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Overview</h2>
-        <SummaryCards />
-      </div>
-
-      {/* Products Section */}
-      <div className="bg-white p-4 sm:p-6 shadow-md rounded-lg">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Your Products</h2>
-          <Link
-            to="/admin/products/add"
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <FaPlus />
-            Add Product
-          </Link>
+    <div className="min-h-screen bg-gray-50">
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {getGreeting()}, {currentUser?.displayName?.split(' ')[0] || "Admin"}!
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Welcome to your admin dashboard. Monitor and manage your marketplace.
+              </p>
+            </div>
+          </div>
         </div>
-        <DashboardProducts />
-      </div>
 
-      {/* Interests Section */}
-      <div className="bg-white p-4 sm:p-6 shadow-md rounded-lg">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Interests</h2>
-        <InterestsTable />
+        {/* Quick Actions */}
+        <div className="bg-white rounded-lg shadow-sm border p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <AddAmazonProduct />
+        </div>
+
+        {/* Analytics Overview */}
+        <div className="bg-white rounded-lg shadow-sm border p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">Analytics Overview</h2>
+          <SummaryCards />
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          {/* Products Section */}
+          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div className="bg-gray-50 border-b p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <FaBox className="text-blue-600" />
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Products</h3>
+                    <p className="text-sm text-gray-600">Recent products</p>
+                  </div>
+                </div>
+                <Link
+                  to="/admin/products/add"
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
+                >
+                  <FaPlus className="text-xs" />
+                  Add Product
+                </Link>
+              </div>
+            </div>
+            <div className="p-4">
+              <DashboardProducts />
+            </div>
+          </div>
+
+          {/* Interests Section */}
+          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div className="bg-gray-50 border-b p-4">
+              <div className="flex items-center gap-3">
+                <FaHeart className="text-red-500" />
+                <div>
+                  <h3 className="font-semibold text-gray-900">Customer Interests</h3>
+                  <p className="text-sm text-gray-600">Recent customer engagement</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-4">
+              <InterestsTable />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

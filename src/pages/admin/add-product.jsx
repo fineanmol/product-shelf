@@ -6,20 +6,7 @@ import ProductForm from "../../components/product/ProductForm";
 const AddProduct = () => {
   const navigate = useNavigate();
 
-  return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Add New Product</h2>
-        <button
-          onClick={() => navigate("/admin/products")}
-          className="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-        >
-          ← Back to List
-        </button>
-      </div>
-      <ProductForm />
-    </div>
-  );
+  return <ProductForm />;
 };
 
 export default AddProduct;

@@ -1,90 +1,117 @@
 // src/components/admin/SummaryCards.jsx
 import React, { useEffect, useState } from "react";
-import StatCard from "./StatCard";
-import { FaBox, FaUserFriends, FaClock, FaEye, FaCommentDots } from "react-icons/fa";
 import { getDatabase, ref, get } from "firebase/database";
+import { FaBox, FaUsers, FaCommentDots, FaClock } from "react-icons/fa";
 
-const SummaryCards = () => {
-  const [totalProducts, setTotalProducts] = useState(0);
-  const [totalInterested, setTotalInterested] = useState(0);
-  const [recentCount, setRecentCount] = useState(0);
-  const [mostViewed, setMostViewed] = useState("—");
-  const [feedbackData, setFeedbackData] = useState({
-    total: 0,
-    pending: 0
-  });
+function SummaryCards() {
+  const [productCount, setProductCount] = useState(0);
+  const [interestCount, setInterestCount] = useState(0);
+  const [feedbackCount, setFeedbackCount] = useState(0);
+  const [pendingFeedbackCount, setPendingFeedbackCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const db = getDatabase();
+    const fetchCounts = async () => {
+      setLoading(true);
+      const db = getDatabase();
+      
+      try {
+        // Fetch products
+        const productsSnapshot = await get(ref(db, "products"));
+        const productsData = productsSnapshot.val() || {};
+        setProductCount(Object.keys(productsData).length);
 
-    const fetchSummary = async () => {
-      const productsSnap = await get(ref(db, "products"));
-      const interestsSnap = await get(ref(db, "interests"));
-      const feedbackSnap = await get(ref(db, "feedback"));
+        // Fetch interests
+        const interestsSnapshot = await get(ref(db, "interests"));
+        const interestsData = interestsSnapshot.val() || {};
+        setInterestCount(Object.keys(interestsData).length);
 
-      if (productsSnap.exists()) {
-        const products = Object.values(productsSnap.val());
-        setTotalProducts(products.length);
-
-        // Recently added (last 7 days)
-        const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-        const recent = products.filter((p) => p.timestamp > oneWeekAgo);
-        setRecentCount(recent.length);
-
-        // Most viewed (based on 'views' property)
-        const sortedByViews = [...products].sort(
-          (a, b) => (b.views || 0) - (a.views || 0)
-        );
-        setMostViewed(sortedByViews[0]?.title || "—");
-      }
-
-      if (interestsSnap.exists()) {
-        const interestData = interestsSnap.val();
-        const total = Object.values(interestData).reduce((acc, group) => {
-          return acc + Object.keys(group).length;
-        }, 0);
-        setTotalInterested(total);
-      }
-
-      // Fetch feedback data
-      if (feedbackSnap.exists()) {
-        const feedback = Object.values(feedbackSnap.val());
-        const pending = feedback.filter(f => 
-          !f.status || f.status === 'todo' || f.status === 'in progress'
-        ).length;
+        // Fetch feedback
+        const feedbackSnapshot = await get(ref(db, "feedback"));
+        const feedbackData = feedbackSnapshot.val() || {};
+        const feedbackArray = Object.values(feedbackData);
+        setFeedbackCount(feedbackArray.length);
         
-        setFeedbackData({
-          total: feedback.length,
-          pending
-        });
+        // Count pending feedback (todo or in progress)
+        const pendingCount = feedbackArray.filter(
+          item => !item.status || item.status === 'todo' || item.status === 'in progress'
+        ).length;
+        setPendingFeedbackCount(pendingCount);
+      } catch (error) {
+        console.error("Error fetching counts:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchSummary();
+    fetchCounts();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, index) => (
+          <div key={index} className="bg-white rounded-lg shadow-sm border p-6 animate-pulse">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+              <div className="flex-1">
+                <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                <div className="h-6 bg-gray-200 rounded w-16"></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const cards = [
+    {
+      title: "Total Products",
+      value: productCount,
+      icon: <FaBox className="text-blue-600" />,
+      bgColor: "bg-blue-100",
+    },
+    {
+      title: "Customer Interests", 
+      value: interestCount,
+      icon: <FaUsers className="text-green-600" />,
+      bgColor: "bg-green-100",
+    },
+    {
+      title: "Total Feedback",
+      value: feedbackCount,
+      icon: <FaCommentDots className="text-purple-600" />,
+      bgColor: "bg-purple-100",
+    },
+    {
+      title: "Pending Feedback",
+      value: pendingFeedbackCount,
+      icon: <FaClock className="text-orange-600" />,
+      bgColor: "bg-orange-100",
+    }
+  ];
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-      <StatCard title="Total Products" value={totalProducts} icon={<FaBox />} />
-      <StatCard
-        title="Interested Users"
-        value={totalInterested}
-        icon={<FaUserFriends />}
-      />
-      <StatCard
-        title="Recently Added"
-        value={`${recentCount} this week`}
-        icon={<FaClock />}
-      />
-      <StatCard title="Most Viewed" value={mostViewed} icon={<FaEye />} />
-      <StatCard 
-        title="Feedback" 
-        value={`${feedbackData.pending} pending`}
-        subtitle={`${feedbackData.total} total`}
-        icon={<FaCommentDots />} 
-      />
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      {cards.map((card, index) => (
+        <div 
+          key={index}
+          className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-center gap-4">
+            <div className={`w-12 h-12 ${card.bgColor} rounded-lg flex items-center justify-center`}>
+              {card.icon}
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">{card.title}</p>
+              <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
-};
+}
 
 export default SummaryCards;

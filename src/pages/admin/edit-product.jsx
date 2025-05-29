@@ -26,23 +26,17 @@ const EditProduct = () => {
   const handleRefresh = () => setRefreshToggle((prev) => !prev);
 
   if (!product) {
-    return <p className="text-center mt-10">Loading product...</p>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading product...</p>
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Edit Product</h2>
-        <button
-          onClick={() => navigate("/admin/products")}
-          className="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-        >
-          ← Back to List
-        </button>
-      </div>
-      <ProductEditor product={product} onRefresh={handleRefresh} />
-    </div>
-  );
+  return <ProductEditor product={product} onRefresh={handleRefresh} />;
 };
 
 export default EditProduct;
