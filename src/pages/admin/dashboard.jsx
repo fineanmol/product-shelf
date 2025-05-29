@@ -53,10 +53,10 @@ const AdminDashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        {/* <div className="bg-white rounded-lg shadow-sm border p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <AddAmazonProduct />
-        </div>
+        </div> */}
 
         {/* Analytics Overview */}
         <div className="bg-white rounded-lg shadow-sm border p-6">

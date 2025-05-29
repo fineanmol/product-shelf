@@ -9,7 +9,14 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, get, set, update } from "firebase/database";
-import { FaShoppingCart, FaEye, FaEyeSlash, FaArrowLeft, FaRocket, FaShield, FaUsers } from "react-icons/fa";
+import {
+  FaShoppingCart,
+  FaEye,
+  FaEyeSlash,
+  FaArrowLeft,
+  FaRocket,
+  FaUsers,
+} from "react-icons/fa";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -41,6 +48,7 @@ const Login = () => {
     const snapshot = await get(userRef);
 
     if (!snapshot.exists()) {
+      // Create new user with editor role
       await set(userRef, {
         email: user.email,
         name: user.displayName || "User",
@@ -48,56 +56,69 @@ const Login = () => {
         password: providerType === "google" ? "google-auth" : password,
         role: "editor",
         disabled: false,
+        createdAt: Date.now(),
       });
     } else {
       const existing = snapshot.val();
+      // Only update role if it doesn't exist
       if (!existing.role) {
-        await update(userRef, { role: "editor" });
+        await update(userRef, {
+          role: "editor",
+          updatedAt: Date.now(),
+        });
       }
     }
   };
 
-  const loginWithEmail = async (e) => {
+  const handleEmailLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
       const auth = getAuth();
-      const result = await signInWithEmailAndPassword(
+      const userCredential = await signInWithEmailAndPassword(
         auth,
-        email.trim(),
+        email,
         password
       );
-      const user = result.user;
+      const user = userCredential.user;
 
-      const allowed = await handleDisabledCheck(user);
-      if (!allowed) return;
+      // Check if user is disabled
+      const isEnabled = await handleDisabledCheck(user);
+      if (!isEnabled) return;
 
-      await createOrUpdateUserRecord(user, "password");
+      // Create or update user record
+      await createOrUpdateUserRecord(user);
+
       navigate("/admin");
-    } catch (err) {
-      alert("Login failed. Check credentials.");
-      console.error(err);
+    } catch (error) {
+      console.error("Login error:", error);
+      alert(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const loginWithGoogle = async () => {
+  const handleGoogleLogin = async () => {
     setIsLoading(true);
+
     try {
       const auth = getAuth();
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
 
-      const allowed = await handleDisabledCheck(user);
-      if (!allowed) return;
+      // Check if user is disabled
+      const isEnabled = await handleDisabledCheck(user);
+      if (!isEnabled) return;
 
+      // Create or update user record
       await createOrUpdateUserRecord(user, "google");
+
       navigate("/admin");
-    } catch (err) {
-      alert("Google login failed.");
-      console.error(err);
+    } catch (error) {
+      console.error("Google login error:", error);
+      alert(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -106,12 +127,11 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800 flex items-center justify-center p-4">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        
         {/* Left Side - Branding and Info */}
         <div className="text-white space-y-8 lg:pr-8">
           {/* Back Button */}
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             className="flex items-center gap-2 text-blue-200 hover:text-white transition-colors mb-8"
           >
             <FaArrowLeft />
@@ -135,9 +155,9 @@ const Login = () => {
               Join Our <br />
               <span className="text-blue-200">Community</span>
             </h2>
-            
+
             <p className="text-xl text-blue-100 leading-relaxed">
-              Start buying and selling with ease. Access your personal dashboard 
+              Start buying and selling with ease. Access your personal dashboard
               to manage products and connect with buyers.
             </p>
 
@@ -148,27 +168,31 @@ const Login = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Quick Start</h3>
-                  <p className="text-blue-200 text-sm">Set up your account in minutes</p>
+                  <p className="text-blue-200 text-sm">
+                    Set up your account in minutes
+                  </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                  <FaShield className="text-green-300" />
-                </div>
+                <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"></div>
                 <div>
                   <h3 className="font-semibold text-lg">Secure Platform</h3>
-                  <p className="text-blue-200 text-sm">Your data is protected and secure</p>
+                  <p className="text-blue-200 text-sm">
+                    Your data is protected and secure
+                  </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
                   <FaUsers className="text-yellow-300" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Growing Community</h3>
-                  <p className="text-blue-200 text-sm">Join thousands of active users</p>
+                  <p className="text-blue-200 text-sm">
+                    Join thousands of active users
+                  </p>
                 </div>
               </div>
             </div>
@@ -179,11 +203,13 @@ const Login = () => {
         <div className="w-full max-w-md mx-auto">
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back!</h2>
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                Welcome Back!
+              </h2>
               <p className="text-gray-600">Sign in to access your dashboard</p>
             </div>
 
-            <form onSubmit={loginWithEmail} className="space-y-6">
+            <form onSubmit={handleGoogleLogin} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
@@ -250,7 +276,7 @@ const Login = () => {
 
             <button
               type="button"
-              onClick={loginWithGoogle}
+              onClick={handleGoogleLogin}
               disabled={isLoading}
               className="w-full bg-white hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-sm"
             >
@@ -260,8 +286,10 @@ const Login = () => {
 
             <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-blue-800 text-sm text-center">
-                <strong>New users:</strong> Your account will be created automatically with 
-                <span className="font-semibold"> Editor</span> permissions to start selling immediately.
+                <strong>New users:</strong> Your account will be created
+                automatically with
+                <span className="font-semibold"> Editor</span> permissions to
+                start selling immediately.
               </p>
             </div>
           </div>

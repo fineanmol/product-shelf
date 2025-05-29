@@ -19,7 +19,7 @@ import {
   FaHeart, 
   FaSearch,
   FaTags,
-  FaShield,
+
   FaRocket,
   FaArrowRight,
   FaPlus
@@ -149,50 +149,45 @@ const Home = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* HERO SECTION */}
       <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-16">
-          {/* Navigation */}
-          <nav className="flex items-center justify-between mb-12">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                <FaShoppingCart className="text-white text-xl" />
-              </div>
-              <h1 className="text-2xl font-bold">Marketplace</h1>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              {currentUser ? (
-                <div className="flex items-center gap-4">
-                  <span className="text-blue-100">
-                    Welcome, {currentUser.displayName?.split(' ')[0] || 'User'}!
-                  </span>
-                  <button
-                    onClick={() => navigate('/admin')}
-                    className="bg-white/20 hover:bg-white/30 text-white font-medium px-6 py-2.5 rounded-lg transition-all duration-200 backdrop-blur-sm"
-                  >
-                    Dashboard
-                  </button>
+        {/* Navigation - Made sticky */}
+        <nav className="sticky top-0 z-50 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800 backdrop-blur-sm border-b border-white/10">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                  <FaShoppingCart className="text-white text-xl" />
                 </div>
-              ) : (
-                <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold">Marketplace</h1>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                {currentUser ? (
+                  <div className="flex items-center gap-4">
+                    <span className="text-blue-100">
+                      Welcome, {currentUser.displayName?.split(' ')[0] || 'User'}!
+                    </span>
+                    <button
+                      onClick={() => navigate('/admin')}
+                      className="bg-white/20 hover:bg-white/30 text-white font-medium px-6 py-2.5 rounded-lg transition-all duration-200 backdrop-blur-sm"
+                    >
+                      Dashboard
+                    </button>
+                  </div>
+                ) : (
                   <button
                     onClick={() => navigate('/login')}
                     className="bg-white/20 hover:bg-white/30 text-white font-medium px-6 py-2.5 rounded-lg transition-all duration-200 backdrop-blur-sm flex items-center gap-2"
                   >
                     <FaUser className="text-sm" />
-                    Login
+                    Sell on Marketplace
                   </button>
-                  <button
-                    onClick={() => navigate('/login')}
-                    className="bg-white hover:bg-white/90 text-blue-600 font-medium px-6 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2"
-                  >
-                    <FaPlus className="text-sm" />
-                    Start Selling
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </nav>
+          </div>
+        </nav>
 
+        <div className="max-w-7xl mx-auto px-4 py-16">
           {/* Hero Content */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -201,7 +196,7 @@ const Home = () => {
                 <span className="text-blue-200">Marketplace</span>
               </h2>
               <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                Buy and sell items in your community. Connect with local buyers and sellers 
+                Browse and express interest in local products. Connect with sellers 
                 for a seamless marketplace experience.
               </p>
               
@@ -212,11 +207,11 @@ const Home = () => {
                     className="w-full sm:w-auto bg-white hover:bg-gray-100 text-blue-600 font-semibold px-8 py-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 text-lg"
                   >
                     <FaRocket className="text-xl" />
-                    Start Your Journey
+                    Start Selling
                     <FaArrowRight className="text-sm" />
                   </button>
                   <p className="text-blue-200 text-sm">
-                    Join thousands of users already trading on our platform
+                    Join our community of trusted sellers
                   </p>
                 </div>
               )}
@@ -227,7 +222,7 @@ const Home = () => {
                 <h3 className="text-2xl font-bold mb-6">Why Choose Us?</h3>
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
-                    <FaShield className="text-blue-200 text-xl" />
+                  
                     <span className="text-lg">Secure & Trusted Platform</span>
                   </div>
                   <div className="flex items-center gap-4">
@@ -250,57 +245,59 @@ const Home = () => {
       </div>
 
       {/* SEARCH & FILTERS */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Find What You're Looking For</h3>
-          
-          {/* Row 1: Search */}
-          <div className="mb-4">
-            <div className="relative">
-              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+      <div className="w-full bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="bg-white rounded-xl shadow-sm border p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Find What You're Looking For</h3>
+            
+            {/* Row 1: Search */}
+            <div className="mb-4">
+              <div className="relative">
+                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Row 2: Filters */}
-          <div className="flex flex-wrap gap-4">
-            <select
-              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="">All Status</option>
-              <option value="available">Available</option>
-              <option value="reserved">Reserved</option>
-            </select>
+            {/* Row 2: Filters */}
+            <div className="flex flex-wrap gap-4">
+              <select
+                className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="">All Status</option>
+                <option value="available">Available</option>
+                <option value="reserved">Reserved</option>
+              </select>
 
-            <select
-              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={conditionFilter}
-              onChange={(e) => setConditionFilter(e.target.value)}
-            >
-              <option value="">All Conditions</option>
-              <option value="new">New</option>
-              <option value="very good">Very Good</option>
-              <option value="good">Good</option>
-              <option value="used">Used</option>
-            </select>
+              <select
+                className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={conditionFilter}
+                onChange={(e) => setConditionFilter(e.target.value)}
+              >
+                <option value="">All Conditions</option>
+                <option value="new">New</option>
+                <option value="very good">Very Good</option>
+                <option value="good">Good</option>
+                <option value="used">Used</option>
+              </select>
 
-            <select
-              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={priceSort}
-              onChange={(e) => setPriceSort(e.target.value)}
-            >
-              <option value="latest">Sort by: Latest</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-            </select>
+              <select
+                className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={priceSort}
+                onChange={(e) => setPriceSort(e.target.value)}
+              >
+                <option value="latest">Sort by: Latest</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>

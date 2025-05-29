@@ -29,6 +29,8 @@ export const getUserAccess = async (product) => {
   const userRef = ref(db, `users/${currentUser.uid}`);
   const userSnap = await get(userRef);
   const userData = userSnap.exists() ? userSnap.val() : {};
+  
+  // Default role is 'editor' if not specified
   const role = userData.role || 'editor';
 
   // 3. isAuthor checks product's 'added_by'.
@@ -57,22 +59,31 @@ export const getCurrentUserRole = async () => {
 
   const db = getDatabase();
   
-  // Check if user is super admin
-  const adminRef = ref(db, `superAdmins/${currentUser.uid}`);
-  const adminSnap = await get(adminRef);
-  const isSuperAdmin = adminSnap.exists() && adminSnap.val() === true;
+  try {
+    // Check if user is super admin
+    const adminRef = ref(db, `superAdmins/${currentUser.uid}`);
+    const adminSnap = await get(adminRef);
+    const isSuperAdmin = adminSnap.exists() && adminSnap.val() === true;
 
-  // Get user role from users table
-  const userRef = ref(db, `users/${currentUser.uid}`);
-  const userSnap = await get(userRef);
-  const userData = userSnap.exists() ? userSnap.val() : {};
-  const role = userData.role || 'editor';
+    // Get user role from users table
+    const userRef = ref(db, `users/${currentUser.uid}`);
+    const userSnap = await get(userRef);
+    const userData = userSnap.exists() ? userSnap.val() : {};
+    
+    // Default role is 'editor' if not specified
+    const role = userData.role || 'editor';
 
-  return {
-    role,
-    isSuperAdmin,
-    user: currentUser,
-  };
+    
+
+    return {
+      role,
+      isSuperAdmin,
+      user: currentUser,
+    };
+  } catch (error) {
+    console.error('Error getting user role:', error);
+    return { role: 'editor', isSuperAdmin: false, user: currentUser };
+  }
 };
 
 export const filterDataByUserRole = (data, userRole, userId, isSuperAdmin) => {
