@@ -3,6 +3,7 @@ import { getDatabase, ref, get } from "firebase/database";
 import { FaWhatsapp } from "react-icons/fa";
 import SearchInput from "../shared/SearchInput";
 import ExportCSVButton from "../shared/ExportCSVButton";
+import { getCurrentUserRole } from "../../utils/permissions";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -15,31 +16,53 @@ const InterestsTable = () => {
   useEffect(() => {
     const fetchData = async () => {
       const db = getDatabase();
+      
+      // Get current user role
+      const userRoleData = await getCurrentUserRole();
+      
       const [interestsSnap, productsSnap] = await Promise.all([
         get(ref(db, "interests")),
         get(ref(db, "products")),
       ]);
 
+      let productsList = {};
+      if (productsSnap.exists()) {
+        productsList = productsSnap.val();
+        
+        // Filter products based on user role
+        if (!userRoleData.isSuperAdmin && userRoleData.role === 'editor') {
+          // For editors, filter to only their products
+          const filteredProducts = {};
+          Object.entries(productsList).forEach(([productId, productData]) => {
+            if (productData.added_by === userRoleData.user?.uid) {
+              filteredProducts[productId] = productData;
+            }
+          });
+          productsList = filteredProducts;
+        }
+        
+        setProducts(productsList);
+      }
+
       const interestList = [];
       if (interestsSnap.exists()) {
         const rawData = interestsSnap.val();
         Object.entries(rawData).forEach(([productId, entries]) => {
-          Object.values(entries).forEach((entry) => {
-            interestList.push({
-              ...entry,
-              productId,
+          // Only include interests for products the user can see
+          if (productsList[productId]) {
+            Object.values(entries).forEach((entry) => {
+              interestList.push({
+                ...entry,
+                productId,
+              });
             });
-          });
+          }
         });
 
         // Sort by timestamp descending
         interestList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
         setInterests(interestList);
-      }
-
-      if (productsSnap.exists()) {
-        setProducts(productsSnap.val());
       }
     };
 

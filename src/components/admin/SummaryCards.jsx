@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { getDatabase, ref, get } from "firebase/database";
 import { FaBox, FaUsers, FaCommentDots, FaClock } from "react-icons/fa";
+import { getCurrentUserRole, filterDataByUserRole } from "../../utils/permissions";
 
 function SummaryCards() {
   const [productCount, setProductCount] = useState(0);
@@ -16,27 +17,64 @@ function SummaryCards() {
       const db = getDatabase();
       
       try {
+        // Get current user role
+        const userRoleData = await getCurrentUserRole();
+        
         // Fetch products
         const productsSnapshot = await get(ref(db, "products"));
         const productsData = productsSnapshot.val() || {};
-        setProductCount(Object.keys(productsData).length);
+        let productsList = Object.entries(productsData).map(([id, data]) => ({ id, ...data }));
+        
+        // Filter products based on user role
+        productsList = filterDataByUserRole(
+          productsList,
+          userRoleData.role,
+          userRoleData.user?.uid,
+          userRoleData.isSuperAdmin
+        );
+        
+        setProductCount(productsList.length);
 
         // Fetch interests
         const interestsSnapshot = await get(ref(db, "interests"));
         const interestsData = interestsSnapshot.val() || {};
-        setInterestCount(Object.keys(interestsData).length);
+        
+        let totalInterests = 0;
+        if (userRoleData.isSuperAdmin) {
+          // Super admins see all interests
+          totalInterests = Object.values(interestsData).reduce((total, productInterests) => {
+            return total + Object.keys(productInterests).length;
+          }, 0);
+        } else {
+          // Editors only see interests for their products
+          const userProductIds = productsList.map(p => p.id);
+          userProductIds.forEach(productId => {
+            if (interestsData[productId]) {
+              totalInterests += Object.keys(interestsData[productId]).length;
+            }
+          });
+        }
+        
+        setInterestCount(totalInterests);
 
-        // Fetch feedback
+        // Fetch feedback (usually global, but can be filtered if needed)
         const feedbackSnapshot = await get(ref(db, "feedback"));
         const feedbackData = feedbackSnapshot.val() || {};
         const feedbackArray = Object.values(feedbackData);
-        setFeedbackCount(feedbackArray.length);
         
-        // Count pending feedback (todo or in progress)
-        const pendingCount = feedbackArray.filter(
-          item => !item.status || item.status === 'todo' || item.status === 'in progress'
-        ).length;
-        setPendingFeedbackCount(pendingCount);
+        if (userRoleData.isSuperAdmin) {
+          // Super admins see all feedback
+          setFeedbackCount(feedbackArray.length);
+          const pendingCount = feedbackArray.filter(
+            item => !item.status || item.status === 'todo' || item.status === 'in progress'
+          ).length;
+          setPendingFeedbackCount(pendingCount);
+        } else {
+          // For editors, you might want to filter feedback related to their products
+          // For now, showing 0 since feedback is typically admin-only
+          setFeedbackCount(0);
+          setPendingFeedbackCount(0);
+        }
       } catch (error) {
         console.error("Error fetching counts:", error);
       } finally {
@@ -67,7 +105,7 @@ function SummaryCards() {
 
   const cards = [
     {
-      title: "Total Products",
+      title: "My Products",
       value: productCount,
       icon: <FaBox className="text-blue-600" />,
       bgColor: "bg-blue-100",

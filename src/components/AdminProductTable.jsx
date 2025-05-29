@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getDatabase, ref, get, update, remove } from "firebase/database";
 import { Link } from "react-router-dom";
-import { getUserAccess } from "../utils/permissions";
+import { getUserAccess, getCurrentUserRole, filterDataByUserRole } from "../utils/permissions";
 import { usePageTitle } from "../hooks/usePageTitle";
 import SearchInput from "./shared/SearchInput";
 import ExportCSVButton from "./shared/ExportCSVButton";
@@ -18,6 +18,7 @@ const AdminProductTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [interestSearch, setInterestSearch] = useState({});
   const [loading, setLoading] = useState(true);
+  const [currentUserRole, setCurrentUserRole] = useState(null);
 
   // Default sort by product "timestamp" in descending order
   const [sortKey, setSortKey] = useState("timestamp");
@@ -30,15 +31,27 @@ const AdminProductTable = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // Get current user role
+        const userRoleData = await getCurrentUserRole();
+        setCurrentUserRole(userRoleData);
+
         const productsSnap = await get(ref(db, "products"));
         const interestsSnap = await get(ref(db, "interests"));
 
         if (productsSnap.exists()) {
           const data = productsSnap.val();
-          const entries = Object.entries(data).map(([id, value]) => ({
+          let entries = Object.entries(data).map(([id, value]) => ({
             id,
             ...value,
           }));
+
+          // Filter products based on user role
+          entries = filterDataByUserRole(
+            entries,
+            userRoleData.role,
+            userRoleData.user?.uid,
+            userRoleData.isSuperAdmin
+          );
 
           setProducts(entries);
 
@@ -61,7 +74,29 @@ const AdminProductTable = () => {
         }
 
         if (interestsSnap.exists()) {
-          setInterestData(interestsSnap.val());
+          const allInterests = interestsSnap.val();
+          
+          // Filter interests based on user role
+          if (userRoleData.isSuperAdmin) {
+            // Super admins see all interests
+            setInterestData(allInterests);
+          } else {
+            // Editors only see interests for their own products
+            const filteredInterests = {};
+            Object.keys(allInterests).forEach(productId => {
+              // Check if this product belongs to the current user
+              const productRef = ref(db, `products/${productId}`);
+              get(productRef).then(productSnap => {
+                if (productSnap.exists()) {
+                  const productData = productSnap.val();
+                  if (productData.added_by === userRoleData.user?.uid) {
+                    filteredInterests[productId] = allInterests[productId];
+                  }
+                }
+              });
+            });
+            setInterestData(filteredInterests);
+          }
         }
       } catch (error) {
         console.error("Error fetching data:", error);

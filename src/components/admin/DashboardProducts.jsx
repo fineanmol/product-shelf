@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { getDatabase, ref, get } from "firebase/database";
 import { Link } from "react-router-dom";
+import { getCurrentUserRole, filterDataByUserRole } from "../../utils/permissions";
 
 const DashboardProducts = () => {
   const [products, setProducts] = useState([]);
@@ -9,6 +10,10 @@ const DashboardProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       const db = getDatabase();
+      
+      // Get current user role
+      const userRoleData = await getCurrentUserRole();
+      
       const snap = await get(ref(db, "products"));
       if (snap.exists()) {
         let data = snap.val();
@@ -16,6 +21,14 @@ const DashboardProducts = () => {
           id,
           ...val,
         }));
+
+        // Filter products based on user role
+        entries = filterDataByUserRole(
+          entries,
+          userRoleData.role,
+          userRoleData.user?.uid,
+          userRoleData.isSuperAdmin
+        );
 
         // Sort by timestamp descending and take top 5
         entries.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
