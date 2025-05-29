@@ -1,7 +1,7 @@
 // src/pages/ItemsForSale.tsx
 import React, { useEffect, useState } from "react";
 import { ref, push, onValue } from "firebase/database";
-import { db } from "../firebase";
+import { db, analytics } from "../firebase";
 import ProductCard from "../components/product/ProductCard";
 import ProductInterestModal from "../components/product/ProductInterestModal";
 import emailjs from "emailjs-com";
@@ -9,6 +9,7 @@ import { showToast } from "../utils/showToast";
 import StepsToBuy from "../components/StepsToBuy";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
+import { logEvent } from "firebase/analytics";
 
 const Home = () => {
   const [items, setItems] = useState([]);
@@ -53,6 +54,9 @@ const Home = () => {
       }
     });
 
+    // Log home view
+    if (analytics) logEvent(analytics, "view_home");
+
     return () => {
       productListener();
       interestListener();
@@ -74,6 +78,7 @@ const Home = () => {
         delivery_preferences,
         timestamp: Date.now(),
       });
+      if (analytics) logEvent(analytics, "submit_interest", { product_id: product.id });
       setInterestedItems((prev) => [...prev, product.id]);
       setShowInterestForm(null);
       showToast("✅ Thanks! Your interest was submitted.");
@@ -193,10 +198,17 @@ const Home = () => {
                   );
                 }}
                 onShowInterest={() => {
+                  if (analytics) logEvent(analytics, "open_interest_form", { product_id: product.id });
                   setTimeout(() => setShowInterestForm(product), 400);
                 }}
-                onImageClick={() => navigate(`/product/${product.id}`)}
-                onTitleClick={() => navigate(`/product/${product.id}`)}
+                onImageClick={() => {
+                  if (analytics) logEvent(analytics, "view_product", { product_id: product.id });
+                  navigate(`/product/${product.id}`);
+                }}
+                onTitleClick={() => {
+                  if (analytics) logEvent(analytics, "view_product", { product_id: product.id });
+                  navigate(`/product/${product.id}`);
+                }}
               />
             ))}
           </div>

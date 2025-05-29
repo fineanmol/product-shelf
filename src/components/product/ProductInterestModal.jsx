@@ -20,26 +20,6 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
     message: "",
   });
 
-  // For demonstration: share the product link (or fallback to copy)
-  const handleShare = () => {
-    const productLink = product.url || window.location.href;
-    if (navigator.share) {
-      navigator
-        .share({
-          title: product.title,
-          text: `Check out this product: ${product.title}`,
-          url: productLink,
-        })
-        .then(() => showToast("✅ Shared successfully!"))
-        .catch(() => showToast("❌ Could not share. Please try again."));
-    } else {
-      // Fallback: copy to clipboard
-      const url = `${window.location.origin}/product/${product.id}`;
-      navigator.clipboard.writeText(url);
-      showToast("Product link copied!");
-    }
-  };
-
   const handleNext = () => {
     // Step 1 validation
     if (step === 1 && !deliveryPref) {
@@ -173,8 +153,19 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
                   className="flex items-center gap-1 text-gray-500 text-xs mt-1 cursor-pointer hover:text-gray-600"
                   onClick={() => {
                     const url = `${window.location.origin}/product/${product.id}`;
-                    navigator.clipboard.writeText(url);
-                    showToast("Product link copied!");
+                    if (navigator.share) {
+                      navigator
+                        .share({
+                          title: product.title,
+                          text: `Check out this product: ${product.title}`,
+                          url,
+                        })
+                        .then(() => showToast("✅ Shared successfully!"))
+                        .catch(() => showToast("❌ Could not share. Please try again."));
+                    } else {
+                      navigator.clipboard.writeText(url);
+                      showToast("Product link copied!");
+                    }
                   }}
                 >
                   <FaShareAlt />

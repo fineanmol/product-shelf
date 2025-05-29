@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ref, get } from "firebase/database";
-import { db } from "../firebase";
+import { db, analytics } from "../firebase";
 import ProductInterestModal from "../components/product/ProductInterestModal";
 import StepsToBuy from "../components/StepsToBuy";
 import { showToast } from "../utils/showToast";
 import { FaShareAlt, FaHome, FaChevronRight } from "react-icons/fa";
-import { getAnalytics, logEvent } from "firebase/analytics";
+import { logEvent } from "firebase/analytics";
 import Header from "../components/Header";
 
 const ProductDetails = () => {
@@ -33,15 +33,12 @@ const ProductDetails = () => {
       setLoading(false);
     };
     fetchProduct();
-    // Track page view
-    try {
-      const analytics = getAnalytics();
-      logEvent(analytics, "view_product_page", { product_id: id });
-    } catch (e) {}
+    if (analytics) logEvent(analytics, "view_product_page", { product_id: id });
   }, [id]);
 
   const handleShare = async () => {
     const url = window.location.href;
+    if (analytics) logEvent(analytics, "share_product", { product_id: product?.id });
     if (navigator.share) {
       try {
         await navigator.share({
@@ -173,7 +170,10 @@ const ProductDetails = () => {
         <ProductInterestModal
           product={product}
           onClose={() => setShowInterestForm(false)}
-          onSubmit={() => setShowInterestForm(false)}
+          onSubmit={() => {
+            if (analytics) logEvent(analytics, "submit_interest", { product_id: product.id });
+            setShowInterestForm(false);
+          }}
         />
       )}
       {/* FOOTER */}

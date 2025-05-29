@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import InterestsTable from "../../components/admin/InterestsTable";
 import DashboardProducts from "../../components/admin/DashboardProducts";
 import AddAmazonProduct from "./add-amazon-product";
+import { analytics } from "../../firebase";
+import { logEvent } from "firebase/analytics";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -18,6 +20,7 @@ const AdminDashboard = () => {
         navigate("/login");
       } else {
         setCurrentUser(user);
+        if (analytics) logEvent(analytics, "view_admin_dashboard", { user_id: user.uid });
       }
     });
 

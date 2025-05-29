@@ -1,3 +1,4 @@
+import { Routes, Route } from "react-router-dom";
 import "./styles/App.css";
 import Home from "./pages/home";
 import ProductDetails from "./pages/product-details";
@@ -9,34 +10,31 @@ import Products from "./pages/admin/products";
 import AddProduct from "./pages/admin/add-product";
 import EditProduct from "./pages/admin/edit-product";
 import Users from "./pages/admin/users";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/product/:id" element={<ProductDetails />} />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
 
-          {/* Admin (protected) */}
-          <Route
-            path="/admin"
-            element={
-              <PrivateRoute>
-                <AdminLayout />
-              </PrivateRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="products" element={<Products />} />
-            <Route path="products/add" element={<AddProduct />} />
-            <Route path="products/edit/:id" element={<EditProduct />} />
-            <Route path="users" element={<Users />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+        {/* Admin (protected) */}
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute>
+              <AdminLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="products" element={<Products />} />
+          <Route path="products/add" element={<AddProduct />} />
+          <Route path="products/edit/:id" element={<EditProduct />} />
+          <Route path="users" element={<Users />} />
+        </Route>
+      </Routes>
     </div>
   );
 }
