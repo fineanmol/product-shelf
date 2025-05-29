@@ -24,7 +24,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "firebase deploy --only hosting,database",
-    "publish": "npm run build && npm run deploy"
+    "publish": "npm run build && npm run deploy",
+    "lint": "npx eslint src/**/*.{js,jsx} --max-warnings=0"
   },
   "eslintConfig": {
     "extends": [

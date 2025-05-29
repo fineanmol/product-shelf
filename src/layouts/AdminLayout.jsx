@@ -7,9 +7,7 @@ import {
   FaGlobe,
   FaSignOutAlt,
   FaUser,
-  FaBell,
   FaSearch,
-  FaTimes,
 } from "react-icons/fa";
 import { getDatabase, ref, onValue } from "firebase/database";
 import AdminSidebar from "../components/admin/AdminSidebar";
@@ -38,14 +36,16 @@ function AdminLayout() {
           setUserRole(roleData);
 
           // If not super admin and trying to access admin-only routes
-          if (!roleData.isSuperAdmin && 
-              (location.pathname.startsWith('/admin/users') || 
-               location.pathname.startsWith('/admin/feedback'))) {
-            navigate('/admin');
+          if (
+            !roleData.isSuperAdmin &&
+            (location.pathname.startsWith("/admin/users") ||
+              location.pathname.startsWith("/admin/feedback"))
+          ) {
+            navigate("/admin");
           }
         } catch (error) {
-          console.error('Error checking user role:', error);
-          navigate('/login');
+          console.error("Error checking user role:", error);
+          navigate("/login");
         }
       }
     });
@@ -104,7 +104,12 @@ function AdminLayout() {
           sidebarOpen ? "w-64" : "w-0"
         }`}
       >
-        {sidebarOpen && <AdminSidebar onClose={() => setSidebarOpen(false)} userRole={userRole} />}
+        {sidebarOpen && (
+          <AdminSidebar
+            onClose={() => setSidebarOpen(false)}
+            userRole={userRole}
+          />
+        )}
       </div>
 
       {/* Mobile Sidebar Overlay */}
@@ -115,7 +120,10 @@ function AdminLayout() {
             onClick={() => setSidebarOpen(false)}
           ></div>
           <div className="fixed inset-y-0 left-0 z-50 w-full lg:hidden">
-            <AdminSidebar onClose={() => setSidebarOpen(false)} userRole={userRole} />
+            <AdminSidebar
+              onClose={() => setSidebarOpen(false)}
+              userRole={userRole}
+            />
           </div>
         </>
       )}

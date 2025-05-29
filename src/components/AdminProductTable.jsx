@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { getDatabase, ref, get, update, remove } from "firebase/database";
 import { Link } from "react-router-dom";
-import { getUserAccess, getCurrentUserRole, filterDataByUserRole } from "../utils/permissions";
+import {
+  getUserAccess,
+  getCurrentUserRole,
+  filterDataByUserRole,
+} from "../utils/permissions";
 import { usePageTitle } from "../hooks/usePageTitle";
 import SearchInput from "./shared/SearchInput";
 import ExportCSVButton from "./shared/ExportCSVButton";
 // React Icons
 import { FiEdit, FiDownload, FiEye, FiEyeOff } from "react-icons/fi";
 import { MdDelete } from "react-icons/md";
-import { FaFileExport, FaLock, FaArrowUp, FaArrowDown, FaWhatsapp } from "react-icons/fa";
+import { FaLock, FaArrowUp, FaArrowDown, FaWhatsapp } from "react-icons/fa";
 import { showToast } from "../utils/showToast";
 
 const AdminProductTable = () => {
@@ -75,7 +79,7 @@ const AdminProductTable = () => {
 
         if (interestsSnap.exists()) {
           const allInterests = interestsSnap.val();
-          
+
           // Filter interests based on user role
           if (userRoleData.isSuperAdmin) {
             // Super admins see all interests
@@ -83,10 +87,10 @@ const AdminProductTable = () => {
           } else {
             // Editors only see interests for their own products
             const filteredInterests = {};
-            Object.keys(allInterests).forEach(productId => {
+            Object.keys(allInterests).forEach((productId) => {
               // Check if this product belongs to the current user
               const productRef = ref(db, `products/${productId}`);
-              get(productRef).then(productSnap => {
+              get(productRef).then((productSnap) => {
                 if (productSnap.exists()) {
                   const productData = productSnap.val();
                   if (productData.added_by === userRoleData.user?.uid) {
@@ -215,7 +219,9 @@ const AdminProductTable = () => {
     const blob = new Blob([csvString], { type: "text/csv" });
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = `all_products_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `all_products_${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
     link.click();
     showToast("✅ Export completed successfully");
   };
@@ -253,7 +259,7 @@ const AdminProductTable = () => {
             {filteredProducts.length} of {products.length} products
           </span>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <button
             onClick={handleExportAll}
@@ -275,12 +281,13 @@ const AdminProductTable = () => {
       {filteredProducts.length === 0 ? (
         <div className="bg-white rounded-lg border p-8 text-center">
           <div className="text-gray-400 text-4xl mb-4">📦</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No products found
+          </h3>
           <p className="text-gray-600 mb-4">
-            {products.length === 0 
+            {products.length === 0
               ? "Start by adding your first product"
-              : "Try adjusting your search term"
-            }
+              : "Try adjusting your search term"}
           </p>
           {products.length === 0 && (
             <Link
@@ -297,7 +304,7 @@ const AdminProductTable = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th 
+                  <th
                     onClick={() => handleSort("title")}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                   >
@@ -306,7 +313,7 @@ const AdminProductTable = () => {
                       {renderSortIcon("title")}
                     </div>
                   </th>
-                  <th 
+                  <th
                     onClick={() => handleSort("price")}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                   >
@@ -315,7 +322,7 @@ const AdminProductTable = () => {
                       {renderSortIcon("price")}
                     </div>
                   </th>
-                  <th 
+                  <th
                     onClick={() => handleSort("status")}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                   >
@@ -324,7 +331,7 @@ const AdminProductTable = () => {
                       {renderSortIcon("status")}
                     </div>
                   </th>
-                  <th 
+                  <th
                     onClick={() => handleSort("visible")}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                   >
@@ -336,7 +343,7 @@ const AdminProductTable = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Interests
                   </th>
-                  <th 
+                  <th
                     onClick={() => handleSort("timestamp")}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                   >
@@ -354,21 +361,25 @@ const AdminProductTable = () => {
                 {sortedProducts.map((p) => {
                   const interests = interestData[p.id] || {};
                   const { canEdit } = accessMap[p.id] || {};
-                  const filteredInterests = Object.values(interests).filter((i) =>
-                    interestSearch[p.id]
-                      ? i.name
-                          ?.toLowerCase()
-                          .includes(interestSearch[p.id].toLowerCase()) ||
-                        i.email
-                          ?.toLowerCase()
-                          .includes(interestSearch[p.id].toLowerCase())
-                      : true
+                  const filteredInterests = Object.values(interests).filter(
+                    (i) =>
+                      interestSearch[p.id]
+                        ? i.name
+                            ?.toLowerCase()
+                            .includes(interestSearch[p.id].toLowerCase()) ||
+                          i.email
+                            ?.toLowerCase()
+                            .includes(interestSearch[p.id].toLowerCase())
+                        : true
                   );
 
                   const daysLive = getDaysLive(p.timestamp);
 
                   return (
-                    <tr key={p.id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={p.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       {/* Product Info */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
@@ -378,12 +389,15 @@ const AdminProductTable = () => {
                               alt={p.title}
                               className="w-full h-full object-cover"
                               onError={(e) => {
-                                e.target.src = '/placeholder-image.png';
+                                e.target.src = "/placeholder-image.png";
                               }}
                             />
                           </div>
                           <div className="min-w-0 flex-1 max-w-xs">
-                            <div className="font-medium text-gray-900 truncate" title={p.title}>
+                            <div
+                              className="font-medium text-gray-900 truncate"
+                              title={p.title}
+                            >
                               {p.title}
                             </div>
                             <div className="flex items-center gap-2 mt-1">
@@ -395,7 +409,11 @@ const AdminProductTable = () => {
                               )}
                               {daysLive !== null && (
                                 <span className="text-xs text-gray-500">
-                                  {daysLive === 0 ? 'Added today' : `${daysLive} day${daysLive === 1 ? '' : 's'} ago`}
+                                  {daysLive === 0
+                                    ? "Added today"
+                                    : `${daysLive} day${
+                                        daysLive === 1 ? "" : "s"
+                                      } ago`}
                                 </span>
                               )}
                             </div>
@@ -409,15 +427,19 @@ const AdminProductTable = () => {
                           <input
                             type="number"
                             className={`w-24 px-3 py-2 text-sm border rounded-lg transition-colors ${
-                              canEdit 
-                                ? 'border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500' 
-                                : 'border-gray-200 bg-gray-50'
+                              canEdit
+                                ? "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                : "border-gray-200 bg-gray-50"
                             }`}
-                            value={p.price || ''}
+                            value={p.price || ""}
                             disabled={!canEdit}
                             onChange={(e) =>
                               canEdit &&
-                              handleToggle(p.id, "price", Number(e.target.value))
+                              handleToggle(
+                                p.id,
+                                "price",
+                                Number(e.target.value)
+                              )
                             }
                             placeholder="Price"
                           />
@@ -437,7 +459,9 @@ const AdminProductTable = () => {
                             handleToggle(
                               p.id,
                               "status",
-                              p.status === "available" ? "reserved" : "available"
+                              p.status === "available"
+                                ? "reserved"
+                                : "available"
                             )
                           }
                           className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${
@@ -459,7 +483,11 @@ const AdminProductTable = () => {
                         <button
                           onClick={() =>
                             canEdit &&
-                            handleToggle(p.id, "visible", !(p.visible !== false))
+                            handleToggle(
+                              p.id,
+                              "visible",
+                              !(p.visible !== false)
+                            )
                           }
                           className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                             p.visible === false
@@ -492,7 +520,7 @@ const AdminProductTable = () => {
                             {Object.keys(interests).length}
                           </span>
                           <span className="text-gray-500 ml-1">interested</span>
-                          
+
                           {Object.keys(interests).length > 0 && (
                             <details className="mt-2">
                               <summary className="cursor-pointer text-blue-600 hover:text-blue-800 text-xs font-medium">
@@ -514,21 +542,33 @@ const AdminProductTable = () => {
                                   />
                                 )}
                                 <div className="space-y-2 max-h-40 overflow-y-auto">
-                                  {filteredInterests.slice(0, 5).map((entry, i) => (
-                                    <div key={i} className="bg-white p-2 rounded border text-xs">
-                                      <div className="font-medium text-gray-900">{entry.name}</div>
-                                      <div className="text-gray-600">{entry.email}</div>
-                                      <a
-                                        href={`https://wa.me/${entry.phone.replace(/\D/g, "")}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-green-600 hover:text-green-800"
+                                  {filteredInterests
+                                    .slice(0, 5)
+                                    .map((entry, i) => (
+                                      <div
+                                        key={i}
+                                        className="bg-white p-2 rounded border text-xs"
                                       >
-                                        <FaWhatsapp className="text-xs" />
-                                        {entry.phone}
-                                      </a>
-                                    </div>
-                                  ))}
+                                        <div className="font-medium text-gray-900">
+                                          {entry.name}
+                                        </div>
+                                        <div className="text-gray-600">
+                                          {entry.email}
+                                        </div>
+                                        <a
+                                          href={`https://wa.me/${entry.phone.replace(
+                                            /\D/g,
+                                            ""
+                                          )}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="inline-flex items-center gap-1 text-green-600 hover:text-green-800"
+                                        >
+                                          <FaWhatsapp className="text-xs" />
+                                          {entry.phone}
+                                        </a>
+                                      </div>
+                                    ))}
                                   {filteredInterests.length > 5 && (
                                     <div className="text-xs text-gray-500 text-center">
                                       +{filteredInterests.length - 5} more
@@ -544,7 +584,10 @@ const AdminProductTable = () => {
                                         phone: e.phone,
                                       }))}
                                       headers={["name", "email", "phone"]}
-                                      filename={`${p.title.replace(/[^a-zA-Z0-9]/g, '_')}_contacts.csv`}
+                                      filename={`${p.title.replace(
+                                        /[^a-zA-Z0-9]/g,
+                                        "_"
+                                      )}_contacts.csv`}
                                       className="text-xs"
                                     />
                                   </div>

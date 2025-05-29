@@ -12,17 +12,14 @@ import Header from "../components/Header";
 import { logEvent } from "firebase/analytics";
 import FeedbackButton from "../components/FeedbackButton";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { 
-  FaUser, 
-  FaGoogle, 
-  FaShoppingCart, 
-  FaHeart, 
+import {
+  FaUser,
+  FaShoppingCart,
+  FaHeart,
   FaSearch,
   FaTags,
-
   FaRocket,
   FaArrowRight,
-  FaPlus
 } from "react-icons/fa";
 
 const Home = () => {
@@ -104,7 +101,8 @@ const Home = () => {
         delivery_preferences,
         timestamp: Date.now(),
       });
-      if (analytics) logEvent(analytics, "submit_interest", { product_id: product.id });
+      if (analytics)
+        logEvent(analytics, "submit_interest", { product_id: product.id });
       setInterestedItems((prev) => [...prev, product.id]);
       setShowInterestForm(null);
       showToast("✅ Thanks! Your interest was submitted.");
@@ -159,15 +157,16 @@ const Home = () => {
                 </div>
                 <h1 className="text-2xl font-bold">Marketplace</h1>
               </div>
-              
+
               <div className="flex items-center gap-4">
                 {currentUser ? (
                   <div className="flex items-center gap-4">
                     <span className="text-blue-100">
-                      Welcome, {currentUser.displayName?.split(' ')[0] || 'User'}!
+                      Welcome,{" "}
+                      {currentUser.displayName?.split(" ")[0] || "User"}!
                     </span>
                     <button
-                      onClick={() => navigate('/admin')}
+                      onClick={() => navigate("/admin")}
                       className="bg-white/20 hover:bg-white/30 text-white font-medium px-6 py-2.5 rounded-lg transition-all duration-200 backdrop-blur-sm"
                     >
                       Dashboard
@@ -175,7 +174,7 @@ const Home = () => {
                   </div>
                 ) : (
                   <button
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate("/login")}
                     className="bg-white/20 hover:bg-white/30 text-white font-medium px-6 py-2.5 rounded-lg transition-all duration-200 backdrop-blur-sm flex items-center gap-2"
                   >
                     <FaUser className="text-sm" />
@@ -196,14 +195,14 @@ const Home = () => {
                 <span className="text-blue-200">Marketplace</span>
               </h2>
               <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                Browse and express interest in local products. Connect with sellers 
-                for a seamless marketplace experience.
+                Browse and express interest in local products. Connect with
+                sellers for a seamless marketplace experience.
               </p>
-              
+
               {!currentUser && (
                 <div className="space-y-4">
                   <button
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate("/login")}
                     className="w-full sm:w-auto bg-white hover:bg-gray-100 text-blue-600 font-semibold px-8 py-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 text-lg"
                   >
                     <FaRocket className="text-xl" />
@@ -222,7 +221,6 @@ const Home = () => {
                 <h3 className="text-2xl font-bold mb-6">Why Choose Us?</h3>
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
-                  
                     <span className="text-lg">Secure & Trusted Platform</span>
                   </div>
                   <div className="flex items-center gap-4">
@@ -248,8 +246,10 @@ const Home = () => {
       <div className="w-full bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="bg-white rounded-xl shadow-sm border p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Find What You're Looking For</h3>
-            
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Find What You're Looking For
+            </h3>
+
             {/* Row 1: Search */}
             <div className="mb-4">
               <div className="relative">
@@ -315,7 +315,9 @@ const Home = () => {
           <div className="text-center py-12">
             <FaSearch className="text-gray-400 text-4xl mx-auto mb-4" />
             <p className="text-gray-600 text-xl">No products found.</p>
-            <p className="text-gray-500 mt-2">Try adjusting your search or filters.</p>
+            <p className="text-gray-500 mt-2">
+              Try adjusting your search or filters.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -342,15 +344,24 @@ const Home = () => {
                   );
                 }}
                 onShowInterest={() => {
-                  if (analytics) logEvent(analytics, "open_interest_form", { product_id: product.id });
+                  if (analytics)
+                    logEvent(analytics, "open_interest_form", {
+                      product_id: product.id,
+                    });
                   setTimeout(() => setShowInterestForm(product), 400);
                 }}
                 onImageClick={() => {
-                  if (analytics) logEvent(analytics, "view_product", { product_id: product.id });
+                  if (analytics)
+                    logEvent(analytics, "view_product", {
+                      product_id: product.id,
+                    });
                   navigate(`/product/${product.id}`);
                 }}
                 onTitleClick={() => {
-                  if (analytics) logEvent(analytics, "view_product", { product_id: product.id });
+                  if (analytics)
+                    logEvent(analytics, "view_product", {
+                      product_id: product.id,
+                    });
                   navigate(`/product/${product.id}`);
                 }}
               />
