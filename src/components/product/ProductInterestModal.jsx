@@ -1,6 +1,6 @@
 // src/components/InterestFormModal.jsx
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { showToast } from "../../utils/showToast";
 import {
   FaTruck,
@@ -9,6 +9,8 @@ import {
   FaCheckCircle,
   FaShippingFast,
 } from "react-icons/fa";
+import { analytics } from "../../firebase";
+import { logEvent } from "firebase/analytics";
 
 const ProductInterestModal = ({ product, onClose, onSubmit }) => {
   const [step, setStep] = useState(1);
@@ -19,28 +21,105 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
     phone: "",
     message: "",
   });
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [progress, setProgress] = useState(100);
+  const nameRef = useRef();
+  const emailRef = useRef();
+  const deliveryRef = useRef();
+  const timerRef = useRef();
+
+  // Analytics test event on modal open
+  useEffect(() => {
+    if (analytics)
+      logEvent(analytics, "test_event_modal", { product_id: product.id });
+  }, [product.id]);
+
+  // Autofocus first input on each step
+  useEffect(() => {
+    if (step === 1 && deliveryRef.current) deliveryRef.current.focus();
+    if (step === 2 && nameRef.current) nameRef.current.focus();
+  }, [step]);
+
+  // Close modal on Esc
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
+
+  // Progress bar for auto-close after success
+  useEffect(() => {
+    if (success && step === 3) {
+      setProgress(100);
+      let pct = 100;
+      timerRef.current = setInterval(() => {
+        pct -= 2;
+        setProgress(pct);
+        if (pct <= 0) {
+          clearInterval(timerRef.current);
+          onClose();
+        }
+      }, 100);
+      return () => clearInterval(timerRef.current);
+    }
+  }, [success, step, onClose]);
+
+  // Validation helpers
+  const validateName = (name) => name.trim().length > 0;
+  const validateEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const validatePhone = (phone) => /^\d{7,15}$/.test(phone.trim());
+
+  // Real-time validation - only show errors for fields that are touched and have content or have been blurred
+  useEffect(() => {
+    const newErrors = {};
+    if (step === 2) {
+      if (touched.name && !validateName(formData.name))
+        newErrors.name = "Name is required.";
+      // Only show email error if field has content or has been touched (blurred)
+      if (touched.email && formData.email.trim() && !validateEmail(formData.email))
+        newErrors.email = "Enter a valid email.";
+      else if (touched.email && !formData.email.trim())
+        newErrors.email = "Email is required.";
+      if (touched.phone && !validatePhone(formData.phone))
+        newErrors.phone = "Enter a valid phone number (7-15 digits).";
+    }
+    setErrors(newErrors);
+  }, [formData, step, touched]);
+
+  // Sanitize input
+  const sanitize = (str) => str.replace(/[<>]/g, "");
 
   const handleNext = () => {
-    // Step 1 validation
     if (step === 1 && !deliveryPref) {
-      showToast("Please select a delivery method.");
+      setErrors({ delivery: "Please select a delivery method." });
+      if (analytics)
+        logEvent(analytics, "interest_validation_failed", {
+          reason: "no_delivery",
+          product_id: product.id,
+        });
       return;
     }
-    // Step 2 validation
-    if (
-      step === 2 &&
-      (!formData.name.trim() ||
-        !formData.email.trim() ||
-        !formData.phone.trim())
-    ) {
-      showToast("Please fill out all required fields.");
+    if (step === 2 && Object.keys(errors).length > 0) {
+      if (analytics)
+        logEvent(analytics, "interest_validation_failed", {
+          reason: "invalid_fields",
+          product_id: product.id,
+        });
       return;
     }
     setStep((prev) => prev + 1);
+    setErrors({});
   };
 
   const handleBack = () => {
     setStep((prev) => Math.max(prev - 1, 1));
+    setErrors({});
   };
 
   const handleChange = (e) => {
@@ -48,16 +127,73 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFinalSubmit = () => {
-    const interestObj = {
-      ...formData,
-      delivery_preferences: [deliveryPref],
-      productId: product.id, // so you know which product this interest is for
-      timestamp: Date.now(),
-    };
-    onSubmit(interestObj);
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+  };
 
-    setStep(3);
+  const handleFinalSubmit = async () => {
+    // Final validation
+    const sanitized = {
+      name: sanitize(formData.name),
+      email: sanitize(formData.email),
+      phone: sanitize(formData.phone),
+      message: sanitize(formData.message),
+    };
+    setTouched((prev) => ({ ...prev, name: true, email: true, phone: true }));
+    if (
+      !validateName(sanitized.name) ||
+      !validateEmail(sanitized.email) ||
+      !validatePhone(sanitized.phone)
+    ) {
+      setErrors({ submit: "Please fill all fields correctly." });
+      if (analytics)
+        logEvent(analytics, "interest_validation_failed", {
+          reason: "invalid_submit",
+          product_id: product.id,
+        });
+      return;
+    }
+    setLoading(true);
+    try {
+      // Simulate network request
+      await new Promise((res) => setTimeout(res, 1000));
+      
+      // Set success and step BEFORE calling onSubmit to ensure confirmation is shown
+      setSuccess(true);
+      setStep(3);
+      
+      // Parent onSubmit should NOT close the modal immediately!
+      // Add a small delay to ensure the confirmation step is rendered
+      setTimeout(() => {
+        onSubmit({
+          ...sanitized,
+          delivery_preferences: [deliveryPref],
+          productId: product.id,
+          timestamp: Date.now(),
+        });
+      }, 5000);
+      
+      // TODO: Send confirmation email to user (stub)
+      // TODO: Notify admin (stub)
+      if (analytics)
+        logEvent(analytics, "interest_submit_success", {
+          product_id: product.id,
+        });
+      // Admin notification stub
+      console.log(
+        "[ADMIN NOTIFY] New interest submitted for product:",
+        product.id
+      );
+    } catch (e) {
+      showToast("❌ Could not submit. Please try again.");
+      if (analytics)
+        logEvent(analytics, "interest_submit_failed", {
+          product_id: product.id,
+        });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const deliveryOptions = Array.isArray(product.delivery_options)
@@ -113,8 +249,7 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center px-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl p-6 relative">
-        {closeIcon}
-
+        <div className="absolute top-3 right-3 z-20">{closeIcon}</div>
         {renderSteps}
 
         <div
@@ -161,7 +296,9 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
                           url,
                         })
                         .then(() => showToast("✅ Shared successfully!"))
-                        .catch(() => showToast("❌ Could not share. Please try again."));
+                        .catch(() =>
+                          showToast("❌ Could not share. Please try again.")
+                        );
                     } else {
                       navigator.clipboard.writeText(url);
                       showToast("Product link copied!");
@@ -216,6 +353,12 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
             <button
               onClick={handleNext}
               className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+              disabled={
+                loading || (step === 2 && Object.keys(errors).length > 0)
+              }
+              aria-disabled={
+                loading || (step === 2 && Object.keys(errors).length > 0)
+              }
             >
               Continue →
             </button>
@@ -241,10 +384,25 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-300 text-left"
                 placeholder="Enter your full name"
                 required
+                ref={nameRef}
+                aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? "name-error" : undefined}
               />
+              <div style={{ minHeight: 20 }}>
+                {touched.name && errors.name && (
+                  <p
+                    id="name-error"
+                    className="text-red-500 text-xs mt-1"
+                    aria-live="polite"
+                  >
+                    {errors.name}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div>
@@ -256,10 +414,25 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-300 text-left"
                 placeholder="you@email.com"
                 required
+                ref={emailRef}
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
               />
+              <div style={{ minHeight: 20 }}>
+                {touched.email && errors.email && (
+                  <p
+                    id="email-error"
+                    className="text-red-500 text-xs mt-1"
+                    aria-live="polite"
+                  >
+                    {errors.email}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div>
@@ -270,10 +443,24 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-300 text-left"
                 placeholder="Enter your phone number"
                 required
+                aria-invalid={!!errors.phone}
+                aria-describedby={errors.phone ? "phone-error" : undefined}
               />
+              <div style={{ minHeight: 20 }}>
+                {touched.phone && errors.phone && (
+                  <p
+                    id="phone-error"
+                    className="text-red-500 text-xs mt-1"
+                    aria-live="polite"
+                  >
+                    {errors.phone}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div>
@@ -290,18 +477,34 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
             </div>
           </div>
 
-          <div className="mt-6 flex justify-between">
+          <div className="mt-6 flex flex-col sm:flex-row gap-2">
             <button
               onClick={handleBack}
-              className="bg-gray-200 text-gray-700 px-5 py-2 rounded hover:bg-gray-300 transition-colors focus:outline-none"
+              className="bg-gray-200 text-gray-700 px-5 py-2 rounded hover:bg-gray-300 transition-colors focus:outline-none w-full sm:w-1/2"
+              type="button"
+              disabled={loading}
             >
               ← Back
             </button>
             <button
               onClick={handleFinalSubmit}
-              className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className={`px-5 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors w-full sm:w-1/2 ${
+                loading || Object.keys(errors).length > 0
+                  ? "bg-gray-300 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
+              disabled={loading || Object.keys(errors).length > 0}
+              aria-disabled={loading || Object.keys(errors).length > 0}
+              type="button"
             >
-              Submit
+              {loading ? (
+                <span
+                  className="inline-block w-5 h-5 border-2 border-t-2 border-t-blue-500 border-gray-200 rounded-full animate-spin"
+                  aria-label="Loading"
+                ></span>
+              ) : (
+                "Submit"
+              )}
             </button>
           </div>
         </div>
@@ -314,26 +517,33 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
           }`}
           style={{ minHeight: step === 3 ? "auto" : 0 }}
         >
-          <div className="text-center py-8">
-            <FaCheckCircle className="text-green-500 text-5xl mx-auto mb-3" />
-            <h2 className="text-2xl font-bold text-green-600 mb-4">
-              Thank You!
-            </h2>
-            <p className="text-gray-700 mb-2">
-              We have received your interest in:
-            </p>
-            <p className="font-medium text-lg">{product.title}</p>
-            <p className="text-sm text-gray-500 mt-2">
-              We'll reach out to you soon via email or phone.
-            </p>
-
-            <button
-              onClick={onClose}
-              className="mt-6 bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors focus:outline-none"
-            >
-              Close
-            </button>
-          </div>
+          {success && (
+            <div className="text-center py-8 animate-bounceIn">
+              <FaCheckCircle className="text-green-500 text-5xl mx-auto mb-3 animate-pulse" />
+              <h2 className="text-2xl font-bold text-green-600 mb-4">
+                Thank You!
+              </h2>
+              <p className="text-gray-700 mb-2">
+                We have received your interest in:
+              </p>
+              <p className="font-medium text-lg">{product.title}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                We'll reach out to you soon via email or phone.
+              </p>
+              <div className="w-full h-2 bg-gray-200 rounded mt-6 mb-2 overflow-hidden">
+                <div
+                  className="h-2 bg-blue-500 transition-all duration-100 linear"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+              <button
+                onClick={onClose}
+                className="mt-2 bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors focus:outline-none"
+              >
+                Close Now
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
