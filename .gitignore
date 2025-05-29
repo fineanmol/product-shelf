@@ -24,3 +24,4 @@ yarn-error.log*
 firebase-admin-key.json
 .vercel
 api/firebase-service-account.json
+functions/

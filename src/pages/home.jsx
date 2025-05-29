@@ -4,7 +4,6 @@ import { ref, push, onValue } from "firebase/database";
 import { db, analytics } from "../firebase";
 import ProductCard from "../components/product/ProductCard";
 import ProductInterestModal from "../components/product/ProductInterestModal";
-import emailjs from "emailjs-com";
 import { showToast } from "../utils/showToast";
 import StepsToBuy from "../components/StepsToBuy";
 import { useNavigate } from "react-router-dom";
@@ -13,13 +12,12 @@ import { logEvent } from "firebase/analytics";
 import FeedbackButton from "../components/FeedbackButton";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
-  FaUser,
   FaShoppingCart,
   FaHeart,
   FaSearch,
   FaTags,
-  FaRocket,
-  FaArrowRight,
+  FaShieldAlt,
+  FaPlus,
 } from "react-icons/fa";
 
 const Home = () => {
@@ -145,129 +143,30 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* HERO SECTION */}
-      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800 text-white">
-        {/* Navigation - Made sticky */}
-        <nav className="sticky top-0 z-50 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800 backdrop-blur-sm border-b border-white/10">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                  <FaShoppingCart className="text-white text-xl" />
-                </div>
-                <h1 className="text-2xl font-bold">Marketplace</h1>
-              </div>
-
-              <div className="flex items-center gap-4">
-                {currentUser ? (
-                  <div className="flex items-center gap-4">
-                    <span className="text-blue-100">
-                      Welcome,{" "}
-                      {currentUser.displayName?.split(" ")[0] || "User"}!
-                    </span>
-                    <button
-                      onClick={() => navigate("/admin")}
-                      className="bg-white/20 hover:bg-white/30 text-white font-medium px-6 py-2.5 rounded-lg transition-all duration-200 backdrop-blur-sm"
-                    >
-                      Dashboard
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => navigate("/login")}
-                    className="bg-white/20 hover:bg-white/30 text-white font-medium px-6 py-2.5 rounded-lg transition-all duration-200 backdrop-blur-sm flex items-center gap-2"
-                  >
-                    <FaUser className="text-sm" />
-                    Sell on Marketplace
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </nav>
-
-        <div className="max-w-7xl mx-auto px-4 py-16">
-          {/* Hero Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                Your Local <br />
-                <span className="text-blue-200">Marketplace</span>
-              </h2>
-              <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                Browse and express interest in local products. Connect with
-                sellers for a seamless marketplace experience.
-              </p>
-
-              {!currentUser && (
-                <div className="space-y-4">
-                  <button
-                    onClick={() => navigate("/login")}
-                    className="w-full sm:w-auto bg-white hover:bg-gray-100 text-blue-600 font-semibold px-8 py-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 text-lg"
-                  >
-                    <FaRocket className="text-xl" />
-                    Start Selling
-                    <FaArrowRight className="text-sm" />
-                  </button>
-                  <p className="text-blue-200 text-sm">
-                    Join our community of trusted sellers
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="relative">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-                <h3 className="text-2xl font-bold mb-6">Why Choose Us?</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <span className="text-lg">Secure & Trusted Platform</span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <FaHeart className="text-pink-300 text-xl" />
-                    <span className="text-lg">Express Interest System</span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <FaTags className="text-green-300 text-xl" />
-                    <span className="text-lg">Best Prices in Market</span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <FaSearch className="text-yellow-300 text-xl" />
-                    <span className="text-lg">Advanced Search & Filters</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Use the new Header component with hero variant */}
+      <Header
+        title="Your Local Marketplace"
+        subtitle="Discover amazing products at great prices on MarketSpace - your trusted local marketplace."
+        variant="hero"
+        showSearch={true}
+        searchValue={searchTerm}
+        onSearchChange={(e) => setSearchTerm(e.target.value)}
+        currentUser={currentUser}
+      />
 
       {/* SEARCH & FILTERS */}
-      <div className="w-full bg-white border-b">
+      <div className="w-full bg-gray-100 border-b">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="bg-white rounded-xl shadow-sm border p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Find What You're Looking For
+              <FaSearch className="inline mr-2" />
+              Filter & Sort Products
             </h3>
 
-            {/* Row 1: Search */}
-            <div className="mb-4">
-              <div className="relative">
-                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Row 2: Filters */}
+            {/* Filters */}
             <div className="flex flex-wrap gap-4">
               <select
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 min-w-48 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -277,7 +176,7 @@ const Home = () => {
               </select>
 
               <select
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 min-w-48 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={conditionFilter}
                 onChange={(e) => setConditionFilter(e.target.value)}
               >
@@ -289,7 +188,7 @@ const Home = () => {
               </select>
 
               <select
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 min-w-48 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={priceSort}
                 onChange={(e) => setPriceSort(e.target.value)}
               >
@@ -303,7 +202,13 @@ const Home = () => {
       </div>
 
       {/* PRODUCTS SECTION */}
-      <div className="max-w-7xl mx-auto px-4 pb-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Available Items ({filteredItems.length})
+          </h2>
+        </div>
+
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="flex flex-col items-center gap-4">
@@ -386,18 +291,124 @@ const Home = () => {
         </div>
       </div>
 
-      {/* FOOTER */}
-      <footer className="bg-gray-800 text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <FaShoppingCart className="text-white" />
-            </div>
-            <span className="text-xl font-bold">Marketplace</span>
+      {/* FEATURES SECTION - Moved to Footer */}
+      <div className="bg-gray-50 py-16 border-t">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Why Choose MarketSpace?
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              We make buying and selling easy, safe, and convenient for
+              everyone.
+            </p>
           </div>
-          <p className="text-gray-400">
-            © {new Date().getFullYear()} Marketplace. All rights reserved.
-          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaShieldAlt className="text-2xl text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Safe & Secure</h3>
+              <p className="text-gray-600">
+                All transactions are protected with advanced security measures
+              </p>
+            </div>
+
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaHeart className="text-2xl text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Express Interest</h3>
+              <p className="text-gray-600">
+                Show interest in items and connect directly with sellers
+              </p>
+            </div>
+
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaTags className="text-2xl text-purple-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Best Prices</h3>
+              <p className="text-gray-600">
+                Find great deals from trusted sellers in your area
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <footer className="bg-gray-800 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <FaShoppingCart className="text-white" />
+                </div>
+                <span className="text-xl font-bold">MarketSpace</span>
+              </div>
+              <p className="text-gray-400">
+                Your trusted local marketplace for buying and selling quality
+                items.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <button
+                    onClick={() => navigate("/")}
+                    className="hover:text-white transition-colors"
+                  >
+                    Browse Items
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="hover:text-white transition-colors"
+                  >
+                    Start Selling
+                  </button>
+                </li>
+                <li>
+                  <span className="hover:text-white transition-colors cursor-pointer">
+                    How it Works
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Support</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <span className="hover:text-white transition-colors cursor-pointer">
+                    Help Center
+                  </span>
+                </li>
+                <li>
+                  <span className="hover:text-white transition-colors cursor-pointer">
+                    Contact Us
+                  </span>
+                </li>
+                <li>
+                  <span className="hover:text-white transition-colors cursor-pointer">
+                    Safety Tips
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+            <p>
+              © {new Date().getFullYear()} MarketSpace. All rights reserved.
+            </p>
+          </div>
         </div>
       </footer>
 

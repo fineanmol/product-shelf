@@ -4,6 +4,7 @@ import { ref, get } from "firebase/database";
 import { db, analytics } from "../firebase";
 import ProductInterestModal from "../components/product/ProductInterestModal";
 import FeedbackButton from "../components/FeedbackButton";
+import Header from "../components/Header";
 import { showToast } from "../utils/showToast";
 import {
   FaShareAlt,
@@ -120,8 +121,14 @@ const ProductDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation Bar */}
-      <nav className="bg-white shadow-sm border-b">
+      <Header
+        title={product.title}
+        subtitle={`Product Details - ${product.condition || "Available"}`}
+        variant="simple"
+      />
+
+      {/* Breadcrumb Navigation */}
+      <div className="bg-white  shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -156,7 +163,7 @@ const ProductDetails = () => {
             </div>
           </div>
         </div>
-      </nav>
+      </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -188,9 +195,29 @@ const ProductDetails = () => {
           <div className="space-y-6">
             {/* Title and Rating */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3 leading-tight">
-                {product.title}
-              </h1>
+              <div className="flex items-start justify-between mb-3">
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight flex-1">
+                  {product.title}
+                </h1>
+                <div className="flex items-center gap-2 ml-4">
+                  <button
+                    onClick={() => setIsWishlisted(!isWishlisted)}
+                    className={`p-2 rounded-full transition-colors ${
+                      isWishlisted
+                        ? "text-red-500 bg-red-50"
+                        : "text-gray-400 hover:text-red-500"
+                    }`}
+                  >
+                    <FaHeart />
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50"
+                  >
+                    <FaShareAlt />
+                  </button>
+                </div>
+              </div>
 
               {/* Rating placeholder */}
               <div className="flex items-center gap-3 mb-4">

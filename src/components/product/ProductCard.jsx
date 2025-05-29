@@ -82,11 +82,7 @@ const ProductCard = ({
   // Price display (check if price == 0 => "Freebie / Giveaway")
   const renderPrice = () => {
     if (product.price === 0) {
-      return (
-        <span className="text-xl font-bold text-green-600">
-          Freebie / Giveaway
-        </span>
-      );
+      return <span className="text-xl font-bold text-green-600">Giveaway</span>;
     }
     return (
       <>
