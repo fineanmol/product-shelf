@@ -109,10 +109,11 @@ const ProductCard = ({
 
   return (
     <div
-      className="
+      className={`
         relative border rounded-2xl p-4 bg-white max-w-sm
         shadow-xl transition-transform transform
-      "
+        ${isSoldOut ? "grayscale opacity-70" : ""}
+      `}
     >
       {/* Status Badge */}
       <div className="absolute top-2 left-2 z-10">
@@ -226,12 +227,12 @@ const ProductCard = ({
       {/* Interested to Buy Button */}
       <button
         onClick={onShowInterest}
-        className="
-          mt-4 w-full bg-blue-600 text-white py-2 rounded-xl
-          hover:bg-blue-700 transition-colors
+        className={`
+          mt-4 w-full py-2 rounded-xl
           focus:outline-none focus:ring-2 focus:ring-blue-400
           disabled:opacity-70 disabled:cursor-not-allowed
-        "
+          ${isSoldOut ? "bg-gray-400 text-white cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700 transition-colors"}
+        `}
         disabled={isSoldOut}
       >
         {isSoldOut ? "Sold Out" : "Interested to Buy"}

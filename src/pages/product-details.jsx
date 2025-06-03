@@ -196,9 +196,16 @@ const ProductDetails = () => {
             {/* Title and Rating */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <div className="flex items-start justify-between mb-3">
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight flex-1">
-                  {product.title}
-                </h1>
+                <div className="flex-1">
+                  {product.sold_out && (
+                    <div className="mb-2">
+                      <span className="inline-block bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">SOLD OUT</span>
+                    </div>
+                  )}
+                  <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
+                    {product.title}
+                  </h1>
+                </div>
                 <div className="flex items-center gap-2 ml-4">
                   <button
                     onClick={() => setIsWishlisted(!isWishlisted)}
@@ -281,12 +288,17 @@ const ProductDetails = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-6">
+              <div className={`flex flex-col sm:flex-row gap-3 mb-6 ${product.sold_out ? "opacity-60" : ""}`}>
                 <button
                   onClick={() => setShowInterestForm(true)}
-                  className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                  className={`flex-1 font-semibold py-3 px-6 rounded-lg transition-colors
+                    ${product.sold_out
+                      ? "bg-gray-400 text-white cursor-not-allowed"
+                      : "bg-orange-500 hover:bg-orange-600 text-white"}
+                  `}
+                  disabled={product.sold_out}
                 >
-                  I'm Interested
+                  {product.sold_out ? "Sold Out" : "I'm Interested"}
                 </button>
                 {product.url && (
                   <a
