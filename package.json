@@ -1,6 +1,6 @@
 {
   "name": "my-product-display",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
@@ -24,7 +24,7 @@
     "build": "cross-env REACT_APP_VERSION=$npm_package_version react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "firebase deploy --only hosting,database",
+    "deploy": "npm run build && firebase deploy --only hosting,database",
     "publish": "npm run build && npm run deploy",
     "lint": "npx eslint src/**/*.{js,jsx} --max-warnings=0"
   },
