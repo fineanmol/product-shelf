@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { analytics } from "../../firebase";
 import { logEvent } from "firebase/analytics";
+import emailjs from "emailjs-com";
 
 const ProductInterestModal = ({ product, onClose, onSubmit }) => {
   const [step, setStep] = useState(1);
@@ -156,13 +157,26 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
     }
     setLoading(true);
     try {
+      // Send email to user and admin
+      await emailjs.send(
+        "service_kff4yqy",
+        "template_dt1bpdu",
+        {
+          name: sanitized.name,
+          email: sanitized.email,
+          message: sanitized.phone,
+          title: product.title,
+          available_from: product.available_from,
+          image: product.image,
+          time: new Date().toLocaleString(),
+        },
+        "hjrAAqHXUVuBPn-AD"
+      );
       // Simulate network request
       await new Promise((res) => setTimeout(res, 1000));
-      
       // Set success and step BEFORE calling onSubmit to ensure confirmation is shown
       setSuccess(true);
       setStep(3);
-      
       // Parent onSubmit should NOT close the modal immediately!
       // Add a small delay to ensure the confirmation step is rendered
       setTimeout(() => {
@@ -173,9 +187,6 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
           timestamp: Date.now(),
         });
       }, 5000);
-      
-      // TODO: Send confirmation email to user (stub)
-      // TODO: Notify admin (stub)
       if (analytics)
         logEvent(analytics, "interest_submit_success", {
           product_id: product.id,

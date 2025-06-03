@@ -11,6 +11,7 @@ import AddProduct from "./pages/admin/add-product";
 import EditProduct from "./pages/admin/edit-product";
 import Users from "./pages/admin/users";
 import Feedback from "./pages/admin/feedback";
+import VersionBadge from "./components/VersionBadge";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path="feedback" element={<Feedback />} />
         </Route>
       </Routes>
+      <VersionBadge />
     </div>
   );
 }
