@@ -1,12 +1,9 @@
-// src/pages/AddProduct.jsx
+// src/pages/admin/add-product.jsx
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import ProductForm from "../../components/product/ProductForm";
+import ProductManager from "../../components/product/ProductManager";
 
 const AddProduct = () => {
-  const navigate = useNavigate();
-
-  return <ProductForm />;
+  return <ProductManager />;
 };
 
 export default AddProduct;

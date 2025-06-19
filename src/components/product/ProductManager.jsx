@@ -1,17 +1,23 @@
-// src/components/product/ProductForm.jsx
-import React, { useState, useEffect } from "react";
-import { getDatabase, push, ref } from "firebase/database";
+import React, { useEffect, useState } from "react";
+import { getDatabase, ref, push, update, remove } from "firebase/database";
 import { showToast } from "../../utils/showToast";
-import { getAuth } from "firebase/auth";
 import { getCurrentUserRole } from "../../utils/permissions";
 import { useNavigate } from "react-router-dom";
+import { getAuth } from "firebase/auth";
 
 import ProductFormFields from "./ProductFormFields";
 import ProductPreview from "./ProductPreview";
 import { buildProductPayload } from "../../utils/buildProductPayload";
 import ProductToggles from "./ProductToggles";
 import { usePageTitle } from "../../hooks/usePageTitle";
-import { FaPlus, FaEye, FaArrowLeft } from "react-icons/fa";
+import {
+  FaSave,
+  FaPlus,
+  FaEye,
+  FaTrash,
+  FaLock,
+  FaArrowLeft,
+} from "react-icons/fa";
 
 const initial = {
   title: "",
@@ -30,34 +36,47 @@ const initial = {
   admin_note: "",
 };
 
-const ProductForm = () => {
-  const [formData, setFormData] = useState(initial);
+const ProductManager = ({ product = null, onRefresh = null }) => {
+  const isEditMode = !!product;
+  const [formData, setFormData] = useState(
+    isEditMode
+      ? {
+          ...product,
+          status: product.status || "available",
+          visible: product.visible !== false,
+          source: product.source || "Amazon",
+          available_from: product.available_from || "Now",
+          delivery_options: product.delivery_options || ["Pick Up", "Shipping"],
+        }
+      : initial
+  );
+
   const [showPreview, setShowPreview] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingAccess, setLoadingAccess] = useState(true);
   const navigate = useNavigate();
   const db = getDatabase();
 
   useEffect(() => {
     async function fetchAccess() {
       try {
-        const auth = getAuth();
-        const currentUser = auth.currentUser;
-        if (currentUser) {
-          // Use getCurrentUserRole for a more direct approach
-          const { isSuperAdmin } = await getCurrentUserRole();
-          console.log("Super admin status:", isSuperAdmin);
-          setIsSuperAdmin(isSuperAdmin);
-        } else {
-          setIsSuperAdmin(false);
-        }
+        const { isSuperAdmin } = await getCurrentUserRole();
+        setIsSuperAdmin(isSuperAdmin);
       } catch (error) {
         console.error("Error fetching user access:", error);
         setIsSuperAdmin(false);
+      } finally {
+        setLoadingAccess(false);
       }
     }
     fetchAccess();
-  }, []); // Remove formData dependency
+  }, []);
+
+  usePageTitle({
+    prefix: isEditMode ? "Editing Product" : "Adding Product",
+    value: formData.title,
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -67,38 +86,83 @@ const ProductForm = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const validateForm = () => {
     if (!formData.title.trim()) {
       showToast("❌ Product title is required");
-      return;
+      return false;
     }
 
     if (!formData.price || formData.price <= 0) {
       showToast("❌ Please enter a valid price");
-      return;
+      return false;
     }
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e?.preventDefault();
+
+    if (!validateForm()) return;
 
     setLoading(true);
     try {
       const auth = getAuth();
       const user = auth.currentUser;
-      const payload = buildProductPayload(formData, user, true);
-      await push(ref(db, "products"), payload);
-      showToast("✅ Product added successfully");
-      setFormData(initial);
+
+      if (isEditMode) {
+        // Update existing product
+        const payload = buildProductPayload(formData, null, false);
+        await update(ref(db, `products/${product.id}`), payload);
+        showToast("✅ Product updated successfully");
+        onRefresh?.();
+      } else {
+        // Create new product
+        const payload = buildProductPayload(formData, user, true);
+        await push(ref(db, "products"), payload);
+        showToast("✅ Product added successfully");
+        setFormData(initial);
+      }
+
       setShowPreview(false);
       navigate("/admin/products");
     } catch (error) {
-      console.error("Error adding product:", error);
-      showToast("❌ Failed to add product");
+      console.error("Error saving product:", error);
+      showToast("❌ Failed to save product");
     } finally {
       setLoading(false);
     }
   };
 
-  usePageTitle({ prefix: "Adding Product", value: formData.title });
+  const handleDelete = async () => {
+    if (!isEditMode) return;
+
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${formData.title}"?`
+    );
+    if (confirmDelete) {
+      setLoading(true);
+      try {
+        await remove(ref(db, `products/${product.id}`));
+        showToast("✅ Product deleted successfully");
+        navigate("/admin/products");
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        showToast("❌ Failed to delete product");
+        setLoading(false);
+      }
+    }
+  };
+
+  if (loadingAccess) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading access...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -116,10 +180,12 @@ const ProductForm = () => {
               </button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Add New Product
+                  {isEditMode ? "Edit Product" : "Add New Product"}
                 </h1>
                 <p className="text-gray-600 mt-1">
-                  Create a new product listing for your marketplace
+                  {isEditMode
+                    ? "Update product details and manage visibility"
+                    : "Create a new product listing for your marketplace"}
                 </p>
               </div>
             </div>
@@ -138,7 +204,9 @@ const ProductForm = () => {
                     Product Details
                   </h2>
                   <p className="text-gray-600 text-sm">
-                    Enter the basic product information
+                    {isEditMode
+                      ? "Edit the product information below"
+                      : "Enter the basic product information"}
                   </p>
                 </div>
                 <div className="p-6">
@@ -174,6 +242,15 @@ const ProductForm = () => {
 
             {/* Actions Sidebar */}
             <div className="xl:col-span-1 space-y-6">
+              {/* Debug Info */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <h4 className="font-semibold text-yellow-800 mb-2">
+                  Debug Info
+                </h4>
+                <p className="text-sm text-yellow-700">
+                  Super Admin Status: {isSuperAdmin ? "✅ True" : "❌ False"}
+                </p>
+              </div>
               {/* Action Buttons */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h3 className="font-semibold text-gray-900 mb-4">Actions</h3>
@@ -182,10 +259,20 @@ const ProductForm = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                    className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-4 rounded-lg transition-colors"
                   >
-                    <FaPlus className="text-sm" />
-                    {loading ? "Adding..." : "Add Product"}
+                    {isEditMode ? (
+                      <FaSave className="text-sm" />
+                    ) : (
+                      <FaPlus className="text-sm" />
+                    )}
+                    {loading
+                      ? isEditMode
+                        ? "Saving..."
+                        : "Adding..."
+                      : isEditMode
+                      ? "Save Changes"
+                      : "Add Product"}
                   </button>
 
                   <button
@@ -196,17 +283,21 @@ const ProductForm = () => {
                     <FaEye className="text-sm" />
                     Preview
                   </button>
-                </div>
-              </div>
 
-              {/* Debug Info */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                <h4 className="font-semibold text-yellow-800 mb-2">
-                  Debug Info
-                </h4>
-                <p className="text-sm text-yellow-700">
-                  Super Admin Status: {isSuperAdmin ? "✅ True" : "❌ False"}
-                </p>
+                  {isEditMode && (
+                    <div className="border-t pt-3 mt-4">
+                      <button
+                        type="button"
+                        onClick={handleDelete}
+                        disabled={loading}
+                        className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                      >
+                        <FaTrash className="text-sm" />
+                        Delete Product
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Form Tips */}
@@ -231,100 +322,6 @@ const ProductForm = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Form Progress */}
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">
-                  Form Progress
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Title</span>
-                    <span
-                      className={`font-medium ${
-                        formData.title.trim()
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }`}
-                    >
-                      {formData.title.trim() ? "✓" : "○"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Description</span>
-                    <span
-                      className={`font-medium ${
-                        formData.description.trim()
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }`}
-                    >
-                      {formData.description.trim() ? "✓" : "○"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Image</span>
-                    <span
-                      className={`font-medium ${
-                        formData.image.trim()
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }`}
-                    >
-                      {formData.image.trim() ? "✓" : "○"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Price</span>
-                    <span
-                      className={`font-medium ${
-                        formData.price && formData.price > 0
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }`}
-                    >
-                      {formData.price && formData.price > 0 ? "✓" : "○"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="mt-4">
-                  <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                    <span>Completion</span>
-                    <span>
-                      {Math.round(
-                        ([
-                          formData.title.trim(),
-                          formData.description.trim(),
-                          formData.image.trim(),
-                          formData.price && formData.price > 0,
-                        ].filter(Boolean).length /
-                          4) *
-                          100
-                      )}
-                      %
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{
-                        width: `${
-                          ([
-                            formData.title.trim(),
-                            formData.description.trim(),
-                            formData.image.trim(),
-                            formData.price && formData.price > 0,
-                          ].filter(Boolean).length /
-                            4) *
-                          100
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </form>
@@ -341,4 +338,4 @@ const ProductForm = () => {
   );
 };
 
-export default ProductForm;
+export default ProductManager;

@@ -1,8 +1,8 @@
-// src/pages/EditProduct.jsx
+// src/pages/admin/edit-product.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getDatabase, ref, get } from "firebase/database";
-import ProductEditor from "../../components/product/ProductEditor";
+import ProductManager from "../../components/product/ProductManager";
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -36,7 +36,7 @@ const EditProduct = () => {
     );
   }
 
-  return <ProductEditor product={product} onRefresh={handleRefresh} />;
+  return <ProductManager product={product} onRefresh={handleRefresh} />;
 };
 
 export default EditProduct;
