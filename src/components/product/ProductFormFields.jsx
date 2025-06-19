@@ -38,6 +38,7 @@ const ProductFormFields = ({
   isSuperAdmin: isSuperAdminProp,
 }) => {
   const [isSuperAdmin, setIsSuperAdmin] = useState(isSuperAdminProp ?? false);
+  console.log("🚀 ~ isSuperAdmin:", isSuperAdmin, "prop:", isSuperAdminProp);
 
   // Track which field the user last edited: "price" or "discount".
   const [lastChanged, setLastChanged] = useState(null);
@@ -123,8 +124,12 @@ const ProductFormFields = ({
     setFormData,
   ]);
 
+  // Update local state when prop changes
   useEffect(() => {
-    if (typeof isSuperAdminProp === "undefined" && formData) {
+    if (typeof isSuperAdminProp !== "undefined") {
+      setIsSuperAdmin(isSuperAdminProp);
+    } else if (formData) {
+      // Only fetch from API if prop is not provided
       async function fetchUserAccess() {
         try {
           const access = await getUserAccess(formData);
@@ -135,7 +140,7 @@ const ProductFormFields = ({
       }
       fetchUserAccess();
     }
-  }, [formData, isSuperAdminProp]);
+  }, [isSuperAdminProp, formData]);
 
   // Specialized onChange for "price" or "discount"
   const handlePriceDiscountChange = (e) => {
@@ -153,13 +158,14 @@ const ProductFormFields = ({
       {!canEdit && (
         <div className="bg-yellow-100 text-yellow-700 p-3 rounded-lg border border-yellow-200">
           <span className="text-sm font-medium">⚠️ Read-only mode</span>
-          <p className="text-xs mt-1">You do not have permission to edit this product</p>
+          <p className="text-xs mt-1">
+            You do not have permission to edit this product
+          </p>
         </div>
       )}
 
       {/* Main Form Grid - Two Column Layout on Desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
         {/* Left Column */}
         <div className="space-y-6">
           {/* Basic Information */}
@@ -167,7 +173,7 @@ const ProductFormFields = ({
             <h3 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
               Basic Information
             </h3>
-            
+
             {/* Title */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -226,7 +232,7 @@ const ProductFormFields = ({
                     alt="Product preview"
                     className="w-24 h-24 object-cover rounded-lg border border-gray-200"
                     onError={(e) => {
-                      e.target.style.display = 'none';
+                      e.target.style.display = "none";
                     }}
                   />
                 </div>
@@ -239,15 +245,16 @@ const ProductFormFields = ({
             <h3 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
               Delivery Options
             </h3>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Shipping Option */}
               <label
                 className={`
                   flex items-center gap-3 p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer
-                  ${formData.delivery_options?.includes("Shipping")
-                    ? "border-blue-500 bg-blue-50 text-blue-900"
-                    : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                  ${
+                    formData.delivery_options?.includes("Shipping")
+                      ? "border-blue-500 bg-blue-50 text-blue-900"
+                      : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
                   }
                   ${!canEdit ? "opacity-60 cursor-not-allowed" : ""}
                 `}
@@ -258,10 +265,18 @@ const ProductFormFields = ({
                   value="Shipping"
                   disabled={!canEdit}
                   checked={formData.delivery_options?.includes("Shipping")}
-                  onChange={(e) => handleDeliveryOptionChange(e, formData, setFormData)}
+                  onChange={(e) =>
+                    handleDeliveryOptionChange(e, formData, setFormData)
+                  }
                   className="sr-only"
                 />
-                <FaTruck className={`text-xl ${formData.delivery_options?.includes("Shipping") ? "text-blue-600" : "text-gray-400"}`} />
+                <FaTruck
+                  className={`text-xl ${
+                    formData.delivery_options?.includes("Shipping")
+                      ? "text-blue-600"
+                      : "text-gray-400"
+                  }`}
+                />
                 <div>
                   <div className="font-medium">Shipping</div>
                   <div className="text-xs text-gray-500">Ship to customer</div>
@@ -272,9 +287,10 @@ const ProductFormFields = ({
               <label
                 className={`
                   flex items-center gap-3 p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer
-                  ${formData.delivery_options?.includes("Pick Up")
-                    ? "border-green-500 bg-green-50 text-green-900"
-                    : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                  ${
+                    formData.delivery_options?.includes("Pick Up")
+                      ? "border-green-500 bg-green-50 text-green-900"
+                      : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
                   }
                   ${!canEdit ? "opacity-60 cursor-not-allowed" : ""}
                 `}
@@ -285,10 +301,18 @@ const ProductFormFields = ({
                   value="Pick Up"
                   disabled={!canEdit}
                   checked={formData.delivery_options?.includes("Pick Up")}
-                  onChange={(e) => handleDeliveryOptionChange(e, formData, setFormData)}
+                  onChange={(e) =>
+                    handleDeliveryOptionChange(e, formData, setFormData)
+                  }
                   className="sr-only"
                 />
-                <FaMapMarkerAlt className={`text-xl ${formData.delivery_options?.includes("Pick Up") ? "text-green-600" : "text-gray-400"}`} />
+                <FaMapMarkerAlt
+                  className={`text-xl ${
+                    formData.delivery_options?.includes("Pick Up")
+                      ? "text-green-600"
+                      : "text-gray-400"
+                  }`}
+                />
                 <div>
                   <div className="font-medium">Pickup</div>
                   <div className="text-xs text-gray-500">Customer pickup</div>
@@ -305,7 +329,7 @@ const ProductFormFields = ({
             <h3 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
               Pricing & Details
             </h3>
-            
+
             {/* Pricing Grid - Consistent 2x2 Layout */}
             <div className="grid grid-cols-2 gap-4">
               {/* Current Price */}
@@ -436,7 +460,9 @@ const ProductFormFields = ({
                     }
                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                   />
-                  <span className="text-sm font-medium text-gray-700">Mark as Sold Out</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    Mark as Sold Out
+                  </span>
                 </label>
               </div>
             </div>
@@ -447,7 +473,7 @@ const ProductFormFields = ({
             <h3 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
               Additional Information
             </h3>
-            
+
             <div className="grid grid-cols-1 gap-4">
               {/* Source */}
               <div>

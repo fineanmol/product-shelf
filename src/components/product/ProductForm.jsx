@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { getDatabase, push, ref } from "firebase/database";
 import { showToast } from "../../utils/showToast";
 import { getAuth } from "firebase/auth";
-import { getUserAccess } from "../../utils/permissions";
+import { getCurrentUserRole } from "../../utils/permissions";
 import { useNavigate } from "react-router-dom";
 
 import ProductFormFields from "./ProductFormFields";
@@ -27,6 +27,7 @@ const initial = {
   currency: "EUR",
   url: "",
   delivery_options: ["Pick Up", "Shipping"],
+  admin_note: "",
 };
 
 const ProductForm = () => {
@@ -40,14 +41,23 @@ const ProductForm = () => {
   useEffect(() => {
     async function fetchAccess() {
       try {
-        const access = await getUserAccess(formData);
-        setIsSuperAdmin(access.isSuperAdmin);
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          // Use getCurrentUserRole for a more direct approach
+          const { isSuperAdmin } = await getCurrentUserRole();
+          console.log("Super admin status:", isSuperAdmin);
+          setIsSuperAdmin(isSuperAdmin);
+        } else {
+          setIsSuperAdmin(false);
+        }
       } catch (error) {
+        console.error("Error fetching user access:", error);
         setIsSuperAdmin(false);
       }
     }
     fetchAccess();
-  }, [formData]);
+  }, []); // Remove formData dependency
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,12 +69,12 @@ const ProductForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim()) {
       showToast("❌ Product title is required");
       return;
     }
-    
+
     if (!formData.price || formData.price <= 0) {
       showToast("❌ Please enter a valid price");
       return;
@@ -105,7 +115,9 @@ const ProductForm = () => {
                 <FaArrowLeft />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Add New Product</h1>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Add New Product
+                </h1>
                 <p className="text-gray-600 mt-1">
                   Create a new product listing for your marketplace
                 </p>
@@ -122,8 +134,12 @@ const ProductForm = () => {
               {/* Product Form Fields */}
               <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
                 <div className="bg-gray-50 border-b p-4">
-                  <h2 className="font-semibold text-gray-900">Product Details</h2>
-                  <p className="text-gray-600 text-sm">Enter the basic product information</p>
+                  <h2 className="font-semibold text-gray-900">
+                    Product Details
+                  </h2>
+                  <p className="text-gray-600 text-sm">
+                    Enter the basic product information
+                  </p>
                 </div>
                 <div className="p-6">
                   <ProductFormFields
@@ -139,8 +155,12 @@ const ProductForm = () => {
               {/* Product Settings */}
               <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
                 <div className="bg-gray-50 border-b p-4">
-                  <h2 className="font-semibold text-gray-900">Product Settings</h2>
-                  <p className="text-gray-600 text-sm">Configure availability and visibility options</p>
+                  <h2 className="font-semibold text-gray-900">
+                    Product Settings
+                  </h2>
+                  <p className="text-gray-600 text-sm">
+                    Configure availability and visibility options
+                  </p>
                 </div>
                 <div className="p-6">
                   <ProductToggles
@@ -157,7 +177,7 @@ const ProductForm = () => {
               {/* Action Buttons */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h3 className="font-semibold text-gray-900 mb-4">Actions</h3>
-                
+
                 <div className="space-y-3">
                   <button
                     type="submit"
@@ -167,7 +187,7 @@ const ProductForm = () => {
                     <FaPlus className="text-sm" />
                     {loading ? "Adding..." : "Add Product"}
                   </button>
-                  
+
                   <button
                     type="button"
                     onClick={() => setShowPreview(true)}
@@ -177,6 +197,16 @@ const ProductForm = () => {
                     Preview
                   </button>
                 </div>
+              </div>
+
+              {/* Debug Info */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <h4 className="font-semibold text-yellow-800 mb-2">
+                  Debug Info
+                </h4>
+                <p className="text-sm text-yellow-700">
+                  Super Admin Status: {isSuperAdmin ? "✅ True" : "❌ False"}
+                </p>
               </div>
 
               {/* Form Tips */}
@@ -204,55 +234,92 @@ const ProductForm = () => {
 
               {/* Form Progress */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">Form Progress</h3>
+                <h3 className="font-semibold text-gray-900 mb-4">
+                  Form Progress
+                </h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Title</span>
-                    <span className={`font-medium ${formData.title.trim() ? 'text-green-600' : 'text-gray-400'}`}>
-                      {formData.title.trim() ? '✓' : '○'}
+                    <span
+                      className={`font-medium ${
+                        formData.title.trim()
+                          ? "text-green-600"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      {formData.title.trim() ? "✓" : "○"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Description</span>
-                    <span className={`font-medium ${formData.description.trim() ? 'text-green-600' : 'text-gray-400'}`}>
-                      {formData.description.trim() ? '✓' : '○'}
+                    <span
+                      className={`font-medium ${
+                        formData.description.trim()
+                          ? "text-green-600"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      {formData.description.trim() ? "✓" : "○"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Image</span>
-                    <span className={`font-medium ${formData.image.trim() ? 'text-green-600' : 'text-gray-400'}`}>
-                      {formData.image.trim() ? '✓' : '○'}
+                    <span
+                      className={`font-medium ${
+                        formData.image.trim()
+                          ? "text-green-600"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      {formData.image.trim() ? "✓" : "○"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Price</span>
-                    <span className={`font-medium ${formData.price && formData.price > 0 ? 'text-green-600' : 'text-gray-400'}`}>
-                      {formData.price && formData.price > 0 ? '✓' : '○'}
+                    <span
+                      className={`font-medium ${
+                        formData.price && formData.price > 0
+                          ? "text-green-600"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      {formData.price && formData.price > 0 ? "✓" : "○"}
                     </span>
                   </div>
                 </div>
-                
+
                 {/* Progress Bar */}
                 <div className="mt-4">
                   <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                     <span>Completion</span>
-                    <span>{Math.round(([
-                      formData.title.trim(),
-                      formData.description.trim(),
-                      formData.image.trim(),
-                      formData.price && formData.price > 0
-                    ].filter(Boolean).length / 4) * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{
-                        width: `${([
+                    <span>
+                      {Math.round(
+                        ([
                           formData.title.trim(),
                           formData.description.trim(),
                           formData.image.trim(),
-                          formData.price && formData.price > 0
-                        ].filter(Boolean).length / 4) * 100}%`
+                          formData.price && formData.price > 0,
+                        ].filter(Boolean).length /
+                          4) *
+                          100
+                      )}
+                      %
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${
+                          ([
+                            formData.title.trim(),
+                            formData.description.trim(),
+                            formData.image.trim(),
+                            formData.price && formData.price > 0,
+                          ].filter(Boolean).length /
+                            4) *
+                          100
+                        }%`,
                       }}
                     ></div>
                   </div>
