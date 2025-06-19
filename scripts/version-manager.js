@@ -8,24 +8,16 @@ const packageJsonPath = path.join(process.cwd(), "package.json");
 const packageJson = require(packageJsonPath);
 
 // Parse current version
-const [major, minor, patch] = packageJson.version.split(".").map(Number);
+const [major, minor] = packageJson.version.split(".").map(Number);
 
 let newVersion;
 
-// Increment version following the pattern:
-// - After x.y.9 → x.(y+1).0
-// - After x.9.9 → (x+1).0.0
-if (patch === 9) {
-  if (minor === 9) {
-    // Move to next major version
-    newVersion = `${major + 1}.0.0`;
-  } else {
-    // Move to next minor version
-    newVersion = `${major}.${minor + 1}.0`;
-  }
+// If minor version is 9, increment major and reset minor to 0
+if (minor === 9) {
+  newVersion = `${major + 1}.0.0`;
 } else {
-  // Regular patch increment
-  newVersion = `${major}.${minor}.${patch + 1}`;
+  // Just increment minor version
+  newVersion = `${major}.${minor + 1}.0`;
 }
 
 // Update package.json
