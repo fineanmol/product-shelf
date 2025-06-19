@@ -83,7 +83,11 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
       if (touched.name && !validateName(formData.name))
         newErrors.name = "Name is required.";
       // Only show email error if field has content or has been touched (blurred)
-      if (touched.email && formData.email.trim() && !validateEmail(formData.email))
+      if (
+        touched.email &&
+        formData.email.trim() &&
+        !validateEmail(formData.email)
+      )
         newErrors.email = "Enter a valid email.";
       else if (touched.email && !formData.email.trim())
         newErrors.email = "Email is required.";
@@ -221,10 +225,10 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
   };
 
   const renderSteps = (
-    <div className="relative mb-6">
-      <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200" />
+    <div className="relative mb-6 mt-6">
+      <div className="absolute top-4 left-0 w-full h-0.5 bg-gray-200" />
       <div
-        className="absolute top-1/2 left-0 h-0.5 bg-blue-600 transition-all duration-300"
+        className="absolute top-4 left-0 h-0.5 bg-blue-600 transition-all duration-300"
         style={{ width: `${((step - 1) / 2) * 100}%` }}
       />
       <div className="flex justify-between relative z-10">
@@ -250,7 +254,7 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
   const closeIcon = (
     <button
       aria-label="Close"
-      className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl font-bold focus:outline-none"
+      className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl font-bold focus:outline-none"
       onClick={onClose}
     >
       &times;
@@ -260,7 +264,7 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center px-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl p-6 relative">
-        <div className="absolute top-3 right-3 z-20">{closeIcon}</div>
+        <div className="absolute top-2 right-2 z-20">{closeIcon}</div>
         {renderSteps}
 
         <div
@@ -335,6 +339,8 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
                   className={`border rounded-2xl p-4 cursor-pointer flex flex-col items-start gap-2 transition-colors ${
                     deliveryPref === option
                       ? "border-blue-600 bg-blue-50"
+                      : errors.delivery
+                      ? "border-red-500 bg-red-50 hover:border-red-600"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
@@ -359,6 +365,17 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
               );
             })}
           </div>
+
+          {errors.delivery && (
+            <div className="mb-4">
+              <p
+                className="text-red-500 text-sm text-center"
+                aria-live="polite"
+              >
+                {errors.delivery}
+              </p>
+            </div>
+          )}
 
           <div className="mt-6 text-right">
             <button
@@ -396,7 +413,11 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
                 value={formData.name}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-300 text-left"
+                className={`w-full p-2 border rounded focus:outline-none text-left transition-colors ${
+                  errors.name
+                    ? "border-red-500 bg-red-50 focus:ring-1 focus:ring-red-300"
+                    : "border-gray-300 focus:ring-1 focus:ring-blue-300"
+                }`}
                 placeholder="Enter your full name"
                 required
                 ref={nameRef}
@@ -426,7 +447,11 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
                 value={formData.email}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-300 text-left"
+                className={`w-full p-2 border rounded focus:outline-none text-left transition-colors ${
+                  errors.email
+                    ? "border-red-500 bg-red-50 focus:ring-1 focus:ring-red-300"
+                    : "border-gray-300 focus:ring-1 focus:ring-blue-300"
+                }`}
                 placeholder="you@email.com"
                 required
                 ref={emailRef}
@@ -455,7 +480,11 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
                 value={formData.phone}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-300 text-left"
+                className={`w-full p-2 border rounded focus:outline-none text-left transition-colors ${
+                  errors.phone
+                    ? "border-red-500 bg-red-50 focus:ring-1 focus:ring-red-300"
+                    : "border-gray-300 focus:ring-1 focus:ring-blue-300"
+                }`}
                 placeholder="Enter your phone number"
                 required
                 aria-invalid={!!errors.phone}

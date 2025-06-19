@@ -144,7 +144,7 @@ const Home = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Compact Hero with Integrated Search & Filters */}
-      <Header 
+      <Header
         title="MarketSpace"
         subtitle="Your trusted local marketplace"
         variant="simple"
@@ -171,7 +171,8 @@ const Home = () => {
           {/* Compact Filters Row */}
           <div className="flex flex-wrap gap-3 justify-center">
             <select
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm text-sm"
+              className="pl-4 pr-8 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm text-sm"
+              style={{ backgroundPosition: "right 0.75rem center" }}
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -181,7 +182,8 @@ const Home = () => {
             </select>
 
             <select
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm text-sm"
+              className="pl-4 pr-8 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm text-sm"
+              style={{ backgroundPosition: "right 0.75rem center" }}
               value={conditionFilter}
               onChange={(e) => setConditionFilter(e.target.value)}
             >
@@ -193,7 +195,8 @@ const Home = () => {
             </select>
 
             <select
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm text-sm"
+              className="pl-4 pr-8 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm text-sm"
+              style={{ backgroundPosition: "right 0.75rem center" }}
               value={priceSort}
               onChange={(e) => setPriceSort(e.target.value)}
             >
@@ -210,10 +213,9 @@ const Home = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-bold text-gray-900">
-              {filteredItems.length > 0 
-                ? `${filteredItems.length} Products Available` 
-                : 'No Products Found'
-              }
+              {filteredItems.length > 0
+                ? `${filteredItems.length} Products Available`
+                : "No Products Found"}
             </h2>
             {searchTerm && (
               <p className="text-sm text-gray-600 mt-1">
@@ -221,7 +223,7 @@ const Home = () => {
               </p>
             )}
           </div>
-          
+
           {!currentUser && (
             <button
               onClick={() => navigate("/login")}
