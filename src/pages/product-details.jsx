@@ -5,9 +5,9 @@ import { db, analytics } from "../firebase";
 import ProductInterestModal from "../components/product/ProductInterestModal";
 import FeedbackButton from "../components/FeedbackButton";
 import Header from "../components/Header";
+import { shareProduct } from "../utils/shareUtils";
 import { showToast } from "../utils/showToast";
 import {
-  FaShareAlt,
   FaHome,
   FaChevronRight,
   FaTruck,
@@ -23,6 +23,22 @@ import {
 import { logEvent } from "firebase/analytics";
 import { currencySymbols } from "../utils/utils";
 
+// Material UI imports
+import {
+  IconButton,
+  Fab,
+  Snackbar,
+  Alert,
+  Tooltip,
+  Chip,
+  Button,
+} from "@mui/material";
+import {
+  Share as ShareIcon,
+  Favorite as FavoriteIcon,
+  FavoriteBorder as FavoriteBorderIcon,
+} from "@mui/icons-material";
+
 const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -30,6 +46,7 @@ const ProductDetails = () => {
   const [error, setError] = useState(null);
   const [showInterestForm, setShowInterestForm] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -52,25 +69,19 @@ const ProductDetails = () => {
   }, [id]);
 
   const handleShare = async () => {
-    const url = window.location.href;
-    if (analytics)
+    if (analytics) {
       logEvent(analytics, "share_product", { product_id: product?.id });
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: product.title,
-          text: product.description,
-          url,
-        });
-        showToast("✅ Link shared successfully!");
-      } catch {}
-    } else {
-      try {
-        await navigator.clipboard.writeText(url);
-        showToast("✅ Link copied to clipboard!");
-      } catch {
-        showToast("❌ Failed to copy link.");
+    }
+
+    const result = await shareProduct(product);
+
+    if (result.success) {
+      if (result.message) {
+        showToast(result.message);
       }
+      setShareSuccess(true);
+    } else {
+      showToast("❌ Could not share product. Please try again.");
     }
   };
 
@@ -154,12 +165,11 @@ const ProductDetails = () => {
               >
                 <FaHeart />
               </button>
-              <button
-                onClick={handleShare}
-                className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
-              >
-                <FaShareAlt />
-              </button>
+              <Tooltip title="Share Product">
+                <IconButton onClick={handleShare} color="primary" size="small">
+                  <ShareIcon />
+                </IconButton>
+              </Tooltip>
             </div>
           </div>
         </div>
@@ -199,7 +209,9 @@ const ProductDetails = () => {
                 <div className="flex-1">
                   {product.sold_out && (
                     <div className="mb-2">
-                      <span className="inline-block bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">SOLD OUT</span>
+                      <span className="inline-block bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                        SOLD OUT
+                      </span>
                     </div>
                   )}
                   <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
@@ -217,12 +229,15 @@ const ProductDetails = () => {
                   >
                     <FaHeart />
                   </button>
-                  <button
-                    onClick={handleShare}
-                    className="p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50"
-                  >
-                    <FaShareAlt />
-                  </button>
+                  <Tooltip title="Share Product">
+                    <IconButton
+                      onClick={handleShare}
+                      color="primary"
+                      size="small"
+                    >
+                      <ShareIcon />
+                    </IconButton>
+                  </Tooltip>
                 </div>
               </div>
 
@@ -288,13 +303,19 @@ const ProductDetails = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className={`flex flex-col sm:flex-row gap-3 mb-6 ${product.sold_out ? "opacity-60" : ""}`}>
+              <div
+                className={`flex flex-col sm:flex-row gap-3 mb-6 ${
+                  product.sold_out ? "opacity-60" : ""
+                }`}
+              >
                 <button
                   onClick={() => setShowInterestForm(true)}
                   className={`flex-1 font-semibold py-3 px-6 rounded-lg transition-colors
-                    ${product.sold_out
-                      ? "bg-gray-400 text-white cursor-not-allowed"
-                      : "bg-orange-500 hover:bg-orange-600 text-white"}
+                    ${
+                      product.sold_out
+                        ? "bg-gray-400 text-white cursor-not-allowed"
+                        : "bg-orange-500 hover:bg-orange-600 text-white"
+                    }
                   `}
                   disabled={product.sold_out}
                 >
@@ -439,6 +460,23 @@ const ProductDetails = () => {
 
       {/* Feedback Button */}
       <FeedbackButton />
+
+      {/* Material UI Snackbar for Share Success */}
+      <Snackbar
+        open={shareSuccess}
+        autoHideDuration={3000}
+        onClose={() => setShareSuccess(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setShareSuccess(false)}
+          severity="success"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          Product shared successfully!
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
