@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { getDatabase, ref, get, update, remove } from "firebase/database";
 import { Link } from "react-router-dom";
 import {
@@ -144,28 +144,32 @@ const AdminProductTable = () => {
     }
   };
 
-  // Filter products by search term in the title
-  const filteredProducts = products.filter((product) =>
-    product.title?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Memoize expensive filtering operation
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) =>
+      product.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [products, searchTerm]);
 
-  // Sort products based on sortKey/sortOrder
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    const valA = a[sortKey] ?? "";
-    const valB = b[sortKey] ?? "";
+  // Memoize expensive sorting operation
+  const sortedProducts = useMemo(() => {
+    return [...filteredProducts].sort((a, b) => {
+      const valA = a[sortKey] ?? "";
+      const valB = b[sortKey] ?? "";
 
-    // Numeric fields
-    if (["price", "min_price", "timestamp", "updatedAt"].includes(sortKey)) {
+      // Numeric fields
+      if (["price", "min_price", "timestamp", "updatedAt"].includes(sortKey)) {
+        return sortOrder === "asc"
+          ? (valA ?? 0) - (valB ?? 0)
+          : (valB ?? 0) - (valA ?? 0);
+      }
+
+      // String fields
       return sortOrder === "asc"
-        ? (valA ?? 0) - (valB ?? 0)
-        : (valB ?? 0) - (valA ?? 0);
-    }
-
-    // String fields
-    return sortOrder === "asc"
-      ? String(valA).localeCompare(String(valB))
-      : String(valB).localeCompare(String(valA));
-  });
+        ? String(valA).localeCompare(String(valB))
+        : String(valB).localeCompare(String(valA));
+    });
+  }, [filteredProducts, sortKey, sortOrder]);
 
   const handleSort = (key) => {
     if (sortKey === key) {
@@ -232,6 +236,32 @@ const AdminProductTable = () => {
     const days = Math.floor((Date.now() - timestamp) / (1000 * 60 * 60 * 24));
     return days;
   };
+
+  // Memoize expensive filtering operation for interests
+  const processedProductsData = useMemo(() => {
+    return sortedProducts.map((p) => {
+      const interests = interestData[p.id] || {};
+      const { canEdit } = accessMap[p.id] || {};
+      const filteredInterests = Object.values(interests).filter((i) =>
+        interestSearch[p.id]
+          ? i.name
+              ?.toLowerCase()
+              .includes(interestSearch[p.id].toLowerCase()) ||
+            i.email?.toLowerCase().includes(interestSearch[p.id].toLowerCase())
+          : true
+      );
+      const daysLive = getDaysLive(p.timestamp);
+
+      return {
+        ...p,
+        interests,
+        canEdit,
+        filteredInterests,
+        daysLive,
+        interestCount: Object.keys(interests).length,
+      };
+    });
+  }, [sortedProducts, interestData, accessMap, interestSearch]);
 
   if (loading) {
     return (
@@ -358,23 +388,7 @@ const AdminProductTable = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {sortedProducts.map((p) => {
-                  const interests = interestData[p.id] || {};
-                  const { canEdit } = accessMap[p.id] || {};
-                  const filteredInterests = Object.values(interests).filter(
-                    (i) =>
-                      interestSearch[p.id]
-                        ? i.name
-                            ?.toLowerCase()
-                            .includes(interestSearch[p.id].toLowerCase()) ||
-                          i.email
-                            ?.toLowerCase()
-                            .includes(interestSearch[p.id].toLowerCase())
-                        : true
-                  );
-
-                  const daysLive = getDaysLive(p.timestamp);
-
+                {processedProductsData.map((p) => {
                   return (
                     <tr
                       key={p.id}
@@ -401,18 +415,18 @@ const AdminProductTable = () => {
                               {p.title}
                             </div>
                             <div className="flex items-center gap-2 mt-1">
-                              {!canEdit && (
+                              {!p.canEdit && (
                                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
                                   <FaLock className="text-xs" />
                                   Read-only
                                 </span>
                               )}
-                              {daysLive !== null && (
+                              {p.daysLive !== null && (
                                 <span className="text-xs text-gray-500">
-                                  {daysLive === 0
+                                  {p.daysLive === 0
                                     ? "Added today"
-                                    : `${daysLive} day${
-                                        daysLive === 1 ? "" : "s"
+                                    : `${p.daysLive} day${
+                                        p.daysLive === 1 ? "" : "s"
                                       } ago`}
                                 </span>
                               )}
@@ -427,14 +441,14 @@ const AdminProductTable = () => {
                           <input
                             type="number"
                             className={`w-24 px-3 py-2 text-sm border rounded-lg transition-colors ${
-                              canEdit
+                              p.canEdit
                                 ? "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                 : "border-gray-200 bg-gray-50"
                             }`}
                             value={p.price || ""}
-                            disabled={!canEdit}
+                            disabled={!p.canEdit}
                             onChange={(e) =>
-                              canEdit &&
+                              p.canEdit &&
                               handleToggle(
                                 p.id,
                                 "price",
@@ -455,7 +469,7 @@ const AdminProductTable = () => {
                       <td className="px-6 py-4">
                         <button
                           onClick={() =>
-                            canEdit &&
+                            p.canEdit &&
                             handleToggle(
                               p.id,
                               "status",
@@ -469,7 +483,7 @@ const AdminProductTable = () => {
                               ? "bg-green-100 text-green-800 hover:bg-green-200"
                               : "bg-red-100 text-red-800 hover:bg-red-200"
                           } ${
-                            !canEdit
+                            !p.canEdit
                               ? "opacity-50 cursor-not-allowed"
                               : "cursor-pointer"
                           }`}
@@ -482,7 +496,7 @@ const AdminProductTable = () => {
                       <td className="px-6 py-4">
                         <button
                           onClick={() =>
-                            canEdit &&
+                            p.canEdit &&
                             handleToggle(
                               p.id,
                               "visible",
@@ -494,7 +508,7 @@ const AdminProductTable = () => {
                               ? "bg-gray-100 text-gray-800 hover:bg-gray-200"
                               : "bg-blue-100 text-blue-800 hover:bg-blue-200"
                           } ${
-                            !canEdit
+                            !p.canEdit
                               ? "opacity-50 cursor-not-allowed"
                               : "cursor-pointer"
                           }`}
@@ -517,17 +531,17 @@ const AdminProductTable = () => {
                       <td className="px-6 py-4">
                         <div className="text-sm">
                           <span className="font-medium text-gray-900">
-                            {Object.keys(interests).length}
+                            {p.interestCount}
                           </span>
                           <span className="text-gray-500 ml-1">interested</span>
 
-                          {Object.keys(interests).length > 0 && (
+                          {p.interestCount > 0 && (
                             <details className="mt-2">
                               <summary className="cursor-pointer text-blue-600 hover:text-blue-800 text-xs font-medium">
                                 View Details
                               </summary>
                               <div className="mt-2 p-3 bg-gray-50 rounded-lg max-w-xs">
-                                {canEdit && (
+                                {p.canEdit && (
                                   <input
                                     type="text"
                                     className="w-full mb-2 px-2 py-1 text-xs border rounded"
@@ -542,7 +556,7 @@ const AdminProductTable = () => {
                                   />
                                 )}
                                 <div className="space-y-2 max-h-40 overflow-y-auto">
-                                  {filteredInterests
+                                  {p.filteredInterests
                                     .slice(0, 5)
                                     .map((entry, i) => (
                                       <div
@@ -569,29 +583,30 @@ const AdminProductTable = () => {
                                         </a>
                                       </div>
                                     ))}
-                                  {filteredInterests.length > 5 && (
+                                  {p.filteredInterests.length > 5 && (
                                     <div className="text-xs text-gray-500 text-center">
-                                      +{filteredInterests.length - 5} more
+                                      +{p.filteredInterests.length - 5} more
                                     </div>
                                   )}
                                 </div>
-                                {canEdit && filteredInterests.length > 0 && (
-                                  <div className="mt-2">
-                                    <ExportCSVButton
-                                      data={filteredInterests.map((e) => ({
-                                        name: e.name,
-                                        email: e.email,
-                                        phone: e.phone,
-                                      }))}
-                                      headers={["name", "email", "phone"]}
-                                      filename={`${p.title.replace(
-                                        /[^a-zA-Z0-9]/g,
-                                        "_"
-                                      )}_contacts.csv`}
-                                      className="text-xs"
-                                    />
-                                  </div>
-                                )}
+                                {p.canEdit &&
+                                  p.filteredInterests.length > 0 && (
+                                    <div className="mt-2">
+                                      <ExportCSVButton
+                                        data={p.filteredInterests.map((e) => ({
+                                          name: e.name,
+                                          email: e.email,
+                                          phone: e.phone,
+                                        }))}
+                                        headers={["name", "email", "phone"]}
+                                        filename={`${p.title.replace(
+                                          /[^a-zA-Z0-9]/g,
+                                          "_"
+                                        )}_contacts.csv`}
+                                        className="text-xs"
+                                      />
+                                    </div>
+                                  )}
                               </div>
                             </details>
                           )}
@@ -607,7 +622,7 @@ const AdminProductTable = () => {
 
                       {/* Actions */}
                       <td className="px-6 py-4 text-right">
-                        {canEdit ? (
+                        {p.canEdit ? (
                           <div className="flex items-center gap-2 justify-end">
                             <Link
                               to={`/admin/products/edit/${p.id}`}

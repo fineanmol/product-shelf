@@ -13,13 +13,13 @@ import { getDatabase, ref, onValue } from "firebase/database";
 import AdminSidebar from "../components/admin/AdminSidebar";
 import NotificationsDropdown from "../components/admin/NotificationsDropdown";
 import { getCurrentUserRole } from "../utils/permissions";
+import ProfileImage from "../components/shared/ProfileImage";
 
 function AdminLayout() {
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true); // Default open on desktop
   const [showMenu, setShowMenu] = useState(false);
-  const [newInterestsCount, setNewInterestsCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -51,32 +51,6 @@ function AdminLayout() {
     });
     return unsubscribe;
   }, [navigate, location.pathname]);
-
-  // Listen for new interests
-  useEffect(() => {
-    const db = getDatabase();
-    const interestsRef = ref(db, "interests");
-
-    const unsubscribe = onValue(interestsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        let newCount = 0;
-
-        // Count unviewed interests
-        Object.values(data).forEach((productInterests) => {
-          Object.values(productInterests).forEach((interest) => {
-            if (!interest.viewed) {
-              newCount++;
-            }
-          });
-        });
-
-        setNewInterestsCount(newCount);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   const handleLogout = async () => {
     await signOut(getAuth());
@@ -192,13 +166,11 @@ function AdminLayout() {
                   onClick={() => setShowMenu(!showMenu)}
                   className="flex items-center gap-3 bg-white hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors border"
                 >
-                  <img
-                    src={
-                      currentUser.photoURL ||
-                      "https://cdn2.vectorstock.com/i/1000x1000/44/01/default-avatar-photo-placeholder-icon-grey-vector-38594401.jpg"
-                    }
-                    alt="User"
+                  <ProfileImage
+                    src={currentUser.photoURL}
+                    alt={currentUser.displayName || currentUser.email || "User"}
                     className="w-8 h-8 rounded-full object-cover"
+                    size={128}
                   />
                   <div className="hidden sm:block text-left min-w-[120px]">
                     <div className="font-medium text-gray-800 text-sm truncate">

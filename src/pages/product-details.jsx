@@ -31,7 +31,6 @@ const ProductDetails = () => {
   const [error, setError] = useState(null);
   const [showInterestForm, setShowInterestForm] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [shareSuccess, setShareSuccess] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -64,7 +63,6 @@ const ProductDetails = () => {
       if (result.message) {
         showToast(result.message);
       }
-      setShareSuccess(true);
     } else {
       showToast("❌ Could not share product. Please try again.");
     }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { ref, onValue, update } from "firebase/database";
 import { db, analytics } from "../../firebase";
 import { showToast } from "../../utils/showToast";
@@ -37,8 +37,6 @@ const AdminFeedback = () => {
           id,
           ...item,
         }));
-        // Sort by timestamp descending (newest first)
-        feedbackList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         setFeedback(feedbackList);
       } else {
         setFeedback([]);
@@ -59,7 +57,7 @@ const AdminFeedback = () => {
         status: newStatus,
         updatedAt: Date.now(),
       });
-      
+
       showToast(`✅ Status updated to "${newStatus}"`);
       if (analytics) {
         logEvent(analytics, "admin_update_feedback_status", {
@@ -75,15 +73,26 @@ const AdminFeedback = () => {
     }
   };
 
-  // Filter feedback
-  const filteredFeedback = feedback
-    .filter((item) =>
-      item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .filter((item) => (typeFilter ? item.type === typeFilter : true))
-    .filter((item) => (statusFilter ? item.status === statusFilter : true))
-    .filter((item) => (priorityFilter ? item.priority === priorityFilter : true));
+  // Memoize expensive filtering and sorting operations
+  const filteredFeedback = useMemo(() => {
+    // First sort by timestamp descending (newest first)
+    const sorted = [...feedback].sort(
+      (a, b) => (b.timestamp || 0) - (a.timestamp || 0)
+    );
+
+    // Then apply filters
+    return sorted
+      .filter(
+        (item) =>
+          item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .filter((item) => (typeFilter ? item.type === typeFilter : true))
+      .filter((item) => (statusFilter ? item.status === statusFilter : true))
+      .filter((item) =>
+        priorityFilter ? item.priority === priorityFilter : true
+      );
+  }, [feedback, searchTerm, typeFilter, statusFilter, priorityFilter]);
 
   const getStatusIcon = (status) => {
     const icons = {
@@ -245,7 +254,11 @@ const AdminFeedback = () => {
                             {item.description}
                           </div>
                           <div className="flex items-center gap-2 mt-2">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(item.priority)}`}>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
+                                item.priority
+                              )}`}
+                            >
                               <FaFlag className="inline mr-1" />
                               {item.priority}
                             </span>
@@ -257,7 +270,7 @@ const AdminFeedback = () => {
                         </div>
                       </div>
                     </td>
-                    
+
                     <td className="px-6 py-4">
                       <div className="text-sm space-y-1">
                         {item.email && (
@@ -268,23 +281,31 @@ const AdminFeedback = () => {
                         )}
                         <div className="flex items-center gap-1 text-gray-600">
                           <FaCalendar className="text-xs" />
-                          <span>{new Date(item.timestamp).toLocaleDateString()}</span>
+                          <span>
+                            {new Date(item.timestamp).toLocaleDateString()}
+                          </span>
                         </div>
                       </div>
                     </td>
 
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          item.status
+                        )}`}
+                      >
                         {getStatusIcon(item.status)}
-                        {item.status || 'todo'}
+                        {item.status || "todo"}
                       </span>
                     </td>
 
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <select
-                          value={item.status || 'todo'}
-                          onChange={(e) => updateFeedbackStatus(item.id, e.target.value)}
+                          value={item.status || "todo"}
+                          onChange={(e) =>
+                            updateFeedbackStatus(item.id, e.target.value)
+                          }
                           disabled={updatingStatus === item.id}
                           className="text-sm border rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
                         >
@@ -293,7 +314,7 @@ const AdminFeedback = () => {
                           <option value="resolved">Resolved</option>
                           <option value="not required">Not Required</option>
                         </select>
-                        
+
                         <button
                           onClick={() => setSelectedFeedback(item)}
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
@@ -323,19 +344,21 @@ const AdminFeedback = () => {
               >
                 <FaTimes className="text-lg" />
               </button>
-              
+
               <div className="flex items-start gap-4 pr-12">
                 <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
                   {getTypeIcon(selectedFeedback.type)}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
-                      selectedFeedback.type === 'feature' 
-                        ? 'bg-yellow-100 text-yellow-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {selectedFeedback.type === 'feature' ? (
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
+                        selectedFeedback.type === "feature"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {selectedFeedback.type === "feature" ? (
                         <>
                           <FaLightbulb className="text-yellow-500" />
                           Feature Request
@@ -347,9 +370,13 @@ const AdminFeedback = () => {
                         </>
                       )}
                     </span>
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${getStatusColor(selectedFeedback.status)}`}>
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${getStatusColor(
+                        selectedFeedback.status
+                      )}`}
+                    >
                       {getStatusIcon(selectedFeedback.status)}
-                      {selectedFeedback.status || 'todo'}
+                      {selectedFeedback.status || "todo"}
                     </span>
                   </div>
                   <h2 className="text-2xl font-bold text-white mb-2 leading-tight">
@@ -358,11 +385,14 @@ const AdminFeedback = () => {
                   <div className="flex items-center gap-4 text-white/80 text-sm">
                     <div className="flex items-center gap-1.5">
                       <FaCalendar className="text-white/60" />
-                      {new Date(selectedFeedback.timestamp).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
+                      {new Date(selectedFeedback.timestamp).toLocaleDateString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
                     </div>
                     {selectedFeedback.email && (
                       <div className="flex items-center gap-1.5">
@@ -380,7 +410,11 @@ const AdminFeedback = () => {
               <div className="p-6 space-y-6">
                 {/* Priority and Category Pills */}
                 <div className="flex flex-wrap gap-3">
-                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${getPriorityColor(selectedFeedback.priority)}`}>
+                  <div
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${getPriorityColor(
+                      selectedFeedback.priority
+                    )}`}
+                  >
                     <FaFlag className="text-sm" />
                     {selectedFeedback.priority} Priority
                   </div>
@@ -417,8 +451,12 @@ const AdminFeedback = () => {
                             <FaUser className="text-blue-600 text-sm" />
                           </div>
                           <div>
-                            <div className="text-xs text-blue-600 font-medium">Email</div>
-                            <div className="text-blue-900 font-medium">{selectedFeedback.email}</div>
+                            <div className="text-xs text-blue-600 font-medium">
+                              Email
+                            </div>
+                            <div className="text-blue-900 font-medium">
+                              {selectedFeedback.email}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -436,33 +474,41 @@ const AdminFeedback = () => {
                           <FaCalendar className="text-green-600 text-sm" />
                         </div>
                         <div>
-                          <div className="text-xs text-green-600 font-medium">Submitted</div>
+                          <div className="text-xs text-green-600 font-medium">
+                            Submitted
+                          </div>
                           <div className="text-green-900 font-medium">
-                            {new Date(selectedFeedback.timestamp).toLocaleString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                              hour: 'numeric',
-                              minute: '2-digit'
+                            {new Date(
+                              selectedFeedback.timestamp
+                            ).toLocaleString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                              hour: "numeric",
+                              minute: "2-digit",
                             })}
                           </div>
                         </div>
                       </div>
-                      
+
                       {selectedFeedback.updatedAt && (
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                             <FaClock className="text-green-600 text-sm" />
                           </div>
                           <div>
-                            <div className="text-xs text-green-600 font-medium">Last Updated</div>
+                            <div className="text-xs text-green-600 font-medium">
+                              Last Updated
+                            </div>
                             <div className="text-green-900 font-medium">
-                              {new Date(selectedFeedback.updatedAt).toLocaleString('en-US', {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
-                                hour: 'numeric',
-                                minute: '2-digit'
+                              {new Date(
+                                selectedFeedback.updatedAt
+                              ).toLocaleString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                                hour: "numeric",
+                                minute: "2-digit",
                               })}
                             </div>
                           </div>
@@ -481,16 +527,24 @@ const AdminFeedback = () => {
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <div className="text-xs text-amber-600 font-medium mb-1">Page URL</div>
+                        <div className="text-xs text-amber-600 font-medium mb-1">
+                          Page URL
+                        </div>
                         <div className="bg-white rounded-lg p-3 border border-amber-200">
-                          <code className="text-sm text-gray-700 break-all">{selectedFeedback.url}</code>
+                          <code className="text-sm text-gray-700 break-all">
+                            {selectedFeedback.url}
+                          </code>
                         </div>
                       </div>
                       {selectedFeedback.userAgent && (
                         <div>
-                          <div className="text-xs text-amber-600 font-medium mb-1">User Agent</div>
+                          <div className="text-xs text-amber-600 font-medium mb-1">
+                            User Agent
+                          </div>
                           <div className="bg-white rounded-lg p-3 border border-amber-200">
-                            <code className="text-xs text-gray-600 break-all">{selectedFeedback.userAgent}</code>
+                            <code className="text-xs text-gray-600 break-all">
+                              {selectedFeedback.userAgent}
+                            </code>
                           </div>
                         </div>
                       )}
@@ -503,7 +557,10 @@ const AdminFeedback = () => {
               <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-gray-500">
-                    Feedback ID: <code className="text-xs bg-gray-200 px-2 py-1 rounded">{selectedFeedback.id}</code>
+                    Feedback ID:{" "}
+                    <code className="text-xs bg-gray-200 px-2 py-1 rounded">
+                      {selectedFeedback.id}
+                    </code>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
@@ -532,4 +589,4 @@ const AdminFeedback = () => {
   );
 };
 
-export default AdminFeedback; 
+export default AdminFeedback;

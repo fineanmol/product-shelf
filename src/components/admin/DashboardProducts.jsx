@@ -1,19 +1,24 @@
 // src/components/admin/DashboardProducts.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { getDatabase, ref, get } from "firebase/database";
 import { Link } from "react-router-dom";
-import { getCurrentUserRole, filterDataByUserRole } from "../../utils/permissions";
+import {
+  getCurrentUserRole,
+  filterDataByUserRole,
+} from "../../utils/permissions";
 
 const DashboardProducts = () => {
-  const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
       const db = getDatabase();
-      
+
       // Get current user role
       const userRoleData = await getCurrentUserRole();
-      
+      setUserRole(userRoleData);
+
       const snap = await get(ref(db, "products"));
       if (snap.exists()) {
         let data = snap.val();
@@ -22,24 +27,30 @@ const DashboardProducts = () => {
           ...val,
         }));
 
-        // Filter products based on user role
-        entries = filterDataByUserRole(
-          entries,
-          userRoleData.role,
-          userRoleData.user?.uid,
-          userRoleData.isSuperAdmin
-        );
-
-        // Sort by timestamp descending and take top 5
-        entries.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        entries = entries.slice(0, 5);
-
-        setProducts(entries);
+        setAllProducts(entries);
       }
     };
 
     fetchProducts();
   }, []);
+
+  // Memoize expensive filtering, sorting, and slicing operations
+  const products = useMemo(() => {
+    if (!allProducts.length || !userRole) return [];
+
+    // Filter products based on user role
+    let filteredEntries = filterDataByUserRole(
+      allProducts,
+      userRole.role,
+      userRole.user?.uid,
+      userRole.isSuperAdmin
+    );
+
+    // Sort by timestamp descending and take top 5
+    return filteredEntries
+      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+      .slice(0, 5);
+  }, [allProducts, userRole]);
 
   if (!products.length) {
     return <p className="text-gray-500">No products found.</p>;

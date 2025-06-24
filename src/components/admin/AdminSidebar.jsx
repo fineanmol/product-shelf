@@ -2,6 +2,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaTimes, FaHome, FaBox, FaUsers, FaCommentDots } from "react-icons/fa";
+import { getFormattedVersion } from "../../utils/version";
 
 function AdminSidebar({ onClose, userRole }) {
   const location = useLocation();
@@ -78,7 +79,9 @@ function AdminSidebar({ onClose, userRole }) {
       {/* Footer */}
       <div className="p-4 border-t border-gray-200 bg-gray-50">
         <div className="text-center">
-          <p className="text-xs text-gray-500">Admin Panel v2.0</p>
+          <p className="text-xs text-gray-500">
+            Admin Panel {getFormattedVersion()}
+          </p>
           <p className="text-xs text-gray-400">
             {new Date().getFullYear()} • Marketplace
           </p>

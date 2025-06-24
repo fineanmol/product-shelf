@@ -38,7 +38,6 @@ const ProductFormFields = ({
   isSuperAdmin: isSuperAdminProp,
 }) => {
   const [isSuperAdmin, setIsSuperAdmin] = useState(isSuperAdminProp ?? false);
-  console.log("🚀 ~ isSuperAdmin:", isSuperAdmin, "prop:", isSuperAdminProp);
 
   // Track which field the user last edited: "price" or "discount".
   const [lastChanged, setLastChanged] = useState(null);

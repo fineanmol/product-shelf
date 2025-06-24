@@ -1,8 +1,11 @@
 // src/components/admin/SummaryCards.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { getDatabase, ref, get } from "firebase/database";
 import { FaBox, FaUsers, FaCommentDots, FaClock } from "react-icons/fa";
-import { getCurrentUserRole, filterDataByUserRole } from "../../utils/permissions";
+import {
+  getCurrentUserRole,
+  filterDataByUserRole,
+} from "../../utils/permissions";
 
 function SummaryCards() {
   const [productCount, setProductCount] = useState(0);
@@ -16,17 +19,22 @@ function SummaryCards() {
     const fetchCounts = async () => {
       setLoading(true);
       const db = getDatabase();
-      
+
       try {
         // Get current user role
         const userRoleData = await getCurrentUserRole();
         setUserRole(userRoleData);
-        
+
         // Fetch products
         const productsSnapshot = await get(ref(db, "products"));
         const productsData = productsSnapshot.val() || {};
-        let productsList = Object.entries(productsData).map(([id, data]) => ({ id, ...data }));
-        
+
+        // Optimize: Move expensive operations out of useEffect
+        let productsList = Object.entries(productsData).map(([id, data]) => ({
+          id,
+          ...data,
+        }));
+
         // Filter products based on user role
         productsList = filterDataByUserRole(
           productsList,
@@ -34,29 +42,32 @@ function SummaryCards() {
           userRoleData.user?.uid,
           userRoleData.isSuperAdmin
         );
-        
+
         setProductCount(productsList.length);
 
         // Fetch interests
         const interestsSnapshot = await get(ref(db, "interests"));
         const interestsData = interestsSnapshot.val() || {};
-        
+
         let totalInterests = 0;
         if (userRoleData.isSuperAdmin) {
-          // Super admins see all interests
-          totalInterests = Object.values(interestsData).reduce((total, productInterests) => {
-            return total + Object.keys(productInterests).length;
-          }, 0);
+          // Super admins see all interests - optimize with reduce
+          totalInterests = Object.values(interestsData).reduce(
+            (total, productInterests) => {
+              return total + Object.keys(productInterests || {}).length;
+            },
+            0
+          );
         } else {
-          // Editors only see interests for their products
-          const userProductIds = productsList.map(p => p.id);
-          userProductIds.forEach(productId => {
+          // Editors only see interests for their products - optimize with forEach
+          const userProductIds = productsList.map((p) => p.id);
+          userProductIds.forEach((productId) => {
             if (interestsData[productId]) {
               totalInterests += Object.keys(interestsData[productId]).length;
             }
           });
         }
-        
+
         setInterestCount(totalInterests);
 
         // Fetch feedback (only for super admins)
@@ -64,10 +75,14 @@ function SummaryCards() {
           const feedbackSnapshot = await get(ref(db, "feedback"));
           const feedbackData = feedbackSnapshot.val() || {};
           const feedbackArray = Object.values(feedbackData);
-          
+
           setFeedbackCount(feedbackArray.length);
+          // Optimize filtering operation
           const pendingCount = feedbackArray.filter(
-            item => !item.status || item.status === 'todo' || item.status === 'in progress'
+            (item) =>
+              !item.status ||
+              item.status === "todo" ||
+              item.status === "in progress"
           ).length;
           setPendingFeedbackCount(pendingCount);
         } else {
@@ -84,11 +99,57 @@ function SummaryCards() {
     fetchCounts();
   }, []);
 
+  // Memoize card configuration to prevent re-creation on every render
+  const cards = useMemo(() => {
+    const baseCards = [
+      {
+        title: "My Products",
+        value: productCount,
+        icon: <FaBox className="text-blue-600" />,
+        bgColor: "bg-blue-100",
+      },
+      {
+        title: "Customer Interests",
+        value: interestCount,
+        icon: <FaUsers className="text-green-600" />,
+        bgColor: "bg-green-100",
+      },
+    ];
+
+    const adminOnlyCards = [
+      {
+        title: "Total Feedback",
+        value: feedbackCount,
+        icon: <FaCommentDots className="text-purple-600" />,
+        bgColor: "bg-purple-100",
+      },
+      {
+        title: "Pending Feedback",
+        value: pendingFeedbackCount,
+        icon: <FaClock className="text-orange-600" />,
+        bgColor: "bg-orange-100",
+      },
+    ];
+
+    return userRole?.isSuperAdmin
+      ? [...baseCards, ...adminOnlyCards]
+      : baseCards;
+  }, [
+    productCount,
+    interestCount,
+    feedbackCount,
+    pendingFeedbackCount,
+    userRole,
+  ]);
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {[...Array(4)].map((_, index) => (
-          <div key={index} className="bg-white rounded-lg shadow-sm border p-6 animate-pulse">
+          <div
+            key={index}
+            className="bg-white rounded-lg shadow-sm border p-6 animate-pulse"
+          >
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
               <div className="flex-1">
@@ -102,47 +163,17 @@ function SummaryCards() {
     );
   }
 
-  const baseCards = [
-    {
-      title: "My Products",
-      value: productCount,
-      icon: <FaBox className="text-blue-600" />,
-      bgColor: "bg-blue-100",
-    },
-    {
-      title: "Customer Interests", 
-      value: interestCount,
-      icon: <FaUsers className="text-green-600" />,
-      bgColor: "bg-green-100",
-    }
-  ];
-
-  const adminOnlyCards = [
-    {
-      title: "Total Feedback",
-      value: feedbackCount,
-      icon: <FaCommentDots className="text-purple-600" />,
-      bgColor: "bg-purple-100",
-    },
-    {
-      title: "Pending Feedback",
-      value: pendingFeedbackCount,
-      icon: <FaClock className="text-orange-600" />,
-      bgColor: "bg-orange-100",
-    }
-  ];
-
-  const cards = userRole?.isSuperAdmin ? [...baseCards, ...adminOnlyCards] : baseCards;
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
       {cards.map((card, index) => (
-        <div 
+        <div
           key={index}
           className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow"
         >
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 ${card.bgColor} rounded-lg flex items-center justify-center`}>
+            <div
+              className={`w-12 h-12 ${card.bgColor} rounded-lg flex items-center justify-center`}
+            >
               {card.icon}
             </div>
             <div>

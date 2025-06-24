@@ -10,14 +10,7 @@ import ProductPreview from "./ProductPreview";
 import { buildProductPayload } from "../../utils/buildProductPayload";
 import ProductToggles from "./ProductToggles";
 import { usePageTitle } from "../../hooks/usePageTitle";
-import {
-  FaSave,
-  FaPlus,
-  FaEye,
-  FaTrash,
-  FaLock,
-  FaArrowLeft,
-} from "react-icons/fa";
+import { FaSave, FaPlus, FaEye, FaTrash, FaArrowLeft } from "react-icons/fa";
 
 const initial = {
   title: "",

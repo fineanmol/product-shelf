@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { getDatabase, ref, get, update } from "firebase/database";
 import {
   FaUsers,
@@ -9,6 +9,7 @@ import {
   FaUserTimes,
 } from "react-icons/fa";
 import { showToast } from "../../utils/showToast";
+import ProfileImage from "../../components/shared/ProfileImage";
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -22,10 +23,14 @@ function AdminUsers() {
       const snap = await get(ref(db, "users"));
       if (snap.exists()) {
         const data = snap.val() || {};
-        const userArray = Object.entries(data).map(([uid, val]) => ({
-          uid,
-          ...val,
-        }));
+        console.log("Raw user data from Firebase:", data);
+        const userArray = Object.entries(data).map(([uid, val]) => {
+          console.log("Processing user:", { uid, ...val });
+          return {
+            uid,
+            ...val,
+          };
+        });
         setUsers(userArray);
       }
       setLoading(false);
@@ -84,11 +89,24 @@ function AdminUsers() {
     );
   };
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = useMemo(() => {
+    return users.filter(
+      (user) =>
+        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [users, searchTerm]);
+
+  // Memoize expensive stats calculations
+  const stats = useMemo(() => {
+    return {
+      total: users.length,
+      active: users.filter((u) => !u.disabled).length,
+      disabled: users.filter((u) => u.disabled).length,
+      admins: users.filter((u) => u.role === "admin" || u.role === "superadmin")
+        .length,
+    };
+  }, [users]);
 
   const getRoleIcon = (role) => {
     const icons = {
@@ -97,14 +115,6 @@ function AdminUsers() {
       superadmin: <FaCrown className="text-red-600" />,
     };
     return icons[role] || <FaUsers className="text-gray-600" />;
-  };
-
-  const stats = {
-    total: users.length,
-    active: users.filter((u) => !u.disabled).length,
-    disabled: users.filter((u) => u.disabled).length,
-    admins: users.filter((u) => u.role === "admin" || u.role === "superadmin")
-      .length,
   };
 
   return (
@@ -254,13 +264,13 @@ function AdminUsers() {
                         </td>
                         <td className="px-4 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                              <span className="text-white font-medium text-sm">
-                                {(user.name || user.email || "U")
-                                  .charAt(0)
-                                  .toUpperCase()}
-                              </span>
-                            </div>
+                            <ProfileImage
+                              src={user.photoURL}
+                              alt={user.name || user.email || "User"}
+                              className="w-8 h-8 rounded-full object-cover"
+                              size={32}
+                              key={user.uid}
+                            />
                             <div>
                               <div className="font-medium text-gray-900">
                                 {user.name || "No name"}

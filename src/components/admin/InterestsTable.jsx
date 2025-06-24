@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { getDatabase, ref, get } from "firebase/database";
 import { FaWhatsapp } from "react-icons/fa";
 import SearchInput from "../shared/SearchInput";
@@ -16,10 +16,10 @@ const InterestsTable = () => {
   useEffect(() => {
     const fetchData = async () => {
       const db = getDatabase();
-      
+
       // Get current user role
       const userRoleData = await getCurrentUserRole();
-      
+
       const [interestsSnap, productsSnap] = await Promise.all([
         get(ref(db, "interests")),
         get(ref(db, "products")),
@@ -28,9 +28,9 @@ const InterestsTable = () => {
       let productsList = {};
       if (productsSnap.exists()) {
         productsList = productsSnap.val();
-        
+
         // Filter products based on user role
-        if (!userRoleData.isSuperAdmin && userRoleData.role === 'editor') {
+        if (!userRoleData.isSuperAdmin && userRoleData.role === "editor") {
           // For editors, filter to only their products
           const filteredProducts = {};
           Object.entries(productsList).forEach(([productId, productData]) => {
@@ -40,7 +40,7 @@ const InterestsTable = () => {
           });
           productsList = filteredProducts;
         }
-        
+
         setProducts(productsList);
       }
 
@@ -59,9 +59,6 @@ const InterestsTable = () => {
           }
         });
 
-        // Sort by timestamp descending
-        interestList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
         setInterests(interestList);
       }
     };
@@ -69,18 +66,39 @@ const InterestsTable = () => {
     fetchData();
   }, []);
 
-  const filtered = interests.filter((i) =>
-    `${i.name} ${i.email} ${i.phone}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  // Memoize expensive filtering and sorting operations
+  const filteredAndSorted = useMemo(() => {
+    return interests
+      .slice() // Create a copy to avoid mutating original array
+      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+      .filter((i) =>
+        `${i.name} ${i.email} ${i.phone}`
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      );
+  }, [interests, search]);
 
-  const paginated = filtered.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
-  );
+  // Memoize pagination calculation
+  const { paginated, totalPages } = useMemo(() => {
+    const totalPages = Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE);
+    const paginated = filteredAndSorted.slice(
+      (page - 1) * ITEMS_PER_PAGE,
+      page * ITEMS_PER_PAGE
+    );
+    return { paginated, totalPages };
+  }, [filteredAndSorted, page]);
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  // Memoize export data to prevent re-computation
+  const exportData = useMemo(() => {
+    return filteredAndSorted.map((i) => ({
+      name: i.name,
+      email: i.email,
+      phone: i.phone,
+      product: products[i.productId]?.title || "—",
+      deliveryPreference: i.deliveryPreference,
+      timestamp: i.timestamp ? new Date(i.timestamp).toLocaleString() : "—",
+    }));
+  }, [filteredAndSorted, products]);
 
   return (
     <div className="p-4 bg-white shadow rounded-xl mt-10">
@@ -93,16 +111,7 @@ const InterestsTable = () => {
             placeholder="Search name, email or phone"
           />
           <ExportCSVButton
-            data={filtered.map((i) => ({
-              name: i.name,
-              email: i.email,
-              phone: i.phone,
-              product: products[i.productId]?.title || "—",
-              deliveryPreference: i.deliveryPreference,
-              timestamp: i.timestamp
-                ? new Date(i.timestamp).toLocaleString()
-                : "—",
-            }))}
+            data={exportData}
             headers={[
               "name",
               "email",
@@ -116,7 +125,7 @@ const InterestsTable = () => {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {filteredAndSorted.length === 0 ? (
         <p className="text-sm text-gray-500">No matching users found.</p>
       ) : (
         <>

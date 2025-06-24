@@ -1,8 +1,6 @@
 // src/pages/AdminProducts.jsx
 import React from "react";
-import { Link } from "react-router-dom";
 import AdminProductTable from "../../components/AdminProductTable";
-import { FaPlus, FaBox, FaSearch, FaFilter } from "react-icons/fa";
 
 function AdminProducts() {
   return (
@@ -12,7 +10,9 @@ function AdminProducts() {
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Product Management</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Product Management
+              </h1>
               <p className="text-gray-600 mt-1">
                 Manage your product inventory and track performance.
               </p>
@@ -67,11 +67,13 @@ function AdminProducts() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-gray-900">All Products</h3>
-                <p className="text-gray-600 text-sm">Complete list of your product inventory</p>
+                <p className="text-gray-600 text-sm">
+                  Complete list of your product inventory
+                </p>
               </div>
             </div>
           </div>
-          
+
           {/* Table Content */}
           <div className="p-6">
             <AdminProductTable />

@@ -1,22 +1,23 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { 
-  FaShoppingCart, 
-  FaUser, 
-  FaHome, 
+import {
+  FaShoppingCart,
+  FaUser,
+  FaHome,
   FaCog,
-  FaSearch
+  FaSearch,
 } from "react-icons/fa";
+import ProfileImage from "./shared/ProfileImage";
 
-const Header = ({ 
-  title = "MarketSpace", 
+const Header = ({
+  title = "MarketSpace",
   subtitle,
   showSearch = false,
   searchValue = "",
   onSearchChange,
   currentUser = null,
-  variant = "default" // "default", "hero", "simple"
+  variant = "default", // "default", "hero", "simple"
 }) => {
   const navigate = useNavigate();
   const [user, setUser] = React.useState(currentUser);
@@ -34,14 +35,16 @@ const Header = ({
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button 
+            <button
               onClick={() => navigate("/")}
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
               <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                 <FaShoppingCart className="text-white text-xl" />
               </div>
-              <span className="text-xl font-bold text-gray-800">MarketSpace</span>
+              <span className="text-xl font-bold text-gray-800">
+                MarketSpace
+              </span>
             </button>
           </div>
 
@@ -56,9 +59,17 @@ const Header = ({
 
             {user ? (
               <div className="flex items-center gap-4">
-                <span className="text-gray-600 hidden sm:inline">
-                  Welcome, {user.displayName?.split(" ")[0] || "User"}!
-                </span>
+                <div className="flex items-center gap-2">
+                  <ProfileImage
+                    src={user.photoURL}
+                    alt={user.displayName || user.email || "User"}
+                    className="w-8 h-8 rounded-full object-cover"
+                    size={32}
+                  />
+                  <span className="text-gray-600 hidden sm:inline">
+                    {user.displayName?.split(" ")[0] || "User"}
+                  </span>
+                </div>
                 <button
                   onClick={() => navigate("/admin")}
                   className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
@@ -97,7 +108,7 @@ const Header = ({
                   {subtitle}
                 </p>
               )}
-              
+
               {showSearch && (
                 <div className="max-w-2xl mx-auto mt-8">
                   <div className="relative">
@@ -126,9 +137,7 @@ const Header = ({
         <div className="bg-white border-b">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">{title}</h1>
-            {subtitle && (
-              <p className="text-gray-600">{subtitle}</p>
-            )}
+            {subtitle && <p className="text-gray-600">{subtitle}</p>}
           </div>
         </div>
       </>
@@ -142,9 +151,7 @@ const Header = ({
       <header className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white py-8 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-3xl md:text-4xl font-bold mb-3">{title}</h1>
-          {subtitle && (
-            <p className="text-blue-100 text-lg">{subtitle}</p>
-          )}
+          {subtitle && <p className="text-blue-100 text-lg">{subtitle}</p>}
         </div>
       </header>
     </>

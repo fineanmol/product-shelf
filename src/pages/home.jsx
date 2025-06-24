@@ -1,5 +1,5 @@
 // src/pages/ItemsForSale.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { ref, push, onValue } from "firebase/database";
 import { db, analytics } from "../firebase";
 import ProductCard from "../components/product/ProductCard";
@@ -84,6 +84,30 @@ const Home = () => {
     };
   }, []);
 
+  // Memoize expensive filtering and sorting operations
+  const filteredItems = useMemo(() => {
+    return (
+      items
+        // 1. Search filter
+        .filter((item) =>
+          item.title.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        // 2. Status filter
+        .filter((item) => (statusFilter ? item.status === statusFilter : true))
+        // 3. Condition filter
+        .filter((item) =>
+          conditionFilter ? item.condition === conditionFilter : true
+        )
+        // Sorting logic
+        .sort((a, b) => {
+          if (priceSort === "price-low") return a.price - b.price;
+          if (priceSort === "price-high") return b.price - a.price;
+          // 'latest' - sort by timestamp descending (latest first)
+          return (b.timestamp || 0) - (a.timestamp || 0);
+        })
+    );
+  }, [items, searchTerm, statusFilter, conditionFilter, priceSort]);
+
   const handleInterestSubmit = async ({
     name,
     email,
@@ -109,29 +133,6 @@ const Home = () => {
       showToast("❌ Could not save your interest. Please try again.");
     }
   };
-
-  /** FILTER & SORT LOGIC **/
-  const filteredItems = items
-    // 1. Search filter
-    .filter((item) =>
-      item.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-
-    // 2. Status filter
-    .filter((item) => (statusFilter ? item.status === statusFilter : true))
-
-    // 3. Condition filter
-    .filter((item) =>
-      conditionFilter ? item.condition === conditionFilter : true
-    )
-
-    // Sorting logic
-    .sort((a, b) => {
-      if (priceSort === "price-low") return a.price - b.price;
-      if (priceSort === "price-high") return b.price - a.price;
-      // 'latest' - sort by timestamp descending (latest first)
-      return (b.timestamp || 0) - (a.timestamp || 0);
-    });
 
   if (!authChecked) {
     return (

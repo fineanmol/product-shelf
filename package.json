@@ -1,6 +1,6 @@
 {
   "name": "my-product-display",
-  "version": "2.1.0",
+  "version": "2.3.0",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
@@ -20,7 +20,7 @@
   },
   "scripts": {
     "prebuild": "node scripts/version-manager.js",
-    "start": "react-scripts start",
+    "start": "cross-env REACT_APP_VERSION=$npm_package_version react-scripts start",
     "build": "cross-env REACT_APP_VERSION=$npm_package_version react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

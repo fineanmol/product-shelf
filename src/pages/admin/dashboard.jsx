@@ -5,7 +5,6 @@ import SummaryCards from "../../components/admin/SummaryCards";
 import { Link } from "react-router-dom";
 import InterestsTable from "../../components/admin/InterestsTable";
 import DashboardProducts from "../../components/admin/DashboardProducts";
-import AddAmazonProduct from "./add-amazon-product";
 import { analytics } from "../../firebase";
 import { logEvent } from "firebase/analytics";
 import { FaPlus, FaBox, FaHeart } from "react-icons/fa";
@@ -21,7 +20,8 @@ const AdminDashboard = () => {
         navigate("/login");
       } else {
         setCurrentUser(user);
-        if (analytics) logEvent(analytics, "view_admin_dashboard", { user_id: user.uid });
+        if (analytics)
+          logEvent(analytics, "view_admin_dashboard", { user_id: user.uid });
       }
     });
 
@@ -43,10 +43,12 @@ const AdminDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {getGreeting()}, {currentUser?.displayName?.split(' ')[0] || "Admin"}!
+                {getGreeting()},{" "}
+                {currentUser?.displayName?.split(" ")[0] || "Admin"}!
               </h1>
               <p className="text-gray-600 mt-1">
-                Welcome to your admin dashboard. Monitor and manage your marketplace.
+                Welcome to your admin dashboard. Monitor and manage your
+                marketplace.
               </p>
             </div>
           </div>
@@ -60,7 +62,9 @@ const AdminDashboard = () => {
 
         {/* Analytics Overview */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Analytics Overview</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">
+            Analytics Overview
+          </h2>
           <SummaryCards />
         </div>
 
@@ -97,8 +101,12 @@ const AdminDashboard = () => {
               <div className="flex items-center gap-3">
                 <FaHeart className="text-red-500" />
                 <div>
-                  <h3 className="font-semibold text-gray-900">Customer Interests</h3>
-                  <p className="text-sm text-gray-600">Recent customer engagement</p>
+                  <h3 className="font-semibold text-gray-900">
+                    Customer Interests
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Recent customer engagement
+                  </p>
                 </div>
               </div>
             </div>
