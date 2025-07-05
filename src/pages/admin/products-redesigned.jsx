@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { getDatabase, ref, get, update, remove, push } from 'firebase/database';
-import { FaPlus, FaGrid, FaList, FaDownload } from 'react-icons/fa';
+import { FaPlus, FaTh, FaList, FaDownload } from 'react-icons/fa';
 import DashboardLayout from '../../components/ui/DashboardLayout';
 import SearchAndFilter from '../../components/ui/SearchAndFilter';
 import ProductCard from '../../components/ui/ProductCard';
@@ -234,7 +234,7 @@ const ProductsRedesigned = () => {
             viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
-          <FaGrid />
+          <FaTh />
         </button>
         <button
           onClick={() => setViewMode('list')}
