@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import "./styles/App.css";
-import Home from "./pages/home";
+import HomeRedesigned from "./pages/home-redesigned";
 import ProductDetails from "./pages/product-details";
 import ProductDetailsRedesigned from "./pages/product-details-redesigned";
 import Login from "./pages/Login";
@@ -19,7 +19,7 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<HomeRedesigned />} />
         <Route path="/login" element={<Login />} />
         <Route path="/product/:id" element={<ProductDetailsRedesigned />} />
 
