@@ -7,6 +7,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import Dashboard from "./pages/admin/dashboard";
 import Products from "./pages/admin/products";
+import ProductsRedesigned from "./pages/admin/products-redesigned";
 import AddProduct from "./pages/admin/add-product";
 import EditProduct from "./pages/admin/edit-product";
 import Users from "./pages/admin/users";
@@ -31,7 +32,7 @@ function App() {
           }
         >
           <Route index element={<Dashboard />} />
-          <Route path="products" element={<Products />} />
+          <Route path="products" element={<ProductsRedesigned />} />
           <Route path="products/add" element={<AddProduct />} />
           <Route path="products/edit/:id" element={<EditProduct />} />
           <Route path="users" element={<Users />} />
