@@ -1,77 +1,98 @@
-/* Glassmorphism and Neumorphism Design System */
+/* Enhanced Glassmorphism and Neumorphism Design System */
 
 :root {
-  /* Light Theme Colors */
-  --bg-primary: #f8fafc;
+  /* Light Theme Colors - Business Professional */
+  --bg-primary: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   --bg-secondary: #ffffff;
   --bg-glass: rgba(255, 255, 255, 0.25);
   --bg-glass-hover: rgba(255, 255, 255, 0.35);
-  --bg-card: rgba(255, 255, 255, 0.8);
+  --bg-card: rgba(255, 255, 255, 0.85);
   --bg-modal: rgba(255, 255, 255, 0.95);
   
-  /* Text Colors */
+  /* Professional Text Colors */
   --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
   
-  /* Accent Colors */
-  --accent-primary: #3b82f6;
-  --accent-secondary: #8b5cf6;
-  --accent-success: #10b981;
-  --accent-warning: #f59e0b;
-  --accent-error: #ef4444;
+  /* Business Accent Colors */
+  --accent-primary: #2563eb;
+  --accent-secondary: #7c3aed;
+  --accent-success: #059669;
+  --accent-warning: #d97706;
+  --accent-error: #dc2626;
   
-  /* Shadows */
+  /* Enhanced Shadows */
   --shadow-glass: 0 8px 32px rgba(31, 38, 135, 0.37);
   --shadow-neumorphism: 20px 20px 60px #d1d9e6, -20px -20px 60px #ffffff;
-  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.1);
-  --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.15);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
+  --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.1);
   
-  /* Borders */
+  /* Professional Borders */
   --border-glass: 1px solid rgba(255, 255, 255, 0.18);
   --border-radius: 16px;
   --border-radius-lg: 24px;
+  --border-radius-xl: 32px;
   
-  /* Backdrop */
-  --backdrop-blur: blur(16px);
+  /* Enhanced Backdrop */
+  --backdrop-blur: blur(20px);
+  --backdrop-saturate: saturate(180%);
 }
 
-/* Dark Theme */
+/* Dark Theme - Professional */
 [data-theme="dark"] {
-  --bg-primary: #0f172a;
+  --bg-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   --bg-secondary: #1e293b;
   --bg-glass: rgba(30, 41, 59, 0.25);
   --bg-glass-hover: rgba(30, 41, 59, 0.35);
-  --bg-card: rgba(30, 41, 59, 0.8);
+  --bg-card: rgba(30, 41, 59, 0.85);
   --bg-modal: rgba(30, 41, 59, 0.95);
   
   --text-primary: #f1f5f9;
   --text-secondary: #cbd5e1;
   --text-muted: #64748b;
   
+  --accent-primary: #3b82f6;
+  --accent-secondary: #8b5cf6;
+  
   --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.37);
   --shadow-neumorphism: 20px 20px 60px #0a0f1a, -20px -20px 60px #1e2a3a;
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25);
   --border-glass: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Glass Card Component */
+/* Enhanced Glass Card Component */
 .glass-card {
   background: var(--bg-card);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
+  backdrop-filter: var(--backdrop-blur) var(--backdrop-saturate);
+  -webkit-backdrop-filter: var(--backdrop-blur) var(--backdrop-saturate);
   border: var(--border-glass);
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow-glass);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-card);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  opacity: 0.6;
 }
 
 .glass-card:hover {
   background: var(--bg-glass-hover);
   box-shadow: var(--shadow-hover);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Neumorphism Button */
+/* Enhanced Neumorphism Button */
 .neuro-button {
   background: var(--bg-secondary);
   border-radius: var(--border-radius);
@@ -81,22 +102,39 @@
   font-weight: 600;
   color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+}
+
+.neuro-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.neuro-button:hover::before {
+  left: 100%;
 }
 
 .neuro-button:hover {
   box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.1), 
               inset -5px -5px 10px rgba(255, 255, 255, 0.8);
+  transform: translateY(-2px);
 }
 
 .neuro-button:active {
   box-shadow: inset 8px 8px 16px rgba(0, 0, 0, 0.15), 
               inset -8px -8px 16px rgba(255, 255, 255, 0.7);
+  transform: translateY(0);
 }
 
-/* Floating Action Button */
+/* Enhanced Floating Action Button */
 .fab {
   position: fixed;
   bottom: 24px;
@@ -113,29 +151,46 @@
   justify-content: center;
   color: white;
   font-size: 24px;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
 }
 
-.fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.4);
+.fab::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
-/* Animated Background */
+.fab:hover {
+  transform: scale(1.15) rotate(5deg);
+  box-shadow: 0 16px 48px rgba(37, 99, 235, 0.4);
+}
+
+.fab:hover::before {
+  opacity: 0.3;
+}
+
+/* Enhanced Animated Background */
 .animated-bg {
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe);
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
 }
 
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
   100% { background-position: 0% 50%; }
 }
 
-/* Loading Animation */
+/* Enhanced Loading Animation */
 .loading-dots {
   display: inline-block;
   position: relative;
@@ -149,7 +204,7 @@
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  background: var(--accent-primary);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   animation-timing-function: cubic-bezier(0, 1, 1, 0);
 }
 
@@ -188,7 +243,7 @@
   100% { transform: translate(24px, 0); }
 }
 
-/* Form Styles */
+/* Enhanced Form Styles */
 .glass-input {
   background: var(--bg-glass);
   backdrop-filter: var(--backdrop-blur);
@@ -197,57 +252,67 @@
   padding: 16px;
   color: var(--text-primary);
   font-size: 16px;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
+  position: relative;
 }
 
 .glass-input:focus {
   outline: none;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: var(--shadow-focus);
   background: var(--bg-glass-hover);
+  transform: translateY(-1px);
 }
 
 .glass-input::placeholder {
   color: var(--text-muted);
+  transition: color 0.3s;
 }
 
-/* Status Badges */
+.glass-input:focus::placeholder {
+  color: transparent;
+}
+
+/* Enhanced Status Badges */
 .status-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 8px 16px;
+  border-radius: 24px;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  backdrop-filter: var(--backdrop-blur);
+  transition: all 0.3s;
 }
 
 .status-available {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(5, 150, 105, 0.15);
   color: var(--accent-success);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(5, 150, 105, 0.3);
 }
 
 .status-reserved {
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(217, 119, 6, 0.15);
   color: var(--accent-warning);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(217, 119, 6, 0.3);
 }
 
 .status-sold {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(220, 38, 38, 0.15);
   color: var(--accent-error);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(220, 38, 38, 0.3);
 }
 
-/* Responsive Design */
+/* Enhanced Responsive Design */
 @media (max-width: 768px) {
   .glass-card {
     border-radius: 12px;
     margin: 8px;
+    backdrop-filter: blur(16px);
   }
   
   .fab {
@@ -257,21 +322,95 @@
     height: 56px;
     font-size: 20px;
   }
+  
+  .neuro-button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
 }
 
-/* Accessibility */
+/* Enhanced Accessibility */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  
+  .animated-bg {
+    animation: none !important;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  }
 }
 
-/* Focus styles for keyboard navigation */
+/* Enhanced Focus styles for keyboard navigation */
 .glass-card:focus,
 .neuro-button:focus,
 .glass-input:focus {
   outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
+}
+
+/* Enhanced High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --bg-glass: rgba(255, 255, 255, 0.95);
+    --border-glass: 2px solid #000000;
+    --shadow-glass: 0 4px 8px rgba(0, 0, 0, 0.5);
+  }
+  
+  [data-theme="dark"] {
+    --bg-glass: rgba(0, 0, 0, 0.95);
+    --border-glass: 2px solid #ffffff;
+  }
+}
+
+/* Professional gradient overlays */
+.gradient-overlay {
+  background: linear-gradient(135deg, 
+    rgba(37, 99, 235, 0.1) 0%, 
+    rgba(124, 58, 237, 0.1) 100%);
+}
+
+/* Enhanced card hover effects */
+.card-hover-effect {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+/* Professional button variants */
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+}
+
+.btn-secondary {
+  background: var(--bg-glass);
+  backdrop-filter: var(--backdrop-blur);
+  color: var(--text-primary);
+  border: var(--border-glass);
+  padding: 12px 24px;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-glass-hover);
+  transform: translateY(-2px);
 }

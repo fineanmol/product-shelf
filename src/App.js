@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import "./styles/App.css";
 import Home from "./pages/home";
 import ProductDetails from "./pages/product-details";
+import ProductDetailsRedesigned from "./pages/product-details-redesigned";
 import Login from "./pages/Login";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminLayout from "./layouts/AdminLayout";
@@ -20,7 +21,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/product/:id" element={<ProductDetailsRedesigned />} />
 
         {/* Admin (protected) */}
         <Route
