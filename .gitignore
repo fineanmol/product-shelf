@@ -27,3 +27,4 @@ api/firebase-service-account.json
 functions/
 firebase-debug.log
 .firebase/hosting.YnVpbGQ.cache
+.env
