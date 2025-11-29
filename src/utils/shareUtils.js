@@ -95,10 +95,10 @@ export const shareProduct = async (product) => {
   const shareUrl = createProductShareUrl(product.id);
 
   const shareData = {
-    title: `${product.title} - MarketSpace`,
-    text: `Check out this ${product.condition || "item"} for €${
+    title: `${product.title} - SkyMarket`,
+    text: `Check out this ${product.condition || "item"} for ${product.currency ? (product.currency === 'EUR' ? '€' : product.currency === 'USD' ? '$' : product.currency) : '€'}${
       product.price
-    } on MarketSpace!\n\n${product.description?.substring(0, 100)}${
+    } on SkyMarket!\n\n${product.description?.substring(0, 100)}${
       product.description?.length > 100 ? "..." : ""
     }`,
     url: shareUrl,
@@ -112,8 +112,8 @@ export const shareProduct = async (product) => {
  */
 export const shareMarketplace = async () => {
   const shareData = {
-    title: "MarketSpace - Your Local Marketplace",
-    text: "Discover amazing products at great prices on MarketSpace!",
+    title: "SkyMarket - Your Trusted Marketplace",
+    text: "Discover amazing products at great prices on SkyMarket!",
     url: window.location.origin,
   };
 

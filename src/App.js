@@ -1,13 +1,11 @@
 import { Routes, Route } from "react-router-dom";
 import "./styles/App.css";
 import HomeRedesigned from "./pages/home-redesigned";
-import ProductDetails from "./pages/product-details";
 import ProductDetailsRedesigned from "./pages/product-details-redesigned";
 import Login from "./pages/Login";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import Dashboard from "./pages/admin/dashboard";
-import Products from "./pages/admin/products";
 import ProductsRedesigned from "./pages/admin/products-redesigned";
 import AddProduct from "./pages/admin/add-product";
 import EditProduct from "./pages/admin/edit-product";

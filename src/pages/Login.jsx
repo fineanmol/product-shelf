@@ -105,10 +105,10 @@ const Login = () => {
     try {
       const auth = getAuth();
       const provider = new GoogleAuthProvider();
-      
+
       // Configure Google Auth Provider
       provider.setCustomParameters({
-        prompt: 'select_account'
+        prompt: "select_account",
       });
 
       // Use a try-catch block specifically for the popup
@@ -117,12 +117,12 @@ const Login = () => {
         userCredential = await signInWithPopup(auth, provider);
       } catch (popupError) {
         // Handle popup blocked or closed
-        if (popupError.code === 'auth/popup-blocked') {
-          alert('Please allow popups for this website to sign in with Google.');
+        if (popupError.code === "auth/popup-blocked") {
+          alert("Please allow popups for this website to sign in with Google.");
           return;
         }
-        if (popupError.code === 'auth/popup-closed-by-user') {
-          alert('Sign in was cancelled. Please try again.');
+        if (popupError.code === "auth/popup-closed-by-user") {
+          alert("Sign in was cancelled. Please try again.");
           return;
         }
         throw popupError;
@@ -147,14 +147,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-brand-navy flex items-center justify-center p-4">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         {/* Left Side - Branding and Info */}
         <div className="text-white space-y-8 lg:pr-8">
           {/* Back Button */}
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-blue-200 hover:text-white transition-colors mb-8"
+            className="flex items-center gap-2 text-brand-mint hover:text-white transition-colors mb-8"
           >
             <FaArrowLeft />
             <span>Back to Home</span>
@@ -162,12 +162,12 @@ const Login = () => {
 
           {/* Logo and Brand */}
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-brand-sky to-white/30 rounded-xl flex items-center justify-center shadow-lg">
               <FaShoppingCart className="text-white text-2xl" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">Marketplace</h1>
-              <p className="text-blue-200">Your Local Trading Platform</p>
+              <h1 className="text-3xl font-bold">SkyMarket</h1>
+              <p className="text-brand-sunshine">Your Trusted Marketplace</p>
             </div>
           </div>
 
@@ -175,10 +175,10 @@ const Login = () => {
           <div className="space-y-6">
             <h2 className="text-4xl font-bold leading-tight">
               Join Our <br />
-              <span className="text-blue-200">Community</span>
+              <span className="text-brand-sunshine">Community</span>
             </h2>
 
-            <p className="text-xl text-blue-100 leading-relaxed">
+            <p className="text-xl text-gray-200 leading-relaxed">
               Start buying and selling with ease. Access your personal dashboard
               to manage products and connect with buyers.
             </p>
@@ -186,11 +186,11 @@ const Login = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                  <FaRocket className="text-blue-200" />
+                  <FaRocket className="text-brand-sky" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Quick Start</h3>
-                  <p className="text-blue-200 text-sm">
+                  <p className="text-gray-300 text-sm">
                     Set up your account in minutes
                   </p>
                 </div>
@@ -200,7 +200,7 @@ const Login = () => {
                 <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"></div>
                 <div>
                   <h3 className="font-semibold text-lg">Secure Platform</h3>
-                  <p className="text-blue-200 text-sm">
+                  <p className="text-gray-300 text-sm">
                     Your data is protected and secure
                   </p>
                 </div>
@@ -208,11 +208,11 @@ const Login = () => {
 
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                  <FaUsers className="text-yellow-300" />
+                  <FaUsers className="text-brand-sunshine" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Growing Community</h3>
-                  <p className="text-blue-200 text-sm">
+                  <p className="text-gray-300 text-sm">
                     Join thousands of active users
                   </p>
                 </div>
@@ -274,7 +274,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                className="w-full bg-brand-sky hover:bg-brand-navy disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>
@@ -306,8 +306,8 @@ const Login = () => {
               <span>Continue with Google</span>
             </button>
 
-            <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-blue-800 text-sm text-center">
+            <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-brand-navy text-sm text-center">
                 <strong>New users:</strong> Your account will be created
                 automatically with
                 <span className="font-semibold"> Editor</span> permissions to

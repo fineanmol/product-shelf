@@ -427,7 +427,7 @@ const AdminFeedback = () => {
                 {/* Description Section */}
                 <div className="bg-gray-50 rounded-xl p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-brand-sky rounded-full"></div>
                     Description
                   </h3>
                   <div className="prose max-w-none">
@@ -572,7 +572,7 @@ const AdminFeedback = () => {
                     {selectedFeedback.email && (
                       <a
                         href={`mailto:${selectedFeedback.email}?subject=Re: ${selectedFeedback.title}&body=Hi,%0D%0A%0D%0AThank you for your feedback regarding "${selectedFeedback.title}".%0D%0A%0D%0A`}
-                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors duration-200 flex items-center gap-2"
+                        className="px-6 py-2.5 bg-brand-sky hover:bg-brand-navy text-white font-medium rounded-xl transition-colors duration-200 flex items-center gap-2"
                       >
                         <FaUser className="text-sm" />
                         Reply via Email

@@ -75,7 +75,7 @@ const AdminDashboard = () => {
             <div className="bg-gray-50 border-b p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <FaBox className="text-blue-600" />
+                  <FaBox className="text-brand-sky" />
                   <div>
                     <h3 className="font-semibold text-gray-900">Products</h3>
                     <p className="text-sm text-gray-600">Recent products</p>
@@ -83,7 +83,7 @@ const AdminDashboard = () => {
                 </div>
                 <Link
                   to="/admin/products/add"
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
+                  className="flex items-center gap-2 bg-brand-sky hover:bg-brand-navy text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
                 >
                   <FaPlus className="text-xs" />
                   Add Product

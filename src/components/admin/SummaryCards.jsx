@@ -105,8 +105,8 @@ function SummaryCards() {
       {
         title: "My Products",
         value: productCount,
-        icon: <FaBox className="text-blue-600" />,
-        bgColor: "bg-blue-100",
+        icon: <FaBox className="text-brand-sky" />,
+        bgColor: "bg-blue-50",
       },
       {
         title: "Customer Interests",
@@ -120,8 +120,8 @@ function SummaryCards() {
       {
         title: "Total Feedback",
         value: feedbackCount,
-        icon: <FaCommentDots className="text-purple-600" />,
-        bgColor: "bg-purple-100",
+        icon: <FaCommentDots className="text-brand-navy" />,
+        bgColor: "bg-blue-50",
       },
       {
         title: "Pending Feedback",

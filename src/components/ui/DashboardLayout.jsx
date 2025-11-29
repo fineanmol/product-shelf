@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { FaBars, FaTimes, FaPlus } from 'react-icons/fa';
-import ThemeToggle from './ThemeToggle';
 import AnimatedButton from './AnimatedButton';
 
 const DashboardLayout = ({ 
@@ -73,7 +72,6 @@ const DashboardLayout = ({
 
             <div className="flex items-center gap-3">
               {actions}
-              <ThemeToggle />
               {showAddButton && (
                 <AnimatedButton
                   variant="primary"

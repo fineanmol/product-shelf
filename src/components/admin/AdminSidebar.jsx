@@ -32,7 +32,7 @@ function AdminSidebar({ onClose, userRole }) {
   return (
     <div className="w-80 lg:w-64 bg-white shadow-lg flex flex-col h-full border-r border-gray-200">
       {/* Sidebar header */}
-      <div className="bg-blue-600 p-6">
+      <div className="bg-brand-navy p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -40,7 +40,7 @@ function AdminSidebar({ onClose, userRole }) {
             </div>
             <div>
               <span className="font-bold text-lg text-white">Admin Panel</span>
-              <p className="text-blue-100 text-xs">Management Console</p>
+              <p className="text-brand-sky text-xs">Management Console</p>
             </div>
           </div>
           {onClose && (
@@ -65,7 +65,7 @@ function AdminSidebar({ onClose, userRole }) {
               onClick={handleLinkClick}
               className={`flex items-center p-3 rounded-lg transition-colors ${
                 isActive
-                  ? "bg-blue-600 text-white"
+                  ? "bg-brand-sky text-white"
                   : "text-gray-700 hover:bg-gray-100"
               }`}
             >

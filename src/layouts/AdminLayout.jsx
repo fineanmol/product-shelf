@@ -62,7 +62,7 @@ function AdminLayout() {
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="bg-white rounded-xl p-8 shadow-lg border">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-8 h-8 border-4 border-brand-sky border-t-transparent rounded-full animate-spin"></div>
             <p className="text-gray-600">Authenticating...</p>
           </div>
         </div>
@@ -119,9 +119,9 @@ function AdminLayout() {
               <div className="flex items-center gap-4">
                 <Link
                   to="/admin"
-                  className="flex items-center gap-3 text-xl font-bold text-gray-800 hover:text-blue-600 transition-colors"
+                  className="flex items-center gap-3 text-xl font-bold text-gray-800 hover:text-brand-sky transition-colors"
                 >
-                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-brand-sky rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">A</span>
                   </div>
                   Admin Panel
@@ -149,7 +149,7 @@ function AdminLayout() {
                 }
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden sm:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors"
+                className="hidden sm:flex items-center gap-2 bg-brand-sky hover:bg-brand-navy text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors"
               >
                 <FaGlobe className="text-sm" />
                 <span>Visit Website</span>

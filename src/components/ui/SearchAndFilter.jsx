@@ -77,7 +77,7 @@ const SearchAndFilter = ({
           <FaFilter />
           Filters
           {hasActiveFilters && (
-            <span className="ml-1 px-2 py-0.5 text-xs rounded-full bg-blue-500 text-white">
+            <span className="ml-1 px-2 py-0.5 text-xs rounded-full bg-brand-sky text-white">
               {Object.values(filters).filter(v => v !== '').length}
             </span>
           )}

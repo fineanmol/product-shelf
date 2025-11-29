@@ -228,7 +228,7 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
     <div className="relative mb-6 mt-6">
       <div className="absolute top-4 left-0 w-full h-0.5 bg-gray-200" />
       <div
-        className="absolute top-4 left-0 h-0.5 bg-blue-600 transition-all duration-300"
+        className="absolute top-4 left-0 h-0.5 bg-brand-sky transition-all duration-300"
         style={{ width: `${((step - 1) / 2) * 100}%` }}
       />
       <div className="flex justify-between relative z-10">
@@ -238,7 +238,7 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
             <div key={num} className="flex flex-col items-center">
               <div
                 className={`w-8 h-8 rounded-full text-center text-white font-semibold text-sm flex items-center justify-center mb-2 ${
-                  isActive ? "bg-blue-600" : "bg-gray-300"
+                  isActive ? "bg-brand-sky" : "bg-gray-300"
                 }`}
               >
                 {num}
@@ -374,7 +374,7 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
           <div className="mt-6 text-right">
             <button
               onClick={handleNext}
-              className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="bg-brand-sky text-white px-5 py-2 rounded hover:bg-brand-navy transition-colors focus:outline-none focus:ring-2 focus:ring-brand-sky"
               disabled={
                 loading || (step === 2 && Object.keys(errors).length > 0)
               }
@@ -525,7 +525,7 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
               className={`px-5 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors w-full sm:w-1/2 ${
                 loading || Object.keys(errors).length > 0
                   ? "bg-gray-300 text-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-brand-sky text-white hover:bg-brand-navy"
               }`}
               disabled={loading || Object.keys(errors).length > 0}
               aria-disabled={loading || Object.keys(errors).length > 0}
@@ -566,7 +566,7 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
               </p>
               <div className="w-full h-2 bg-gray-200 rounded mt-6 mb-2 overflow-hidden">
                 <div
-                  className="h-2 bg-blue-500 transition-all duration-100 linear"
+                  className="h-2 bg-brand-sky transition-all duration-100 linear"
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>

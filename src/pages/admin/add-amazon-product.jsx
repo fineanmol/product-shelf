@@ -33,7 +33,7 @@ function AddAmazonProduct() {
       />
       <button
         onClick={handleAdd}
-        className="bg-blue-500 text-white px-4 py-2 ml-2 rounded"
+        className="bg-brand-sky text-white px-4 py-2 ml-2 rounded hover:bg-brand-navy transition-colors"
       >
         Add Product
       </button>

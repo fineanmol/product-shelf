@@ -340,7 +340,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                 className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
                   loading || Object.keys(errors).length > 0
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-brand-sky text-white hover:bg-brand-navy'
                 }`}
               >
                 {loading ? (
@@ -368,7 +368,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
             {/* Progress bar */}
             <div className="w-full h-2 bg-gray-200 rounded mb-4">
               <div
-                className="h-2 bg-blue-500 rounded transition-all duration-100"
+                className="h-2 bg-brand-sky rounded transition-all duration-100"
                 style={{ width: `${progress}%` }}
               ></div>
             </div>

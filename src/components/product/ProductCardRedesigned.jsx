@@ -1,7 +1,17 @@
-import React, { useState } from 'react';
-import { FaHeart, FaEye, FaShare, FaTruck, FaStore, FaTag, FaStar, FaRegStar } from 'react-icons/fa';
-import { currencySymbols, getConditionLabel } from '../../utils/utils';
-import AnimatedButton from '../ui/AnimatedButton';
+import React, { useState, useMemo } from "react";
+import {
+  FaHeart,
+  FaEye,
+  FaShare,
+  FaTruck,
+  FaStore,
+  FaStar,
+  FaRegStar,
+  FaExternalLinkAlt,
+} from "react-icons/fa";
+import { currencySymbols, getConditionLabel } from "../../utils/utils";
+import { shareProduct } from "../../utils/shareUtils";
+import AnimatedButton from "../ui/AnimatedButton";
 
 const ProductCardRedesigned = ({
   product,
@@ -27,25 +37,25 @@ const ProductCardRedesigned = ({
     if (isSoldOut) {
       return {
         label: "SOLD OUT",
-        className: "bg-red-600 text-white"
+        className: "bg-red-600 text-white",
       };
     }
-    
+
     if (product.status === "available") {
       return {
         label: "Available",
-        className: "bg-green-500 text-white"
+        className: "bg-green-500 text-white",
       };
     } else if (product.status === "reserved") {
       return {
         label: "Reserved",
-        className: "bg-orange-500 text-white"
+        className: "bg-orange-500 text-white",
       };
     }
-    
+
     return {
       label: "Available",
-      className: "bg-green-500 text-white"
+      className: "bg-green-500 text-white",
     };
   };
 
@@ -53,18 +63,24 @@ const ProductCardRedesigned = ({
 
   const formatPrice = () => {
     if (product.price === 0) {
-      return (
-        <span className="text-2xl font-bold text-green-600">Free</span>
-      );
+      return <span className="text-2xl font-bold text-green-600">Free</span>;
     }
     return (
       <div className="flex items-baseline gap-2">
-        <span className="text-2xl font-bold" style={{ color: 'var(--accent-primary)' }}>
-          {currencySymbols[product.currency] || '€'}{product.price}
+        <span
+          className="text-2xl font-bold"
+          style={{ color: "var(--accent-primary)" }}
+        >
+          {currencySymbols[product.currency] || "€"}
+          {product.price}
         </span>
         {product.original_price && product.original_price > product.price && (
-          <span className="text-sm line-through" style={{ color: 'var(--text-muted)' }}>
-            {currencySymbols[product.currency] || '€'}{product.original_price}
+          <span
+            className="text-sm line-through"
+            style={{ color: "var(--text-muted)" }}
+          >
+            {currencySymbols[product.currency] || "€"}
+            {product.original_price}
           </span>
         )}
       </div>
@@ -72,57 +88,78 @@ const ProductCardRedesigned = ({
   };
 
   const calculateDiscount = () => {
-    if (product.original_price && product.price && product.original_price > product.price) {
-      return Math.round(((product.original_price - product.price) / product.original_price) * 100);
+    if (
+      product.original_price &&
+      product.price &&
+      product.original_price > product.price
+    ) {
+      return Math.round(
+        ((product.original_price - product.price) / product.original_price) *
+          100
+      );
     }
     return 0;
   };
 
-  const displayedVisitors = typeof product.visitors === "number" && product.visitors > 0
-    ? product.visitors
-    : getRandomInt(1200, 5000);
+  // Memoize visitor count so it doesn't change on hover/re-render
+  const displayedVisitors = useMemo(() => {
+    return typeof product.visitors === "number" && product.visitors > 0
+      ? product.visitors
+      : getRandomInt(1200, 5000);
+  }, [product.visitors]);
 
   const mockRating = 4.2 + Math.random() * 0.6; // Random rating between 4.2-4.8
 
   return (
-    <div 
-      className={`glass-card p-0 overflow-hidden transition-all duration-500 cursor-pointer group ${
-        isHovered ? 'transform -translate-y-3 shadow-strong' : ''
-      } ${isSoldOut ? 'opacity-75' : ''}`}
+    <div
+      className={`glass-card p-0 overflow-hidden cursor-pointer group shadow-sm border border-gray-200 ${
+        isSoldOut ? "opacity-75" : ""
+      }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      style={{ borderRadius: 'var(--border-radius-lg)' }}
+      style={{ borderRadius: "var(--border-radius-lg)" }}
     >
       {/* Image Container */}
-      <div className="relative overflow-hidden" style={{ borderRadius: 'var(--border-radius) var(--border-radius) 0 0' }}>
+      <div
+        className="relative overflow-hidden"
+        style={{
+          borderRadius: "var(--border-radius) var(--border-radius) 0 0",
+        }}
+      >
         <div className="aspect-square bg-gray-100 relative">
           {/* Loading skeleton */}
-          {!imageLoaded && (
-            <div className="absolute inset-0 skeleton" />
-          )}
-          
+          {!imageLoaded && <div className="absolute inset-0 skeleton" />}
+
           <img
             src={product.image}
             alt={product.title}
-            className={`w-full h-full object-cover transition-all duration-700 ${
-              imageLoaded ? 'opacity-100' : 'opacity-0'
-            } ${isHovered ? 'scale-110' : 'scale-100'}`}
+            className={`w-full h-full object-cover ${
+              imageLoaded ? "opacity-100" : "opacity-0"
+            } ${isHovered ? "scale-110" : "scale-100"}`}
+            style={{
+              transition:
+                "transform 800ms cubic-bezier(0.4, 0, 0.2, 1), opacity 300ms ease-in-out",
+            }}
             onLoad={() => setImageLoaded(true)}
             onClick={onImageClick}
             onError={(e) => {
-              e.target.src = '/api/placeholder/400/400';
+              e.target.src = "/api/placeholder/400/400";
               setImageLoaded(true);
             }}
           />
 
           {/* Overlay with gradient */}
-          <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 ${
-            isHovered ? 'opacity-100' : 'opacity-0'
-          }`} />
+          <div
+            className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 ${
+              isHovered ? "opacity-100" : "opacity-0"
+            }`}
+          />
 
           {/* Status Badge */}
           <div className="absolute top-3 left-3">
-            <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${statusConfig.className}`}>
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${statusConfig.className}`}
+            >
               {statusConfig.label}
             </span>
           </div>
@@ -137,33 +174,40 @@ const ProductCardRedesigned = ({
           )}
 
           {/* Heart Button */}
-          <div className="absolute top-3 right-3" style={{ marginTop: calculateDiscount() > 0 ? '32px' : '0' }}>
+          <div
+            className="absolute top-3 right-3"
+            style={{ marginTop: calculateDiscount() > 0 ? "32px" : "0" }}
+          >
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onHeartClick();
               }}
-              className={`w-10 h-10 rounded-full backdrop-blur-md transition-all duration-300 flex items-center justify-center ${
+              className={`w-10 h-10 rounded-full backdrop-blur-md transition-all duration-200 flex items-center justify-center ${
                 isInterested
-                  ? 'bg-red-500 text-white scale-110'
-                  : 'bg-white/20 text-white hover:bg-white/30 hover:scale-110'
-              } ${pulse ? 'animate-pulse' : ''}`}
+                  ? "bg-red-500 text-white"
+                  : "bg-white/20 text-white hover:bg-white/40"
+              } ${pulse ? "animate-pulse" : ""}`}
               disabled={isSoldOut}
             >
-              <FaHeart className={`transition-all duration-300 ${isInterested ? 'scale-110' : ''}`} />
+              <FaHeart className="transition-all duration-200" />
             </button>
           </div>
 
           {/* Quick Actions (visible on hover) */}
-          <div className={`absolute bottom-3 left-3 right-3 flex gap-2 transition-all duration-300 ${
-            isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}>
+          <div
+            className={`absolute bottom-3 left-3 right-3 flex gap-2 transition-all duration-300 ${
+              isHovered
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-4"
+            }`}
+          >
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                // Share functionality
+                shareProduct(product);
               }}
-              className="flex-1 bg-white/20 backdrop-blur-md text-white py-2 px-3 rounded-lg hover:bg-white/30 transition-all text-sm font-medium flex items-center justify-center gap-1"
+              className="flex-1 bg-white/20 backdrop-blur-md text-white py-2 px-3 rounded-lg hover:bg-white/40 transition-colors text-sm font-medium flex items-center justify-center gap-1"
             >
               <FaShare className="text-xs" />
               Share
@@ -186,15 +230,15 @@ const ProductCardRedesigned = ({
       <div className="p-5 space-y-4">
         {/* Title and Rating */}
         <div>
-          <h3 
+          <h3
             className="font-semibold text-lg leading-tight line-clamp-2 mb-2 cursor-pointer hover:text-blue-600 transition-colors"
-            style={{ color: 'var(--text-primary)' }}
+            style={{ color: "var(--text-primary)" }}
             onClick={onTitleClick}
             title={product.title}
           >
             {product.title}
           </h3>
-          
+
           {/* Rating */}
           <div className="flex items-center gap-2 mb-2">
             <div className="flex items-center">
@@ -208,16 +252,17 @@ const ProductCardRedesigned = ({
                 </span>
               ))}
             </div>
-            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            <span className="text-xs" style={{ color: "var(--text-muted)" }}>
               ({mockRating.toFixed(1)})
             </span>
           </div>
 
-          <p 
+          <p
             className="text-sm line-clamp-2 leading-relaxed"
-            style={{ color: 'var(--text-secondary)' }}
+            style={{ color: "var(--text-secondary)" }}
           >
-            {product.description || 'High-quality product with excellent features and great value for money.'}
+            {product.description ||
+              "High-quality product with excellent features and great value for money."}
           </p>
         </div>
 
@@ -226,7 +271,8 @@ const ProductCardRedesigned = ({
           {formatPrice()}
           {calculateDiscount() > 0 && (
             <div className="text-sm font-medium text-green-600">
-              Save {currencySymbols[product.currency] || '€'}{(product.original_price - product.price).toFixed(2)}
+              Save {currencySymbols[product.currency] || "€"}
+              {(product.original_price - product.price).toFixed(2)}
             </div>
           )}
         </div>
@@ -238,14 +284,14 @@ const ProductCardRedesigned = ({
               {getConditionLabel(product.age)}
             </span>
           )}
-          
+
           {product.delivery_options?.includes("Shipping") && (
             <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200 flex items-center gap-1">
               <FaTruck className="text-xs" />
               Shipping
             </span>
           )}
-          
+
           {product.delivery_options?.includes("Pick Up") && (
             <span className="px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700 border border-orange-200 flex items-center gap-1">
               <FaStore className="text-xs" />
@@ -255,7 +301,10 @@ const ProductCardRedesigned = ({
         </div>
 
         {/* Stats */}
-        <div className="flex items-center justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
+        <div
+          className="flex items-center justify-between text-xs"
+          style={{ color: "var(--text-muted)" }}
+        >
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
               <FaEye />
@@ -268,11 +317,18 @@ const ProductCardRedesigned = ({
               </span>
             )}
           </div>
-          
-          {product.source && (
-            <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-600 font-medium">
-              {product.source}
-            </span>
+
+          {product.url && product.source && (
+            <a
+              href={product.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-brand-sky text-white hover:bg-brand-mint transition-colors text-sm font-medium shadow-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <FaExternalLinkAlt className="text-xs" />
+              View on {product.source}
+            </a>
           )}
         </div>
 
@@ -294,7 +350,7 @@ const ProductCardRedesigned = ({
 
         {/* Additional Info */}
         <div className="text-center">
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
             No payment required • Contact seller directly
           </p>
         </div>

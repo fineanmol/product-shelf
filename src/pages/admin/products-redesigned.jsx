@@ -1,25 +1,28 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { getDatabase, ref, get, update, remove, push } from 'firebase/database';
-import { FaPlus, FaTh, FaList, FaDownload } from 'react-icons/fa';
-import DashboardLayout from '../../components/ui/DashboardLayout';
-import SearchAndFilter from '../../components/ui/SearchAndFilter';
-import ProductCard from '../../components/ui/ProductCard';
-import ProductForm from '../../components/ui/ProductForm';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import AnimatedButton from '../../components/ui/AnimatedButton';
-import { showToast } from '../../utils/showToast';
-import { getCurrentUserRole, filterDataByUserRole } from '../../utils/permissions';
+import React, { useState, useEffect, useMemo } from "react";
+import { getDatabase, ref, get, update, remove, push } from "firebase/database";
+import { FaPlus, FaTh, FaList, FaDownload } from "react-icons/fa";
+import DashboardLayout from "../../components/ui/DashboardLayout";
+import SearchAndFilter from "../../components/ui/SearchAndFilter";
+import ProductCard from "../../components/ui/ProductCard";
+import ProductForm from "../../components/ui/ProductForm";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import AnimatedButton from "../../components/ui/AnimatedButton";
+import { showToast } from "../../utils/showToast";
+import {
+  getCurrentUserRole,
+  filterDataByUserRole,
+} from "../../utils/permissions";
 
 const ProductsRedesigned = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
-    status: '',
-    condition: ''
+    status: "",
+    condition: "",
   });
-  const [sortBy, setSortBy] = useState('latest');
-  const [viewMode, setViewMode] = useState('grid');
+  const [sortBy, setSortBy] = useState("latest");
+  const [viewMode, setViewMode] = useState("grid");
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
@@ -36,13 +39,13 @@ const ProductsRedesigned = () => {
       setUserRole(userRoleData);
 
       const db = getDatabase();
-      const snapshot = await get(ref(db, 'products'));
-      
+      const snapshot = await get(ref(db, "products"));
+
       if (snapshot.exists()) {
         const data = snapshot.val();
         let productsList = Object.entries(data).map(([id, product]) => ({
           id,
-          ...product
+          ...product,
         }));
 
         // Filter products based on user role
@@ -56,36 +59,39 @@ const ProductsRedesigned = () => {
         setProducts(productsList);
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
-      showToast('❌ Failed to load products');
+      console.error("Error fetching products:", error);
+      showToast("❌ Failed to load products");
     } finally {
       setLoading(false);
     }
   };
 
   const filteredAndSortedProducts = useMemo(() => {
-    let filtered = products.filter(product => {
-      const matchesSearch = product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           product.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = !filters.status || product.status === filters.status;
-      const matchesCondition = !filters.condition || product.condition === filters.condition;
-      
+    let filtered = products.filter((product) => {
+      const matchesSearch =
+        product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus =
+        !filters.status || product.status === filters.status;
+      const matchesCondition =
+        !filters.condition || product.condition === filters.condition;
+
       return matchesSearch && matchesStatus && matchesCondition;
     });
 
     // Sort products
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'latest':
+        case "latest":
           return (b.timestamp || 0) - (a.timestamp || 0);
-        case 'oldest':
+        case "oldest":
           return (a.timestamp || 0) - (b.timestamp || 0);
-        case 'price-low':
+        case "price-low":
           return (a.price || 0) - (b.price || 0);
-        case 'price-high':
+        case "price-high":
           return (b.price || 0) - (a.price || 0);
-        case 'title':
-          return (a.title || '').localeCompare(b.title || '');
+        case "title":
+          return (a.title || "").localeCompare(b.title || "");
         default:
           return 0;
       }
@@ -108,49 +114,51 @@ const ProductsRedesigned = () => {
     setFormLoading(true);
     try {
       const db = getDatabase();
-      
+
       if (editingProduct) {
         // Update existing product
         await update(ref(db, `products/${editingProduct.id}`), {
           ...formData,
-          updatedAt: Date.now()
+          updatedAt: Date.now(),
         });
-        showToast('✅ Product updated successfully');
+        showToast("✅ Product updated successfully");
       } else {
         // Create new product
-        await push(ref(db, 'products'), {
+        await push(ref(db, "products"), {
           ...formData,
           added_by: userRole.user?.uid,
           added_email: userRole.user?.email,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
-        showToast('✅ Product created successfully');
+        showToast("✅ Product created successfully");
       }
-      
+
       setShowForm(false);
       setEditingProduct(null);
       fetchProducts();
     } catch (error) {
-      console.error('Error saving product:', error);
-      showToast('❌ Failed to save product');
+      console.error("Error saving product:", error);
+      showToast("❌ Failed to save product");
     } finally {
       setFormLoading(false);
     }
   };
 
   const handleDeleteProduct = async (product) => {
-    if (!window.confirm(`Are you sure you want to delete "${product.title}"?`)) {
+    if (
+      !window.confirm(`Are you sure you want to delete "${product.title}"?`)
+    ) {
       return;
     }
 
     try {
       const db = getDatabase();
       await remove(ref(db, `products/${product.id}`));
-      showToast('✅ Product deleted successfully');
+      showToast("✅ Product deleted successfully");
       fetchProducts();
     } catch (error) {
-      console.error('Error deleting product:', error);
-      showToast('❌ Failed to delete product');
+      console.error("Error deleting product:", error);
+      showToast("❌ Failed to delete product");
     }
   };
 
@@ -159,87 +167,94 @@ const ProductsRedesigned = () => {
       const db = getDatabase();
       await update(ref(db, `products/${product.id}`), {
         visible: !product.visible,
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       });
-      showToast(`✅ Product ${product.visible ? 'hidden' : 'shown'}`);
+      showToast(`✅ Product ${product.visible ? "hidden" : "shown"}`);
       fetchProducts();
     } catch (error) {
-      console.error('Error updating visibility:', error);
-      showToast('❌ Failed to update visibility');
+      console.error("Error updating visibility:", error);
+      showToast("❌ Failed to update visibility");
     }
   };
 
   const handleToggleStatus = async (product) => {
-    const newStatus = product.status === 'available' ? 'reserved' : 'available';
+    const newStatus = product.status === "available" ? "reserved" : "available";
     try {
       const db = getDatabase();
       await update(ref(db, `products/${product.id}`), {
         status: newStatus,
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       });
       showToast(`✅ Product marked as ${newStatus}`);
       fetchProducts();
     } catch (error) {
-      console.error('Error updating status:', error);
-      showToast('❌ Failed to update status');
+      console.error("Error updating status:", error);
+      showToast("❌ Failed to update status");
     }
   };
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleClearFilters = () => {
-    setFilters({ status: '', condition: '' });
-    setSearchTerm('');
+    setFilters({ status: "", condition: "" });
+    setSearchTerm("");
   };
 
   const handleExport = () => {
     const csvContent = [
-      ['Title', 'Price', 'Status', 'Condition', 'Created'].join(','),
-      ...filteredAndSortedProducts.map(product => [
-        `"${product.title}"`,
-        product.price || '',
-        product.status || '',
-        product.condition || '',
-        product.timestamp ? new Date(product.timestamp).toLocaleDateString() : ''
-      ].join(','))
-    ].join('\n');
+      ["Title", "Price", "Status", "Condition", "Created"].join(","),
+      ...filteredAndSortedProducts.map((product) =>
+        [
+          `"${product.title}"`,
+          product.price || "",
+          product.status || "",
+          product.condition || "",
+          product.timestamp
+            ? new Date(product.timestamp).toLocaleDateString()
+            : "",
+        ].join(",")
+      ),
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `products-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `products-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
-    showToast('✅ Products exported successfully');
+    showToast("✅ Products exported successfully");
   };
 
   const actions = (
     <div className="flex items-center gap-3">
-      <AnimatedButton
-        variant="secondary"
-        size="sm"
-        onClick={handleExport}
-      >
+      <AnimatedButton variant="secondary" size="sm" onClick={handleExport}>
         <FaDownload />
         Export
       </AnimatedButton>
-      
-      <div className="flex items-center gap-1 p-1 rounded-lg" style={{ background: 'var(--bg-glass)' }}>
+
+      <div
+        className="flex items-center gap-1 p-1 rounded-lg"
+        style={{ background: "var(--bg-glass)" }}
+      >
         <button
-          onClick={() => setViewMode('grid')}
+          onClick={() => setViewMode("grid")}
           className={`p-2 rounded-md transition-all ${
-            viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'
+            viewMode === "grid"
+              ? "bg-brand-sky text-white"
+              : "text-gray-600 hover:bg-gray-100"
           }`}
         >
           <FaTh />
         </button>
         <button
-          onClick={() => setViewMode('list')}
+          onClick={() => setViewMode("list")}
           className={`p-2 rounded-md transition-all ${
-            viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'
+            viewMode === "list"
+              ? "bg-brand-sky text-white"
+              : "text-gray-600 hover:bg-gray-100"
           }`}
         >
           <FaList />
@@ -250,7 +265,10 @@ const ProductsRedesigned = () => {
 
   if (loading) {
     return (
-      <DashboardLayout title="Products" subtitle="Manage your product inventory">
+      <DashboardLayout
+        title="Products"
+        subtitle="Manage your product inventory"
+      >
         <LoadingSpinner text="Loading products..." />
       </DashboardLayout>
     );
@@ -280,14 +298,16 @@ const ProductsRedesigned = () => {
         {filteredAndSortedProducts.length === 0 ? (
           <div className="glass-card p-12 text-center">
             <div className="text-6xl mb-4">📦</div>
-            <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+            <h3
+              className="text-xl font-semibold mb-2"
+              style={{ color: "var(--text-primary)" }}
+            >
               No products found
             </h3>
-            <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
-              {products.length === 0 
+            <p className="mb-6" style={{ color: "var(--text-secondary)" }}>
+              {products.length === 0
                 ? "Start by adding your first product"
-                : "Try adjusting your search or filters"
-              }
+                : "Try adjusting your search or filters"}
             </p>
             {products.length === 0 && (
               <AnimatedButton variant="primary" onClick={handleAddProduct}>
@@ -297,12 +317,14 @@ const ProductsRedesigned = () => {
             )}
           </div>
         ) : (
-          <div className={
-            viewMode === 'grid' 
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-              : "space-y-4"
-          }>
-            {filteredAndSortedProducts.map(product => (
+          <div
+            className={
+              viewMode === "grid"
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                : "space-y-4"
+            }
+          >
+            {filteredAndSortedProducts.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}

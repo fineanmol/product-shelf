@@ -300,7 +300,7 @@ const AdminProductTable = () => {
           </button>
           <Link
             to="/admin/products/add"
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
+            className="flex items-center gap-2 bg-brand-sky hover:bg-brand-navy text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
           >
             Add Product
           </Link>
@@ -322,7 +322,7 @@ const AdminProductTable = () => {
           {products.length === 0 && (
             <Link
               to="/admin/products/add"
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 bg-brand-sky hover:bg-brand-navy text-white font-medium px-4 py-2 rounded-lg transition-colors"
             >
               Add Your First Product
             </Link>

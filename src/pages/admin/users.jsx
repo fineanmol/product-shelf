@@ -110,8 +110,8 @@ function AdminUsers() {
 
   const getRoleIcon = (role) => {
     const icons = {
-      editor: <FaUserCheck className="text-blue-600" />,
-      admin: <FaShieldAlt className="text-purple-600" />,
+      editor: <FaUserCheck className="text-brand-sky" />,
+      admin: <FaShieldAlt className="text-brand-navy" />,
       superadmin: <FaCrown className="text-red-600" />,
     };
     return icons[role] || <FaUsers className="text-gray-600" />;
@@ -139,7 +139,7 @@ function AdminUsers() {
           <div className="bg-white rounded-lg shadow-sm border p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <FaUsers className="text-blue-600" />
+                <FaUsers className="text-brand-sky" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total Users</p>
@@ -181,7 +181,7 @@ function AdminUsers() {
           <div className="bg-white rounded-lg shadow-sm border p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <FaCrown className="text-purple-600" />
+                <FaCrown className="text-brand-sunshine" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Admins</p>

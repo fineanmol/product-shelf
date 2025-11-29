@@ -252,7 +252,7 @@ const ProductManager = ({ product = null, onRefresh = null }) => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                    className="w-full flex items-center justify-center gap-2 bg-brand-sky hover:bg-brand-navy disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-lg transition-colors"
                   >
                     {isEditMode ? (
                       <FaSave className="text-sm" />
