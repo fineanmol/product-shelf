@@ -96,7 +96,7 @@ export const shareProduct = async (product) => {
 
   const shareData = {
     title: `${product.title} - SkyMarket`,
-    text: `Check out this ${product.condition || "item"} for ${product.currency ? (product.currency === 'EUR' ? '€' : product.currency === 'USD' ? '$' : product.currency) : '€'}${
+    text: `Check out this ${product.condition || product.age || "item"} for ${product.currency ? (product.currency === 'EUR' ? '€' : product.currency === 'USD' ? '$' : product.currency) : '€'}${
       product.price
     } on SkyMarket!\n\n${product.description?.substring(0, 100)}${
       product.description?.length > 100 ? "..." : ""

@@ -35,11 +35,20 @@ export const CONDITION_OPTIONS = [
   { value: "Good", label: "✅ Good (Used but functional)" },
 ];
 
-export const getConditionLabel = (age) => {
+export const getConditionLabel = (val) => {
+  if (!val) return "";
+  const normalized = val
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
   const iconMap = {
-    New: "🆕",
+    "New": "🆕",
     "Very Good": "👍",
-    Good: "✅",
+    "Good": "✅",
+    "Used": "📦",
   };
-  return `${iconMap[age] || ""} ${age}`;
+  return `${iconMap[normalized] || ""} ${normalized}`;
 };
+

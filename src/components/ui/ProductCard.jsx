@@ -9,7 +9,9 @@ const ProductCard = ({
   onDelete, 
   onToggleVisibility,
   onToggleStatus,
-  canEdit = true 
+  canEdit = true,
+  isSuperAdmin = false,
+  onAssignUser = null
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -49,8 +51,9 @@ const ProductCard = ({
             </div>
           )}
           <img
-            src={product.image}
+            src={product.image || null}
             alt={product.title}
+            loading="lazy"
             className={`w-full h-full object-cover transition-all duration-500 ${
               imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
             } ${isHovered ? 'scale-110' : ''}`}
@@ -146,12 +149,30 @@ const ProductCard = ({
         </div>
 
         {/* Metadata */}
-        <div className="flex items-center justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
-          <span>Added {formatDate(product.timestamp)}</span>
-          {product.source && (
-            <span className="px-2 py-1 rounded-full bg-opacity-10" style={{ background: 'var(--accent-primary)' }}>
-              {product.source}
-            </span>
+        <div className="flex flex-col gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+          <div className="flex items-center justify-between">
+            <span>Added {formatDate(product.timestamp)}</span>
+            {product.source && (
+              <span className="px-2 py-1 rounded-full bg-opacity-10" style={{ background: 'var(--accent-primary)' }}>
+                {product.source}
+              </span>
+            )}
+          </div>
+          {isSuperAdmin && (
+            <div className="flex items-center justify-between pt-1.5 border-t border-gray-100 mt-1">
+              <span className="truncate max-w-[150px]" title={product.added_email || 'System / Unassigned'}>
+                Owner: <span className="font-semibold text-gray-700">{product.added_email || 'Unassigned'}</span>
+              </span>
+              {onAssignUser && (
+                <button
+                  type="button"
+                  onClick={() => onAssignUser(product)}
+                  className="text-brand-sky hover:underline font-semibold"
+                >
+                  Assign
+                </button>
+              )}
+            </div>
           )}
         </div>
 

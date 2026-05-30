@@ -30,6 +30,7 @@ import {
   FaHeadset,
   FaRocket,
   FaGlobe,
+  FaWhatsapp,
 } from "react-icons/fa";
 import { logEvent } from "firebase/analytics";
 import { currencySymbols } from "../utils/utils";
@@ -46,6 +47,7 @@ const ProductDetailsRedesigned = () => {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
   const [currentUser, setCurrentUser] = useState(null);
+  const [sellerPhone, setSellerPhone] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -54,7 +56,18 @@ const ProductDetailsRedesigned = () => {
       try {
         const snap = await get(ref(db, `products/${id}`));
         if (snap.exists()) {
-          setProduct({ id, ...snap.val() });
+          const productData = snap.val();
+          setProduct({ id, ...productData });
+          
+          if (productData.added_by) {
+            const sellerSnap = await get(ref(db, `users/${productData.added_by}`));
+            if (sellerSnap.exists()) {
+              const sellerData = sellerSnap.val();
+              if (sellerData.phone) {
+                setSellerPhone(sellerData.phone);
+              }
+            }
+          }
         } else {
           setError("Product not found.");
         }
@@ -235,7 +248,7 @@ const ProductDetailsRedesigned = () => {
             <div className="glass-card p-6 rounded-2xl">
               <div className="aspect-square bg-gray-50 rounded-xl overflow-hidden mb-4 relative group">
                 <img
-                  src={product.image}
+                  src={product.image || null}
                   alt={product.title}
                   className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                 />
@@ -508,27 +521,43 @@ const ProductDetailsRedesigned = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <AnimatedButton
-                    variant="primary"
-                    size="lg"
-                    onClick={() => setShowInterestForm(true)}
-                    disabled={product.sold_out}
-                    className="w-full"
-                  >
-                    {product.sold_out ? "Sold Out" : "I'm Interested"}
-                  </AnimatedButton>
-
-                  {product.url && (
+                <div className="flex flex-col gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <AnimatedButton
-                      variant="secondary"
+                      variant="primary"
                       size="lg"
-                      onClick={() => window.open(product.url, "_blank")}
+                      onClick={() => setShowInterestForm(true)}
+                      disabled={product.sold_out}
                       className="w-full"
                     >
-                      <FaGlobe className="mr-2" />
-                      View Original
+                      {product.sold_out ? "Sold Out" : "I'm Interested"}
                     </AnimatedButton>
+
+                    {product.url && (
+                      <AnimatedButton
+                        variant="secondary"
+                        size="lg"
+                        onClick={() => window.open(product.url, "_blank")}
+                        className="w-full"
+                      >
+                        <FaGlobe className="mr-2" />
+                        View Original
+                      </AnimatedButton>
+                    )}
+                  </div>
+
+                  {sellerPhone && !product.sold_out && (
+                    <a
+                      href={`https://wa.me/${sellerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                        `Hi, I'm interested in your product "${product.title}" listed on SkyMarket!`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-sm hover:shadow-md text-center text-base"
+                    >
+                      <FaWhatsapp className="text-xl" />
+                      <span>Chat on WhatsApp</span>
+                    </a>
                   )}
                 </div>
               </div>
@@ -972,7 +1001,6 @@ const ProductDetailsRedesigned = () => {
               logEvent(analytics, "submit_interest", {
                 product_id: product.id,
               });
-            setShowInterestForm(false);
           }}
         />
       )}

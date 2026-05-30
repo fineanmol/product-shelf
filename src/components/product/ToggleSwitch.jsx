@@ -12,8 +12,8 @@ const ToggleSwitch = ({ label, checked, onChange, disabled = false }) => {
       ? "Visible"
       : "Hidden";
 
-  const statusColor = checked ? "bg-green-600" : "bg-red-500";
-
+  const statusColor = checked ? "bg-brand-mint text-brand-navy" : "bg-brand-coral text-white";
+  
   return (
     <label
       className={`flex items-center gap-3 ${
@@ -34,7 +34,7 @@ const ToggleSwitch = ({ label, checked, onChange, disabled = false }) => {
       </div>
 
       <span
-        className={`w-20 text-center px-2 py-1 text-xs font-semibold rounded-full ${statusColor} text-white`}
+        className={`w-20 text-center px-2 py-1 text-xs font-semibold rounded-full ${statusColor}`}
       >
         {statusLabel}
       </span>

@@ -131,8 +131,9 @@ const ProductCardRedesigned = ({
           {!imageLoaded && <div className="absolute inset-0 skeleton" />}
 
           <img
-            src={product.image}
+            src={product.image || null}
             alt={product.title}
+            loading="lazy"
             className={`w-full h-full object-cover ${
               imageLoaded ? "opacity-100" : "opacity-0"
             } ${isHovered ? "scale-110" : "scale-100"}`}
@@ -279,9 +280,9 @@ const ProductCardRedesigned = ({
 
         {/* Tags */}
         <div className="flex flex-wrap gap-2">
-          {product.age && (
+          {(product.age || product.condition) && (
             <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
-              {getConditionLabel(product.age)}
+              {getConditionLabel(product.age || product.condition)}
             </span>
           )}
 

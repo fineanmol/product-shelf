@@ -21,7 +21,7 @@ const ExportCSVButton = ({ data, headers, filename = "data.csv" }) => {
   return (
     <button
       onClick={handleExport}
-      className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded flex items-center gap-1 text-sm"
+      className="bg-brand-mint text-brand-navy hover:bg-brand-navy hover:text-white px-3 py-2.5 rounded-lg flex items-center gap-1.5 text-sm font-semibold transition-colors shadow-sm"
     >
       <FaDownload /> Export CSV
     </button>

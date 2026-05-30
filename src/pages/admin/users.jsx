@@ -23,9 +23,7 @@ function AdminUsers() {
       const snap = await get(ref(db, "users"));
       if (snap.exists()) {
         const data = snap.val() || {};
-        console.log("Raw user data from Firebase:", data);
         const userArray = Object.entries(data).map(([uid, val]) => {
-          console.log("Processing user:", { uid, ...val });
           return {
             uid,
             ...val,

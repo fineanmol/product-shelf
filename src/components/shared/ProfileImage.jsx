@@ -22,11 +22,6 @@ const ProfileImage = ({
   const isMounted = useRef(true);
   const previousSrc = useRef(src);
 
-  // Debug logging
-  useEffect(() => {
-    console.log("ProfileImage props:", { src, alt, size });
-    console.log("Current state:", { imageSrc, isLoading, hasError });
-  }, [src, imageSrc, isLoading, hasError]);
 
   useEffect(() => {
     if (src !== previousSrc.current) {
@@ -51,7 +46,6 @@ const ProfileImage = ({
   }, []);
 
   const handleLoad = () => {
-    console.log("Image loaded successfully:", imageSrc);
     if (isMounted.current) {
       setIsLoading(false);
       setHasError(false);
@@ -59,10 +53,6 @@ const ProfileImage = ({
   };
 
   const handleError = () => {
-    console.log("Image load error:", {
-      src: imageSrc,
-      fallback: defaultFallbackSrc,
-    });
     if (!isMounted.current) return;
 
     setIsLoading(false);
@@ -85,8 +75,6 @@ const ProfileImage = ({
         .map((word) => word[0]?.toUpperCase())
         .join("")
         .slice(0, 2) || "U";
-
-    console.log("Showing initials:", initials);
     return (
       <div
         className={`${className} bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium`}
@@ -108,7 +96,7 @@ const ProfileImage = ({
       {imageSrc && (
         <img
           key={imageSrc}
-          src={imageSrc}
+          src={imageSrc || null}
           alt={alt}
           className={`${className} ${
             isLoading ? "opacity-0" : "opacity-100"

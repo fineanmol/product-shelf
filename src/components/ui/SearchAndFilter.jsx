@@ -20,6 +20,16 @@ const SearchAndFilter = ({
       { value: 'reserved', label: 'Reserved' },
       { value: 'sold', label: 'Sold Out' }
     ],
+    category: [
+      { value: '', label: 'All Categories' },
+      { value: 'Electronics', label: 'Electronics' },
+      { value: 'Fashion', label: 'Fashion & Apparel' },
+      { value: 'Home', label: 'Home & Garden' },
+      { value: 'Books', label: 'Books & Learning' },
+      { value: 'Toys', label: 'Toys & Hobbies' },
+      { value: 'Sports', label: 'Sports & Outdoors' },
+      { value: 'Other', label: 'Other' }
+    ],
     condition: [
       { value: '', label: 'All Conditions' },
       { value: 'new', label: 'New' },

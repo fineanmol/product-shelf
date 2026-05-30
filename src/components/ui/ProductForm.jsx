@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSave, FaTimes, FaImage, FaEye } from 'react-icons/fa';
+import { FaSave, FaTimes, FaEye } from 'react-icons/fa';
 import AnimatedButton from './AnimatedButton';
 import GlassModal from './GlassModal';
 import StatusBadge from './StatusBadge';
@@ -22,6 +22,7 @@ const ProductForm = ({
     image: '',
     source: '',
     condition: 'new',
+    category: 'Other',
     delivery_options: ['pickup', 'shipping']
   });
 
@@ -40,7 +41,8 @@ const ProductForm = ({
         visible: product.visible !== false,
         image: product.image || '',
         source: product.source || '',
-        condition: product.condition || 'new',
+        condition: (product.condition || product.age || 'new').toLowerCase(),
+        category: product.category || 'Other',
         delivery_options: product.delivery_options || ['pickup', 'shipping']
       });
     } else {
@@ -55,6 +57,7 @@ const ProductForm = ({
         image: '',
         source: '',
         condition: 'new',
+        category: 'Other',
         delivery_options: ['pickup', 'shipping']
       });
     }
@@ -101,7 +104,20 @@ const ProductForm = ({
     
     if (!validateForm()) return;
     
-    await onSave(formData);
+    // Normalize condition to Title Case
+    const normalized = (formData.condition || formData.age || "New")
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+    const finalData = {
+      ...formData,
+      condition: normalized,
+      age: normalized,
+    };
+    
+    await onSave(finalData);
   };
 
   const currencyOptions = [
@@ -269,7 +285,7 @@ const ProductForm = ({
             Product Details
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                 Condition
@@ -284,6 +300,25 @@ const ProductForm = ({
                     {option.label}
                   </option>
                 ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                Category
+              </label>
+              <select
+                value={formData.category}
+                onChange={(e) => handleChange('category', e.target.value)}
+                className="glass-input"
+              >
+                <option value="Electronics">Electronics</option>
+                <option value="Fashion">Fashion & Apparel</option>
+                <option value="Home">Home & Garden</option>
+                <option value="Books">Books & Learning</option>
+                <option value="Toys">Toys & Hobbies</option>
+                <option value="Sports">Sports & Outdoors</option>
+                <option value="Other">Other</option>
               </select>
             </div>
 

@@ -1,6 +1,7 @@
 // src/layouts/AdminLayout.jsx
 import React, { useEffect, useState } from "react";
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut, updateProfile } from "firebase/auth";
+import { getDatabase, ref, onValue, update } from "firebase/database";
 import { useNavigate, Link, Outlet, useLocation } from "react-router-dom";
 import {
   FaBars,
@@ -9,11 +10,12 @@ import {
   FaUser,
   FaSearch,
 } from "react-icons/fa";
-import { getDatabase, ref, onValue } from "firebase/database";
 import AdminSidebar from "../components/admin/AdminSidebar";
 import NotificationsDropdown from "../components/admin/NotificationsDropdown";
 import { getCurrentUserRole } from "../utils/permissions";
 import ProfileImage from "../components/shared/ProfileImage";
+import GlassModal from "../components/ui/GlassModal";
+import { showToast } from "../utils/showToast";
 
 function AdminLayout() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -23,13 +25,54 @@ function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [profileData, setProfileData] = useState({ name: "", photoURL: "", email: "", phone: "" });
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editPhotoURL, setEditPhotoURL] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  useEffect(() => {
+    if (showProfileModal) {
+      setEditName(profileData.name || "");
+      setEditPhotoURL(profileData.photoURL || "");
+      setEditPhone(profileData.phone || "");
+    }
+  }, [showProfileModal, profileData]);
+
   useEffect(() => {
     const auth = getAuth();
+    let dbUnsubscribe = null;
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
+        if (dbUnsubscribe) dbUnsubscribe();
         navigate("/login");
       } else {
         setCurrentUser(user);
+
+        // Listen to database user record in real-time
+        const db = getDatabase();
+        const userRef = ref(db, `users/${user.uid}`);
+        dbUnsubscribe = onValue(userRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            setProfileData({
+              name: data.name || user.displayName || "User",
+              photoURL: data.photoURL || user.photoURL || "",
+              email: data.email || user.email || "",
+              phone: data.phone || "",
+            });
+          } else {
+            setProfileData({
+              name: user.displayName || "User",
+              photoURL: user.photoURL || "",
+              email: user.email || "",
+              phone: "",
+            });
+          }
+        });
+
         // Get user role
         try {
           const roleData = await getCurrentUserRole();
@@ -49,12 +92,54 @@ function AdminLayout() {
         }
       }
     });
-    return unsubscribe;
+
+    return () => {
+      unsubscribe();
+      if (dbUnsubscribe) dbUnsubscribe();
+    };
   }, [navigate, location.pathname]);
 
   const handleLogout = async () => {
     await signOut(getAuth());
     navigate("/login");
+  };
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    setIsSavingProfile(true);
+
+    try {
+      const auth = getAuth();
+      const db = getDatabase();
+
+      // 1. Update Firebase Auth Profile
+      await updateProfile(auth.currentUser, {
+        displayName: editName,
+        photoURL: editPhotoURL,
+      });
+
+      // 2. Force session reload
+      await auth.currentUser.reload();
+      const updatedUser = auth.currentUser;
+      setCurrentUser(updatedUser);
+
+      // 3. Update Realtime Database Record
+      const userRef = ref(db, `users/${updatedUser.uid}`);
+      await update(userRef, {
+        name: editName,
+        photoURL: editPhotoURL,
+        phone: editPhone,
+        updatedAt: Date.now(),
+      });
+
+      showToast("✅ Profile updated successfully");
+      setShowProfileModal(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      showToast("❌ Failed to update profile: " + error.message);
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   if (!currentUser || !userRole) {
@@ -167,14 +252,14 @@ function AdminLayout() {
                   className="flex items-center gap-3 bg-white hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors border"
                 >
                   <ProfileImage
-                    src={currentUser.photoURL}
-                    alt={currentUser.displayName || currentUser.email || "User"}
+                    src={profileData.photoURL}
+                    alt={profileData.name || currentUser.displayName || currentUser.email || "User"}
                     className="w-8 h-8 rounded-full object-cover"
                     size={128}
                   />
                   <div className="hidden sm:block text-left min-w-[120px]">
                     <div className="font-medium text-gray-800 text-sm truncate">
-                      {currentUser.displayName || "Admin"}
+                      {profileData.name || "Admin"}
                     </div>
                     <div className="text-xs text-gray-500 truncate">
                       {userRole.isSuperAdmin ? "Super Admin" : "Editor"}
@@ -197,21 +282,27 @@ function AdminLayout() {
                   <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg py-1 z-50">
                     <div className="px-4 py-2 border-b">
                       <div className="font-medium text-gray-800 text-sm truncate">
-                        {currentUser.displayName || currentUser.email}
+                        {profileData.name || currentUser.displayName || currentUser.email}
                       </div>
                       <div className="text-xs text-gray-500 truncate">
                         {currentUser.email}
                       </div>
                     </div>
 
-                    <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left">
+                    <button
+                      onClick={() => {
+                        setShowProfileModal(true);
+                        setShowMenu(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left text-sm"
+                    >
                       <FaUser className="text-gray-500" />
                       <span className="text-gray-700">Profile</span>
                     </button>
 
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left border-t"
+                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left border-t text-sm"
                     >
                       <FaSignOutAlt className="text-red-500" />
                       <span className="text-red-600">Sign Out</span>
@@ -225,9 +316,110 @@ function AdminLayout() {
 
         {/* Page Content */}
         <main className="flex-1 overflow-auto">
-          <Outlet />
+          <Outlet context={{ openProfileModal: () => setShowProfileModal(true) }} />
         </main>
       </div>
+
+      {/* Profile Modal */}
+      <GlassModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        title="Your Seller Profile"
+        size="sm"
+      >
+        <div className="p-6 space-y-6">
+          <div className="flex flex-col items-center gap-4">
+            <ProfileImage
+              src={editPhotoURL}
+              alt={editName || "User"}
+              className="w-24 h-24 rounded-full border-4 border-brand-sky object-cover shadow-md"
+              size={128}
+            />
+            <div className="text-center">
+              <span className="inline-block text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded bg-brand-sky/10 text-brand-navy border border-brand-sky/20">
+                {userRole?.isSuperAdmin ? "Super Admin" : "Seller"}
+              </span>
+              <p className="text-sm text-gray-500 mt-1">{profileData.email}</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSaveProfile} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Display Name
+              </label>
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Enter your name"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sky focus:border-transparent transition-all"
+                required
+                disabled={isSavingProfile}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Profile Photo URL
+              </label>
+              <input
+                type="url"
+                value={editPhotoURL}
+                onChange={(e) => setEditPhotoURL(e.target.value)}
+                placeholder="https://example.com/avatar.jpg"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sky focus:border-transparent transition-all"
+                disabled={isSavingProfile}
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Provide a direct image link (e.g., from Unsplash or Imgur).
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                WhatsApp Phone Number
+              </label>
+              <input
+                type="text"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="e.g. +4917612345678"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sky focus:border-transparent transition-all"
+                disabled={isSavingProfile}
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Enter phone number with country code (e.g. +4917612345678) for direct WhatsApp customer chats.
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-4 border-t">
+              <button
+                type="button"
+                onClick={() => setShowProfileModal(false)}
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                disabled={isSavingProfile}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="flex-1 bg-brand-sky hover:bg-brand-navy text-white py-2.5 px-4 rounded-lg font-semibold transition-colors disabled:bg-gray-400 flex items-center justify-center gap-2"
+                disabled={isSavingProfile}
+              >
+                {isSavingProfile ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <span>Save Changes</span>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </GlassModal>
     </div>
   );
 }

@@ -73,7 +73,7 @@ const PageHeader = ({
                   </div>
                   <button
                     onClick={() => navigate("/admin")}
-                    className="flex items-center gap-2 bg-brand-sky hover:bg-brand-mint text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
+                    className="flex items-center gap-2 bg-brand-sky hover:bg-brand-navy text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
                   >
                     <FaCog className="text-sm" />
                     <span className="hidden sm:inline">Dashboard</span>
@@ -82,7 +82,7 @@ const PageHeader = ({
               ) : (
                 <button
                   onClick={() => navigate("/login")}
-                  className="flex items-center gap-2 bg-brand-sky hover:bg-brand-mint text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
+                  className="flex items-center gap-2 bg-brand-sky hover:bg-brand-navy text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
                 >
                   <FaPlus className="text-sm" />
                   <span className="hidden sm:inline">Sell</span>

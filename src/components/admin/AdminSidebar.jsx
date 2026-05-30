@@ -63,10 +63,10 @@ function AdminSidebar({ onClose, userRole }) {
               key={link.to}
               to={link.to}
               onClick={handleLinkClick}
-              className={`flex items-center p-3 rounded-lg transition-colors ${
+              className={`flex items-center p-3 rounded-lg transition-all duration-200 ${
                 isActive
-                  ? "bg-brand-sky text-white"
-                  : "text-gray-700 hover:bg-gray-100"
+                  ? "bg-brand-sky text-white hover:bg-brand-navy"
+                  : "text-gray-700 hover:bg-brand-sky/10 hover:text-brand-navy"
               }`}
             >
               <span className="mr-3 text-lg">{link.icon}</span>

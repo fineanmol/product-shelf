@@ -8,7 +8,7 @@ const ProductPreview = ({ formData, onClose }) => {
       <h3 className="text-xl font-semibold mb-2">Preview</h3>
       {formData.image && (
         <img
-          src={formData.image}
+          src={formData.image || null}
           alt="Preview"
           className="w-32 h-32 object-contain mb-2"
         />

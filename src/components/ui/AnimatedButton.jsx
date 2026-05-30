@@ -28,11 +28,11 @@ const AnimatedButton = ({
 
   const variantClasses = {
     primary:
-      "bg-brand-sky text-white hover:bg-brand-mint focus:ring-brand-sky shadow-sm",
+      "bg-brand-sky text-white hover:bg-brand-navy focus:ring-brand-sky shadow-sm",
     secondary:
       "bg-white border-2 border-brand-navy text-brand-navy hover:bg-brand-navy hover:text-white focus:ring-brand-navy shadow-sm",
     success:
-      "bg-brand-mint text-white hover:bg-brand-sky focus:ring-brand-mint shadow-sm",
+      "bg-brand-mint text-brand-navy hover:bg-brand-navy hover:text-white focus:ring-brand-mint shadow-sm",
     danger:
       "bg-brand-coral text-white hover:bg-brand-navy focus:ring-brand-coral shadow-sm",
     ghost:

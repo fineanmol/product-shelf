@@ -12,6 +12,8 @@ import {
   getCurrentUserRole,
   filterDataByUserRole,
 } from "../../utils/permissions";
+import GlassModal from "../../components/ui/GlassModal";
+import ProfileImage from "../../components/shared/ProfileImage";
 
 const ProductsRedesigned = () => {
   const [products, setProducts] = useState([]);
@@ -20,6 +22,7 @@ const ProductsRedesigned = () => {
   const [filters, setFilters] = useState({
     status: "",
     condition: "",
+    category: "",
   });
   const [sortBy, setSortBy] = useState("latest");
   const [viewMode, setViewMode] = useState("grid");
@@ -27,6 +30,11 @@ const ProductsRedesigned = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [userRole, setUserRole] = useState(null);
+
+  // Superadmin assignment states
+  const [assigningProduct, setAssigningProduct] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [userSearchTerm, setUserSearchTerm] = useState("");
 
   useEffect(() => {
     fetchProducts();
@@ -74,9 +82,12 @@ const ProductsRedesigned = () => {
       const matchesStatus =
         !filters.status || product.status === filters.status;
       const matchesCondition =
-        !filters.condition || product.condition === filters.condition;
+        !filters.condition ||
+        (product.condition || product.age || "").toLowerCase() === filters.condition.toLowerCase();
+      const matchesCategory =
+        !filters.category || product.category === filters.category;
 
-      return matchesSearch && matchesStatus && matchesCondition;
+      return matchesSearch && matchesStatus && matchesCondition && matchesCategory;
     });
 
     // Sort products
@@ -193,12 +204,50 @@ const ProductsRedesigned = () => {
     }
   };
 
+  const handleAssignUserClick = async (product) => {
+    setAssigningProduct(product);
+    // Fetch users right before opening to ensure list is fresh
+    try {
+      const db = getDatabase();
+      const snap = await get(ref(db, "users"));
+      if (snap.exists()) {
+        const data = snap.val() || {};
+        const userArray = Object.entries(data).map(([uid, val]) => ({
+          uid,
+          ...val,
+        }));
+        setUsers(userArray);
+      }
+    } catch (error) {
+      console.error("Error fetching users for assignment:", error);
+      showToast("❌ Failed to refresh users list");
+    }
+  };
+
+  const handleSelectAssignee = async (user) => {
+    if (!assigningProduct) return;
+    try {
+      const db = getDatabase();
+      await update(ref(db, `products/${assigningProduct.id}`), {
+        added_by: user.uid,
+        added_email: user.email,
+        updatedAt: Date.now(),
+      });
+      showToast(`✅ Assigned to ${user.name || user.email}`);
+      setAssigningProduct(null);
+      fetchProducts();
+    } catch (error) {
+      console.error("Error assigning product:", error);
+      showToast("❌ Failed to assign product");
+    }
+  };
+
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleClearFilters = () => {
-    setFilters({ status: "", condition: "" });
+    setFilters({ status: "", condition: "", category: "" });
     setSearchTerm("");
   };
 
@@ -210,7 +259,7 @@ const ProductsRedesigned = () => {
           `"${product.title}"`,
           product.price || "",
           product.status || "",
-          product.condition || "",
+          product.condition || product.age || "",
           product.timestamp
             ? new Date(product.timestamp).toLocaleDateString()
             : "",
@@ -333,6 +382,8 @@ const ProductsRedesigned = () => {
                 onToggleVisibility={handleToggleVisibility}
                 onToggleStatus={handleToggleStatus}
                 canEdit={true}
+                isSuperAdmin={userRole?.isSuperAdmin}
+                onAssignUser={handleAssignUserClick}
               />
             ))}
           </div>
@@ -350,6 +401,106 @@ const ProductsRedesigned = () => {
         onSave={handleSaveProduct}
         loading={formLoading}
       />
+
+      {/* Assign Product Modal */}
+      <GlassModal
+        isOpen={!!assigningProduct}
+        onClose={() => {
+          setAssigningProduct(null);
+          setUserSearchTerm("");
+        }}
+        title={`Assign Product: "${assigningProduct?.title}"`}
+        size="md"
+      >
+        <div className="p-6 space-y-4">
+          <p className="text-sm text-gray-600">
+            Select a seller to assign this product to. Once assigned, this product will appear in their dashboard and list of items.
+          </p>
+
+          {/* Search bar */}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search users by name or email..."
+              value={userSearchTerm}
+              onChange={(e) => setUserSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sky focus:border-transparent transition-all text-sm"
+            />
+          </div>
+
+          {/* User List */}
+          <div className="max-h-[300px] overflow-y-auto border rounded-lg divide-y bg-white">
+            {users
+              .filter(
+                (u) =>
+                  (u.name || "").toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+                  (u.email || "").toLowerCase().includes(userSearchTerm.toLowerCase())
+              )
+              .map((u) => {
+                const isCurrentOwner = assigningProduct?.added_by === u.uid;
+                return (
+                  <div
+                    key={u.uid}
+                    className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <ProfileImage
+                        src={u.photoURL}
+                        alt={u.name || "User"}
+                        className="w-9 h-9 rounded-full object-cover"
+                        size={64}
+                      />
+                      <div>
+                        <p className="font-semibold text-sm text-gray-800 flex items-center gap-1.5">
+                          {u.name || "User"}
+                          {u.role === "superadmin" && (
+                            <span className="text-[10px] bg-brand-sunshine/20 text-brand-navy font-bold px-1.5 py-0.5 rounded border border-brand-sunshine/30">
+                              Admin
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-gray-500">{u.email}</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => handleSelectAssignee(u)}
+                      disabled={isCurrentOwner}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isCurrentOwner
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-brand-sky hover:bg-brand-navy text-white shadow-sm"
+                      }`}
+                    >
+                      {isCurrentOwner ? "Current Owner" : "Assign"}
+                    </button>
+                  </div>
+                );
+              })}
+            {users.filter(
+              (u) =>
+                (u.name || "").toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+                (u.email || "").toLowerCase().includes(userSearchTerm.toLowerCase())
+            ).length === 0 && (
+              <div className="p-6 text-center text-gray-500 text-sm">
+                No users matched your search criteria.
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end pt-4 border-t">
+            <button
+              onClick={() => {
+                setAssigningProduct(null);
+                setUserSearchTerm("");
+              }}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </GlassModal>
     </DashboardLayout>
   );
 };

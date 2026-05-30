@@ -1,6 +1,7 @@
 import { calculateMinPrice, normalizePrice } from "./utils";
 
 export const buildProductPayload = (formData, user = {}, isNew = true) => {
+  const normalizedCondition = formData.age || formData.condition || "New";
   const base = {
     ...formData,
     price: normalizePrice(formData.price),
@@ -8,7 +9,8 @@ export const buildProductPayload = (formData, user = {}, isNew = true) => {
       ? normalizePrice(formData.original_price)
       : undefined,
     currency: formData.currency || "EUR",
-    age: formData.age || "New",
+    age: normalizedCondition,
+    condition: normalizedCondition,
     ...(formData.admin_note && { admin_note: formData.admin_note }),
   };
 

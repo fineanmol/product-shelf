@@ -14,8 +14,6 @@ import {
   FaEye,
   FaEyeSlash,
   FaArrowLeft,
-  FaRocket,
-  FaUsers,
 } from "react-icons/fa";
 
 const Login = () => {
@@ -147,173 +145,161 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-navy flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        {/* Left Side - Branding and Info */}
-        <div className="text-white space-y-8 lg:pr-8">
-          {/* Back Button */}
-          <button
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-brand-mint hover:text-white transition-colors mb-8"
-          >
-            <FaArrowLeft />
-            <span>Back to Home</span>
-          </button>
-
-          {/* Logo and Brand */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-brand-sky to-white/30 rounded-xl flex items-center justify-center shadow-lg">
-              <FaShoppingCart className="text-white text-2xl" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold">SkyMarket</h1>
-              <p className="text-brand-sunshine">Your Trusted Marketplace</p>
-            </div>
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-12 font-sans bg-white">
+      {/* Left Column - Hero/Branding (visible on lg screens and up) */}
+      <div className="hidden lg:flex lg:col-span-5 bg-brand-navy flex-col justify-between p-12 text-white relative">
+        {/* Top Header */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center border border-white/10">
+            <FaShoppingCart className="text-white text-lg" />
           </div>
+          <div>
+            <span className="font-bold text-lg leading-none tracking-tight block">SkyMarket</span>
+            <span className="text-[10px] text-brand-sky font-semibold tracking-wider uppercase block mt-0.5">Management Console</span>
+          </div>
+        </div>
 
-          {/* Value Props */}
-          <div className="space-y-6">
-            <h2 className="text-4xl font-bold leading-tight">
-              Join Our <br />
-              <span className="text-brand-sunshine">Community</span>
-            </h2>
+        {/* Hero Content */}
+        <div className="space-y-6 my-auto">
+          <h2 className="text-4xl font-extrabold leading-tight">
+            Manage your store <br />
+            with absolute ease.
+          </h2>
+          <p className="text-blue-100/70 text-lg leading-relaxed max-w-md">
+            List products, track customer interests, coordinate delivery preferences, and mark catalog items as sold in real time.
+          </p>
 
-            <p className="text-xl text-gray-200 leading-relaxed">
-              Start buying and selling with ease. Access your personal dashboard
-              to manage products and connect with buyers.
-            </p>
-
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                  <FaRocket className="text-brand-sky" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">Quick Start</h3>
-                  <p className="text-gray-300 text-sm">
-                    Set up your account in minutes
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"></div>
-                <div>
-                  <h3 className="font-semibold text-lg">Secure Platform</h3>
-                  <p className="text-gray-300 text-sm">
-                    Your data is protected and secure
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                  <FaUsers className="text-brand-sunshine" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">Growing Community</h3>
-                  <p className="text-gray-300 text-sm">
-                    Join thousands of active users
-                  </p>
-                </div>
-              </div>
+          <div className="space-y-5 pt-6">
+            <div className="flex items-center gap-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-sky block"></span>
+              <span className="text-sm font-medium text-blue-100/80">Real-time interest tracking</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-mint block"></span>
+              <span className="text-sm font-medium text-blue-100/80">Secure Firebase authentication</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-sunshine block"></span>
+              <span className="text-sm font-medium text-blue-100/80">Automated seller onboarding</span>
             </div>
           </div>
         </div>
 
-        {/* Right Side - Login Form */}
-        <div className="w-full max-w-md mx-auto">
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                Welcome Back!
-              </h2>
-              <p className="text-gray-600">Sign in to access your dashboard</p>
+        {/* Footer */}
+        <div className="text-xs text-blue-100/40">
+          &copy; {new Date().getFullYear()} SkyMarket. All rights reserved.
+        </div>
+      </div>
+
+      {/* Right Column - Login Form */}
+      <div className="lg:col-span-7 bg-gray-50 flex flex-col justify-center px-4 sm:px-6 lg:px-20 xl:px-24 py-12 relative">
+        {/* Back to Home Button in top right */}
+        <div className="absolute top-8 right-8">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 text-gray-500 hover:text-brand-navy text-sm font-semibold transition-colors"
+          >
+            <FaArrowLeft />
+            <span>Back to Home</span>
+          </button>
+        </div>
+
+        <div className="w-full max-w-md mx-auto bg-white p-8 sm:p-10 rounded-2xl border border-gray-100 shadow-sm">
+          {/* Logo on mobile */}
+          <div className="flex items-center gap-3 mb-6 lg:hidden">
+            <div className="w-8 h-8 bg-brand-navy rounded-lg flex items-center justify-center">
+              <FaShoppingCart className="text-white text-sm" />
+            </div>
+            <span className="font-bold text-lg text-brand-navy tracking-tight">SkyMarket</span>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-3xl font-extrabold text-brand-navy tracking-tight">
+              Sign In
+            </h2>
+            <p className="text-sm text-gray-500 mt-2">
+              Enter your credentials to manage your store listings.
+            </p>
+          </div>
+
+          <form onSubmit={handleEmailLogin} className="space-y-5">
+            <div>
+              <label className="block text-xs font-bold text-brand-navy uppercase tracking-wider mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-sky focus:border-brand-sky transition-colors"
+                required
+                disabled={isLoading}
+              />
             </div>
 
-            <form onSubmit={handleEmailLogin} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-xs font-bold text-brand-navy uppercase tracking-wider">
+                  Password
                 </label>
+              </div>
+              <div className="relative">
                 <input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-sky focus:border-brand-sky transition-colors"
                   required
                   disabled={isLoading}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                </button>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    required
-                    disabled={isLoading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
-                  >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-brand-sky hover:bg-brand-navy disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Signing In...</span>
-                  </>
-                ) : (
-                  <>
-                    <FaRocket className="text-sm" />
-                    <span>Sign In</span>
-                  </>
-                )}
-              </button>
-            </form>
-
-            <div className="flex items-center my-6">
-              <hr className="flex-1 border-gray-300" />
-              <span className="px-4 text-gray-500 text-sm font-medium">OR</span>
-              <hr className="flex-1 border-gray-300" />
             </div>
 
             <button
-              type="button"
-              onClick={handleGoogleLogin}
+              type="submit"
               disabled={isLoading}
-              className="w-full bg-white hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-sm"
+              className="w-full bg-brand-sky hover:bg-brand-navy disabled:bg-gray-400 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm text-sm"
             >
-              <FcGoogle size={20} />
-              <span>Continue with Google</span>
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Signing In...</span>
+                </>
+              ) : (
+                <span>Sign In</span>
+              )}
             </button>
+          </form>
 
-            <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-brand-navy text-sm text-center">
-                <strong>New users:</strong> Your account will be created
-                automatically with
-                <span className="font-semibold"> Editor</span> permissions to
-                start selling immediately.
-              </p>
-            </div>
+          <div className="flex items-center my-6">
+            <hr className="flex-1 border-gray-100" />
+            <span className="px-4 text-gray-400 text-xs font-bold tracking-wider">OR</span>
+            <hr className="flex-1 border-gray-100" />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={isLoading}
+            className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-3 shadow-sm cursor-pointer text-sm"
+          >
+            <FcGoogle size={18} />
+            <span>Continue with Google</span>
+          </button>
+
+          <div className="mt-8 p-4 bg-brand-sky/5 rounded-xl border border-brand-sky/10">
+            <p className="text-xs text-brand-navy leading-relaxed text-center font-medium">
+              💡 <strong>Note:</strong> Accounts are created instantly with <span className="text-brand-sky font-semibold">Editor</span> status to start listing items immediately.
+            </p>
           </div>
         </div>
       </div>

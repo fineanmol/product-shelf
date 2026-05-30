@@ -24,6 +24,7 @@ const initial = {
   source: "Amazon",
   available_from: "Now",
   currency: "EUR",
+  category: "Other",
   url: "",
   delivery_options: ["Pick Up", "Shipping"],
   admin_note: "",
@@ -39,6 +40,7 @@ const ProductManager = ({ product = null, onRefresh = null }) => {
           visible: product.visible !== false,
           source: product.source || "Amazon",
           available_from: product.available_from || "Now",
+          category: product.category || "Other",
           delivery_options: product.delivery_options || ["Pick Up", "Shipping"],
         }
       : initial
@@ -235,15 +237,7 @@ const ProductManager = ({ product = null, onRefresh = null }) => {
 
             {/* Actions Sidebar */}
             <div className="xl:col-span-1 space-y-6">
-              {/* Debug Info */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                <h4 className="font-semibold text-yellow-800 mb-2">
-                  Debug Info
-                </h4>
-                <p className="text-sm text-yellow-700">
-                  Super Admin Status: {isSuperAdmin ? "✅ True" : "❌ False"}
-                </p>
-              </div>
+
               {/* Action Buttons */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h3 className="font-semibold text-gray-900 mb-4">Actions</h3>
@@ -271,7 +265,7 @@ const ProductManager = ({ product = null, onRefresh = null }) => {
                   <button
                     type="button"
                     onClick={() => setShowPreview(true)}
-                    className="w-full flex items-center justify-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                    className="w-full flex items-center justify-center gap-2 bg-white border-2 border-brand-navy text-brand-navy hover:bg-brand-navy hover:text-white font-semibold py-3 px-4 rounded-lg transition-colors"
                   >
                     <FaEye className="text-sm" />
                     Preview
@@ -283,7 +277,7 @@ const ProductManager = ({ product = null, onRefresh = null }) => {
                         type="button"
                         onClick={handleDelete}
                         disabled={loading}
-                        className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                        className="w-full flex items-center justify-center gap-2 bg-brand-coral hover:bg-brand-navy disabled:bg-brand-coral/50 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
                       >
                         <FaTrash className="text-sm" />
                         Delete Product

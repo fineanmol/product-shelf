@@ -22,7 +22,6 @@ const AdminProductTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [interestSearch, setInterestSearch] = useState({});
   const [loading, setLoading] = useState(true);
-  const [currentUserRole, setCurrentUserRole] = useState(null);
 
   // Default sort by product "timestamp" in descending order
   const [sortKey, setSortKey] = useState("timestamp");
@@ -37,7 +36,6 @@ const AdminProductTable = () => {
       try {
         // Get current user role
         const userRoleData = await getCurrentUserRole();
-        setCurrentUserRole(userRoleData);
 
         const productsSnap = await get(ref(db, "products"));
         const interestsSnap = await get(ref(db, "interests"));
@@ -293,7 +291,7 @@ const AdminProductTable = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={handleExportAll}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
+            className="flex items-center gap-2 bg-brand-mint hover:bg-brand-navy text-brand-navy hover:text-white font-semibold px-4 py-2 rounded-lg transition-colors text-sm shadow-sm"
           >
             <FiDownload className="text-sm" />
             Export All
@@ -626,14 +624,14 @@ const AdminProductTable = () => {
                           <div className="flex items-center gap-2 justify-end">
                             <Link
                               to={`/admin/products/edit/${p.id}`}
-                              className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                              className="p-2 text-gray-400 hover:text-brand-sky transition-colors"
                               title="Edit Product"
                             >
                               <FiEdit className="text-sm" />
                             </Link>
                             <button
                               onClick={() => handleDelete(p.id)}
-                              className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                              className="p-2 text-gray-400 hover:text-brand-coral transition-colors"
                               title="Delete Product"
                             >
                               <MdDelete className="text-sm" />

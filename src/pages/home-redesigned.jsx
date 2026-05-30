@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { ref, push, onValue, limitToLast, query } from "firebase/database";
+import { ref, push, onValue, limitToLast, query, getDatabase, update } from "firebase/database";
 import { db, analytics } from "../firebase";
 import ProductCardRedesigned from "../components/product/ProductCardRedesigned";
 import ProductInterestModal from "../components/product/ProductInterestModal";
@@ -17,13 +17,13 @@ const HomeRedesigned = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showInterestForm, setShowInterestForm] = useState(null);
-  const [interestData, setInterestData] = useState({});
   const [interestedItems, setInterestedItems] = useState([]);
   const [pulseId, setPulseId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [conditionFilter, setConditionFilter] = useState("");
   const [priceSort, setPriceSort] = useState("latest");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
@@ -54,19 +54,10 @@ const HomeRedesigned = () => {
       setLoading(false);
     });
 
-    // Don't fetch all interests upfront - only when needed
-    const interestsRef = ref(db, "interests");
-    const interestListener = onValue(interestsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        setInterestData(snapshot.val());
-      }
-    });
-
     if (analytics) logEvent(analytics, "view_home");
 
     return () => {
       productListener();
-      interestListener();
     };
   }, []);
 
@@ -76,15 +67,18 @@ const HomeRedesigned = () => {
         item.title.toLowerCase().includes(searchTerm.toLowerCase())
       )
       .filter((item) => (statusFilter ? item.status === statusFilter : true))
-      .filter((item) =>
-        conditionFilter ? item.condition === conditionFilter : true
-      )
+      .filter((item) => {
+        if (!conditionFilter) return true;
+        const itemCond = (item.condition || item.age || "").toLowerCase();
+        return itemCond === conditionFilter.toLowerCase();
+      })
+      .filter((item) => (categoryFilter ? item.category === categoryFilter : true))
       .sort((a, b) => {
         if (priceSort === "price-low") return a.price - b.price;
         if (priceSort === "price-high") return b.price - a.price;
         return (b.timestamp || 0) - (a.timestamp || 0);
       });
-  }, [items, searchTerm, statusFilter, conditionFilter, priceSort]);
+  }, [items, searchTerm, statusFilter, conditionFilter, categoryFilter, priceSort]);
 
   const handleInterestSubmit = async ({
     name,
@@ -94,17 +88,26 @@ const HomeRedesigned = () => {
   }) => {
     const product = showInterestForm;
     try {
-      await push(ref(db, `interests/${product.id}`), {
+      const db = getDatabase();
+      const updates = {};
+      const newInterestRef = push(ref(db, `interests/${product.id}`));
+
+      updates[`interests/${product.id}/${newInterestRef.key}`] = {
         name,
         email,
         phone,
         delivery_preferences,
         timestamp: Date.now(),
-      });
+      };
+
+      const currentCount = product.interestCount || 0;
+      updates[`products/${product.id}/interestCount`] = currentCount + 1;
+
+      await update(ref(db), updates);
+
       if (analytics)
         logEvent(analytics, "submit_interest", { product_id: product.id });
       setInterestedItems((prev) => [...prev, product.id]);
-      setShowInterestForm(null);
       showToast("✅ Thanks! Your interest was submitted.");
     } catch (err) {
       console.error("Submission failed:", err);
@@ -116,11 +119,12 @@ const HomeRedesigned = () => {
     setSearchTerm("");
     setStatusFilter("");
     setConditionFilter("");
+    setCategoryFilter("");
     setPriceSort("latest");
   };
 
   const hasActiveFilters =
-    searchTerm || statusFilter || conditionFilter || priceSort !== "latest";
+    searchTerm || statusFilter || conditionFilter || categoryFilter || priceSort !== "latest";
 
   if (loading) {
     return (
@@ -181,6 +185,19 @@ const HomeRedesigned = () => {
         }
       />
 
+      {/* Hero Section */}
+      <div className="bg-brand-navy text-white py-14 px-6 text-center relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#5cc3e8_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div className="max-w-3xl mx-auto relative z-10">
+          <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">
+            Discover Great Deals on <span className="text-brand-sky">SkyMarket</span>
+          </h2>
+          <p className="text-gray-300 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+            Your trusted local marketplace for buying and selling premium pre-loved items. Clean, safe, and secure.
+          </p>
+        </div>
+      </div>
+
       {/* Expandable Filters - Using Reusable Component */}
       {showFilters && (
         <div className="bg-white border-b shadow-sm">
@@ -188,9 +205,11 @@ const HomeRedesigned = () => {
             <FilterBar
               statusFilter={statusFilter}
               conditionFilter={conditionFilter}
+              categoryFilter={categoryFilter}
               sortBy={priceSort}
               onStatusChange={setStatusFilter}
               onConditionChange={setConditionFilter}
+              onCategoryChange={setCategoryFilter}
               onSortChange={setPriceSort}
               onClearFilters={clearFilters}
               hasActiveFilters={hasActiveFilters}
@@ -226,11 +245,7 @@ const HomeRedesigned = () => {
                 product={product}
                 isInterested={interestedItems.includes(product.id)}
                 pulse={pulseId === product.id}
-                interestCount={
-                  interestData[product.id]
-                    ? Object.keys(interestData[product.id]).length
-                    : 0
-                }
+                interestCount={product.interestCount || 0}
                 onHeartClick={() => {
                   setPulseId(product.id);
                   setInterestedItems((prev) =>

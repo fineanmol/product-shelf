@@ -59,7 +59,7 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
       setProgress(100);
       let pct = 100;
       timerRef.current = setInterval(() => {
-        pct -= 2;
+        pct -= 4;
         setProgress(pct);
         if (pct <= 0) {
           clearInterval(timerRef.current);
@@ -176,30 +176,20 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
         },
         "hjrAAqHXUVuBPn-AD"
       );
-      // Simulate network request
-      await new Promise((res) => setTimeout(res, 1000));
-      // Set success and step BEFORE calling onSubmit to ensure confirmation is shown
+      // Call onSubmit immediately so database write occurs without delay
+      onSubmit({
+        ...sanitized,
+        delivery_preferences: [deliveryPref],
+        productId: product.id,
+        timestamp: Date.now(),
+      });
       setSuccess(true);
       setStep(3);
-      // Parent onSubmit should NOT close the modal immediately!
-      // Add a small delay to ensure the confirmation step is rendered
-      setTimeout(() => {
-        onSubmit({
-          ...sanitized,
-          delivery_preferences: [deliveryPref],
-          productId: product.id,
-          timestamp: Date.now(),
-        });
-      }, 5000);
       if (analytics)
         logEvent(analytics, "interest_submit_success", {
           product_id: product.id,
         });
       // Admin notification stub
-      console.log(
-        "[ADMIN NOTIFY] New interest submitted for product:",
-        product.id
-      );
     } catch (e) {
       showToast("❌ Could not submit. Please try again.");
       if (analytics)
@@ -280,7 +270,7 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
           <div className="flex items-center justify-between border rounded-xl p-4 mb-6">
             <div className="flex items-center gap-4">
               <img
-                src={product.image}
+                src={product.image || null}
                 alt={product.title}
                 className="w-14 h-14 rounded object-cover"
               />
@@ -293,9 +283,9 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
                     {product.status || "Available"}
                   </span>
                   {/* Example: Condition or "New" */}
-                  {product.age && (
-                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">
-                      {product.age}
+                  {(product.age || product.condition) && (
+                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full capitalize">
+                      {product.age || product.condition}
                     </span>
                   )}
                 </div>
