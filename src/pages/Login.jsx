@@ -147,9 +147,12 @@ const Login = () => {
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-12 font-sans bg-white">
       {/* Left Column - Hero/Branding (visible on lg screens and up) */}
-      <div className="hidden lg:flex lg:col-span-5 bg-brand-navy flex-col justify-between p-12 text-white relative">
+      <div className="hidden lg:flex lg:col-span-5 bg-brand-navy flex-col justify-between p-10 text-white relative overflow-hidden">
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#5cc3e8_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none"></div>
+
         {/* Top Header */}
-        <div className="flex items-center gap-3">
+        <div className="relative flex items-center gap-3">
           <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center border border-white/10">
             <FaShoppingCart className="text-white text-lg" />
           </div>
@@ -160,33 +163,59 @@ const Login = () => {
         </div>
 
         {/* Hero Content */}
-        <div className="space-y-6 my-auto">
-          <h2 className="text-4xl font-extrabold leading-tight">
-            Manage your store <br />
-            with absolute ease.
-          </h2>
-          <p className="text-blue-100/70 text-lg leading-relaxed max-w-md">
-            List products, track customer interests, coordinate delivery preferences, and mark catalog items as sold in real time.
-          </p>
+        <div className="relative space-y-5 my-auto">
+          <div>
+            <span className="inline-block text-xs font-bold uppercase tracking-widest text-brand-sky/80 mb-3">
+              ✦ Built for sellers
+            </span>
+            <h2 className="text-3xl font-extrabold leading-tight">
+              Manage your store <br />
+              with absolute ease.
+            </h2>
+            <p className="text-blue-100/60 text-sm leading-relaxed mt-3 max-w-xs">
+              List products, track customer interests, and coordinate deliveries — all in one place.
+            </p>
+          </div>
 
-          <div className="space-y-5 pt-6">
-            <div className="flex items-center gap-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-brand-sky block"></span>
-              <span className="text-sm font-medium text-blue-100/80">Real-time interest tracking</span>
+          {/* Dashboard screenshot mock-frame */}
+          <div className="rounded-xl overflow-hidden border border-white/10 shadow-2xl shadow-black/40">
+            {/* Browser chrome bar */}
+            <div className="flex items-center gap-1.5 bg-white/10 px-3 py-2 border-b border-white/10">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-400/70"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-yellow-400/70"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-green-400/70"></span>
+              <div className="ml-2 flex-1 bg-white/10 rounded px-2 py-0.5 text-[10px] text-white/40 font-mono truncate">
+                skymarket.app/admin
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-brand-mint block"></span>
-              <span className="text-sm font-medium text-blue-100/80">Secure Firebase authentication</span>
+            {/* Screenshot image */}
+            <img
+              src="/login_hero.png"
+              alt="SkyMarket admin dashboard preview"
+              className="w-full object-cover object-top"
+              style={{ maxHeight: "220px" }}
+            />
+          </div>
+
+          {/* Feature bullets */}
+          <div className="space-y-2.5 pt-1">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-full bg-brand-sky flex-shrink-0"></span>
+              <span className="text-xs font-medium text-blue-100/70">Real-time interest tracking</span>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-brand-sunshine block"></span>
-              <span className="text-sm font-medium text-blue-100/80">Automated seller onboarding</span>
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-full bg-brand-mint flex-shrink-0"></span>
+              <span className="text-xs font-medium text-blue-100/70">Secure Firebase authentication</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-full bg-brand-sunshine flex-shrink-0"></span>
+              <span className="text-xs font-medium text-blue-100/70">Automated seller onboarding</span>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="text-xs text-blue-100/40">
+        <div className="relative text-xs text-blue-100/30">
           &copy; {new Date().getFullYear()} SkyMarket. All rights reserved.
         </div>
       </div>

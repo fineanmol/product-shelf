@@ -259,14 +259,14 @@ p {
   color: var(--text-secondary);
 }
 
-/* Enhanced Link styles */
-a {
+/* Enhanced Link styles - only plain text anchors, not button-styled ones */
+a:not([class]) {
   color: var(--accent-primary);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
-a:hover {
+a:not([class]):hover {
   color: var(--accent-secondary);
   text-decoration: underline;
 }
