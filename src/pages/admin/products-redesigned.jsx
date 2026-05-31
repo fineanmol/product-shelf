@@ -455,47 +455,7 @@ const ProductsRedesigned = () => {
     return (
       <DashboardLayout title="Products" subtitle="Manage your product inventory">
         <LoadingSpinner text="Loading products..." />
-  
-      {/* Bulk Action Bar */}
-      {selectedIds.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-wrap items-center gap-2 px-4 py-3 bg-brand-navy text-white rounded-2xl shadow-2xl border border-white/10 backdrop-blur-md max-w-[95vw]">
-          <div className="flex items-center gap-2 pr-3 border-r border-white/20 flex-shrink-0">
-            <span className="font-bold text-brand-sky">{selectedIds.size}</span>
-            <span className="text-sm text-white/70">selected</span>
-            <button onClick={handleDeselectAll} title="Deselect all (Esc)" className="ml-1 w-5 h-5 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/30 text-white/60 hover:text-white transition-colors text-xs font-bold">x</button>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <button onClick={handleBulkShow} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-blue-500/60 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaEye className="text-blue-300" /> Show</button>
-            <button onClick={handleBulkHide} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-gray-500/60 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaEyeSlash className="text-gray-300" /> Hide</button>
-          </div>
-          <div className="w-px h-5 bg-white/20" />
-          <div className="flex items-center gap-1.5">
-            <button onClick={handleBulkMarkAvailable} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-green-500/60 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaBoxOpen className="text-green-300" /> Available</button>
-            <button onClick={handleBulkMarkReserved} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-amber-500/60 text-white text-xs font-medium transition-colors disabled:opacity-40">Reserved</button>
-          </div>
-          <div className="w-px h-5 bg-white/20" />
-          <div className="flex items-center gap-1.5">
-            <button onClick={handleBulkMarkSoldOut} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-red-500/60 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaTimesCircle className="text-red-300" /> Sold Out</button>
-            <button onClick={handleBulkUnmarkSoldOut} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-green-500/60 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaUndo className="text-green-300" /> Unmark</button>
-          </div>
-          <div className="w-px h-5 bg-white/20" />
-          <div className="flex items-center gap-1.5">
-            <button onClick={handleExportSelected} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaDownload className="text-gray-300" /> Export</button>
-            <button onClick={handleBulkDelete} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 text-white text-xs font-semibold transition-colors disabled:opacity-40"><FaTrash /> Delete</button>
-          </div>
-          {bulkLoading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0" />}
-        </div>
-      )}
-
-      {pendingBulkAction && (
-        <BulkActionConfirmModal
-          action={pendingBulkAction.type}
-          products={selectedProducts}
-          onConfirm={executePendingAction}
-          onCancel={() => setPendingBulkAction(null)}
-        />
-      )}
-    </DashboardLayout>
+      </DashboardLayout>
     );
   }
 
@@ -775,6 +735,46 @@ const ProductsRedesigned = () => {
           </div>
         </div>
       </GlassModal>
+
+      {/* Bulk Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-wrap items-center gap-2 px-4 py-3 bg-brand-navy text-white rounded-2xl shadow-2xl border border-white/10 backdrop-blur-md max-w-[95vw]">
+          <div className="flex items-center gap-2 pr-3 border-r border-white/20 flex-shrink-0">
+            <span className="font-bold text-brand-sky">{selectedIds.size}</span>
+            <span className="text-sm text-white/70">selected</span>
+            <button onClick={handleDeselectAll} title="Deselect all (Esc)" className="ml-1 w-5 h-5 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/30 text-white/60 hover:text-white transition-colors text-xs font-bold">x</button>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button onClick={handleBulkShow} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-blue-500/60 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaEye className="text-blue-300" /> Show</button>
+            <button onClick={handleBulkHide} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-gray-500/60 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaEyeSlash className="text-gray-300" /> Hide</button>
+          </div>
+          <div className="w-px h-5 bg-white/20" />
+          <div className="flex items-center gap-1.5">
+            <button onClick={handleBulkMarkAvailable} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-green-500/60 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaBoxOpen className="text-green-300" /> Available</button>
+            <button onClick={handleBulkMarkReserved} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-amber-500/60 text-white text-xs font-medium transition-colors disabled:opacity-40">Reserved</button>
+          </div>
+          <div className="w-px h-5 bg-white/20" />
+          <div className="flex items-center gap-1.5">
+            <button onClick={handleBulkMarkSoldOut} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-red-500/60 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaTimesCircle className="text-red-300" /> Sold Out</button>
+            <button onClick={handleBulkUnmarkSoldOut} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-green-500/60 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaUndo className="text-green-300" /> Unmark</button>
+          </div>
+          <div className="w-px h-5 bg-white/20" />
+          <div className="flex items-center gap-1.5">
+            <button onClick={handleExportSelected} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaDownload className="text-gray-300" /> Export</button>
+            <button onClick={handleBulkDelete} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 text-white text-xs font-semibold transition-colors disabled:opacity-40"><FaTrash /> Delete</button>
+          </div>
+          {bulkLoading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0" />}
+        </div>
+      )}
+
+      {pendingBulkAction && (
+        <BulkActionConfirmModal
+          action={pendingBulkAction.type}
+          products={selectedProducts}
+          onConfirm={executePendingAction}
+          onCancel={() => setPendingBulkAction(null)}
+        />
+      )}
     </DashboardLayout>
   );
 };
