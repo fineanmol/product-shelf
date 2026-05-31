@@ -1,7 +1,7 @@
 // src/pages/admin/BulkImport.jsx
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getDatabase, ref, push } from "firebase/database";
+import { getDatabase, ref, push, get } from "firebase/database";
 import { getAuth } from "firebase/auth";
 import {
   autoMapColumns,
@@ -9,6 +9,7 @@ import {
   validateRow,
   buildRowPayload,
   DEFAULT_VALUES,
+  detectDuplicates,
 } from "../../utils/bulkImportUtils";
 import FileUploadStep from "../../components/admin/bulk-import/FileUploadStep";
 import ColumnMapperStep from "../../components/admin/bulk-import/ColumnMapperStep";
@@ -17,6 +18,7 @@ import PreviewTableStep from "../../components/admin/bulk-import/PreviewTableSte
 import UploadProgressStep from "../../components/admin/bulk-import/UploadProgressStep";
 import { showToast } from "../../utils/showToast";
 import { FaArrowLeft, FaFileUpload } from "react-icons/fa";
+import { getCurrentUserRole, filterDataByUserRole } from "../../utils/permissions";
 
 const STEPS = ["Upload", "Map Columns", "Validate", "Preview", "Upload"];
 
@@ -24,8 +26,11 @@ export default function BulkImport() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
 
+  // Existing products for duplicate detection
+  const [existingProducts, setExistingProducts] = useState([]);
+
   // Step 1: parsed file data
-  const [parsedData, setParsedData] = useState(null); // { rows, headers, isTemplate }
+  const [parsedData, setParsedData] = useState(null);
 
   // Step 2: column mapping  { fieldKey: columnHeader }
   const [mapping, setMapping] = useState({});
@@ -35,7 +40,7 @@ export default function BulkImport() {
   const [customDefaults, setCustomDefaults] = useState({});
   const [skippedFields, setSkippedFields] = useState(new Set());
   const [validationResults, setValidationResults] = useState({
-    valid: [], warnings: [], errors: [], total: 0,
+    valid: [], warnings: [], errors: [],
   });
 
   // Step 4: per-row skips
@@ -45,12 +50,36 @@ export default function BulkImport() {
   const [uploadResults, setUploadResults] = useState([]);
   const [uploading, setUploading] = useState(false);
 
+  // ── Fetch existing products for duplicate detection ──────────────────────────
+  useEffect(() => {
+    const fetchExisting = async () => {
+      try {
+        const db = getDatabase();
+        const roleData = await getCurrentUserRole();
+        const snapshot = await get(ref(db, "products"));
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          let list = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+          list = filterDataByUserRole(
+            list,
+            roleData.role,
+            roleData.user?.uid,
+            roleData.isSuperAdmin
+          );
+          setExistingProducts(list);
+        }
+      } catch (_) {
+        // Non-critical — duplicate detection will just not work if this fails
+      }
+    };
+    fetchExisting();
+  }, []);
+
   // ── Step 1 → 2 ──────────────────────────────────────────────────────────────
   const handleParsed = (data) => {
     if (!data) { setParsedData(null); return; }
     setParsedData(data);
-    const autoMap = autoMapColumns(data.headers);
-    setMapping(autoMap);
+    setMapping(autoMapColumns(data.headers));
   };
 
   const goToMapper = () => {
@@ -89,14 +118,13 @@ export default function BulkImport() {
     });
 
     setProcessedRows(rows);
-    setValidationResults({ valid, warnings, errors, total: rows.length });
+    setValidationResults({ valid, warnings, errors });
     setStep(2);
   };
 
   // ── Step 3 helpers ───────────────────────────────────────────────────────────
   const handleDefaultChange = (fieldKey, value) => {
     setCustomDefaults((prev) => ({ ...prev, [fieldKey]: value }));
-    // Re-validate when a default is set
     setProcessedRows((prev) => {
       const updated = prev.map((row) => {
         const result = validateRow(row, { ...DEFAULT_VALUES, ...customDefaults, [fieldKey]: value });
@@ -112,18 +140,13 @@ export default function BulkImport() {
         else if (row._status === "warning") warnings.push(entry);
         else valid.push(entry);
       });
-      setValidationResults({ valid, warnings, errors, total: updated.length });
+      setValidationResults({ valid, warnings, errors });
       return updated;
     });
   };
 
   const handleSkipField = (fieldKey) => {
-    setSkippedFields((prev) => {
-      const next = new Set(prev);
-      next.add(fieldKey);
-      return next;
-    });
-    // Mark all rows with this error as skipped
+    setSkippedFields((prev) => { const n = new Set(prev); n.add(fieldKey); return n; });
     setProcessedRows((prev) =>
       prev.map((row) => {
         const result = validateRow(row, { ...DEFAULT_VALUES, ...customDefaults });
@@ -138,13 +161,28 @@ export default function BulkImport() {
     const unresolvedErrors = validationResults.errors.filter((e) =>
       e.issues.some((i) => {
         const hasDefault = customDefaults[i.field] !== undefined && customDefaults[i.field] !== "";
-        const isSkipped = skippedFields.has(i.field);
-        return !hasDefault && !isSkipped;
+        return !hasDefault && !skippedFields.has(i.field);
       })
     );
     if (unresolvedErrors.length > 0) {
       showToast("⚠️ Please set defaults or skip all rows with errors first.");
       return;
+    }
+    // Run duplicate detection when entering preview
+    const withDuplicates = detectDuplicates(processedRows, existingProducts);
+    setProcessedRows(withDuplicates);
+
+    // Auto-add duplicates to the skipped set
+    const dupIndexes = withDuplicates
+      .filter((r) => r._isDuplicate)
+      .map((r) => r._rowIndex);
+    if (dupIndexes.length > 0) {
+      setSkippedRows((prev) => {
+        const next = new Set(prev);
+        dupIndexes.forEach((i) => next.add(i));
+        return next;
+      });
+      showToast(`⚠️ ${dupIndexes.length} duplicate${dupIndexes.length !== 1 ? "s" : ""} detected and pre-skipped. You can un-skip them in the preview.`);
     }
     setStep(3);
   };
@@ -155,6 +193,28 @@ export default function BulkImport() {
       const next = new Set(prev);
       if (next.has(rowIndex)) next.delete(rowIndex);
       else next.add(rowIndex);
+      return next;
+    });
+  };
+
+  const handleSkipAllDuplicates = () => {
+    const dupIndexes = processedRows
+      .filter((r) => r._isDuplicate)
+      .map((r) => r._rowIndex);
+    setSkippedRows((prev) => {
+      const next = new Set(prev);
+      dupIndexes.forEach((i) => next.add(i));
+      return next;
+    });
+  };
+
+  const handleRestoreAllDuplicates = () => {
+    const dupIndexes = processedRows
+      .filter((r) => r._isDuplicate)
+      .map((r) => r._rowIndex);
+    setSkippedRows((prev) => {
+      const next = new Set(prev);
+      dupIndexes.forEach((i) => next.delete(i));
       return next;
     });
   };
@@ -178,7 +238,6 @@ export default function BulkImport() {
     setUploadResults([]);
     setStep(4);
 
-    // Upload in batches of 10
     const BATCH = 10;
     const results = [];
 
@@ -206,7 +265,6 @@ export default function BulkImport() {
       });
 
       setUploadResults([...results]);
-      // Small delay between batches
       await new Promise((r) => setTimeout(r, 200));
     }
 
@@ -215,29 +273,32 @@ export default function BulkImport() {
     showToast(`✅ ${successCount} product${successCount !== 1 ? "s" : ""} imported!`);
   }, [processedRows, skippedRows, customDefaults]);
 
+  const uploadableCount = processedRows.filter(
+    (r) => !skippedRows.has(r._rowIndex) && r._status !== "skipped"
+  ).length;
+  const duplicateCount = processedRows.filter((r) => r._isDuplicate).length;
+
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto p-6 space-y-6">
 
         {/* Page header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/admin/products")}
-              className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-brand-navy transition-colors"
-            >
-              <FaArrowLeft />
-            </button>
-            <div>
-              <div className="flex items-center gap-2">
-                <FaFileUpload className="text-brand-sky" />
-                <h1 className="text-2xl font-bold text-brand-navy">Bulk Import Products</h1>
-              </div>
-              <p className="text-sm text-gray-500 mt-0.5">
-                Import multiple products at once from an Excel or CSV file
-              </p>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate("/admin/products")}
+            className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-brand-navy transition-colors"
+          >
+            <FaArrowLeft />
+          </button>
+          <div>
+            <div className="flex items-center gap-2">
+              <FaFileUpload className="text-brand-sky" />
+              <h1 className="text-2xl font-bold text-brand-navy">Bulk Import Products</h1>
             </div>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Import up to 200 products at once from an Excel or CSV file
+            </p>
           </div>
         </div>
 
@@ -248,11 +309,9 @@ export default function BulkImport() {
               <React.Fragment key={i}>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                    i < step
-                      ? "bg-brand-mint text-white"
-                      : i === step
-                      ? "bg-brand-sky text-white"
-                      : "bg-gray-100 text-gray-400"
+                    i < step ? "bg-brand-mint text-white"
+                    : i === step ? "bg-brand-sky text-white"
+                    : "bg-gray-100 text-gray-400"
                   }`}>
                     {i < step ? "✓" : i + 1}
                   </div>
@@ -263,9 +322,7 @@ export default function BulkImport() {
                   </span>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div className={`flex-1 h-0.5 mx-2 transition-colors ${
-                    i < step ? "bg-brand-mint" : "bg-gray-100"
-                  }`} />
+                  <div className={`flex-1 h-0.5 mx-2 transition-colors ${i < step ? "bg-brand-mint" : "bg-gray-100"}`} />
                 )}
               </React.Fragment>
             ))}
@@ -296,6 +353,9 @@ export default function BulkImport() {
               rows={processedRows}
               skippedRows={skippedRows}
               onToggleSkip={handleToggleSkip}
+              duplicateCount={duplicateCount}
+              onSkipAllDuplicates={handleSkipAllDuplicates}
+              onRestoreAllDuplicates={handleRestoreAllDuplicates}
             />
           )}
           {step === 4 && (
@@ -322,37 +382,27 @@ export default function BulkImport() {
             </button>
 
             {step === 0 && (
-              <button
-                onClick={goToMapper}
-                disabled={!parsedData}
-                className="px-6 py-2.5 bg-brand-sky hover:bg-brand-navy text-white font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
-              >
+              <button onClick={goToMapper} disabled={!parsedData}
+                className="px-6 py-2.5 bg-brand-sky hover:bg-brand-navy text-white font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed text-sm">
                 Next: Map Columns →
               </button>
             )}
             {step === 1 && (
-              <button
-                onClick={goToValidation}
-                className="px-6 py-2.5 bg-brand-sky hover:bg-brand-navy text-white font-semibold rounded-lg transition-colors text-sm"
-              >
+              <button onClick={goToValidation}
+                className="px-6 py-2.5 bg-brand-sky hover:bg-brand-navy text-white font-semibold rounded-lg transition-colors text-sm">
                 Next: Validate →
               </button>
             )}
             {step === 2 && (
-              <button
-                onClick={goToPreview}
-                className="px-6 py-2.5 bg-brand-sky hover:bg-brand-navy text-white font-semibold rounded-lg transition-colors text-sm"
-              >
+              <button onClick={goToPreview}
+                className="px-6 py-2.5 bg-brand-sky hover:bg-brand-navy text-white font-semibold rounded-lg transition-colors text-sm">
                 Next: Preview →
               </button>
             )}
             {step === 3 && (
-              <button
-                onClick={handleUpload}
-                disabled={skippedRows.size === processedRows.length}
-                className="px-6 py-2.5 bg-brand-mint hover:bg-green-600 text-white font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
-              >
-                Upload {processedRows.filter((r) => !skippedRows.has(r._rowIndex) && r._status !== "skipped").length} Products →
+              <button onClick={handleUpload} disabled={uploadableCount === 0}
+                className="px-6 py-2.5 bg-brand-mint hover:bg-green-600 text-white font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed text-sm">
+                Upload {uploadableCount} Product{uploadableCount !== 1 ? "s" : ""} →
               </button>
             )}
           </div>

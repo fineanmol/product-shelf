@@ -213,6 +213,20 @@ export const downloadTemplate = () => {
   XLSX.writeFile(workbook, "skymarket-product-template.xlsx");
 };
 
+// ─── Detect duplicate rows against existing products ─────────────────────────
+// A duplicate is a row whose (normalised title + price) matches an existing product.
+export const detectDuplicates = (rows, existingProducts = []) => {
+  const fingerprints = new Set(
+    existingProducts.map((p) =>
+      `${String(p.title || "").trim().toLowerCase()}::${parseFloat(p.price) || 0}`
+    )
+  );
+  return rows.map((row) => {
+    const key = `${String(row.title || "").trim().toLowerCase()}::${parseFloat(row.price) || 0}`;
+    return { ...row, _isDuplicate: fingerprints.has(key) };
+  });
+};
+
 // ─── Check if uploaded file matches the template (1-1 mapping) ───────────────
 export const isTemplateFile = (headers) => {
   const templateKeys = FIELD_DEFS.map((f) => f.key);

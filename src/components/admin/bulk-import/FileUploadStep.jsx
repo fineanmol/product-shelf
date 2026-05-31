@@ -24,7 +24,7 @@ export default function FileUploadStep({ onParsed }) {
     try {
       const { rows, headers } = await parseFile(file);
       if (rows.length === 0) { setError("The file appears to be empty."); setLoading(false); return; }
-      if (rows.length > 500) { setError("File has more than 500 rows. Please split into smaller batches."); setLoading(false); return; }
+      if (rows.length > 200) { setError("File has more than 200 rows. Please split into smaller batches of up to 200 products."); setLoading(false); return; }
       const isTemplate = isTemplateFile(headers);
       setPreview({ rows, headers, fileName: file.name, isTemplate });
       onParsed({ rows, headers, isTemplate });
