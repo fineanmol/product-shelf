@@ -161,14 +161,16 @@ const ProductInterestModal = ({ product, onClose, onSubmit }) => {
     }
     setLoading(true);
     try {
-      // Send email to user and admin
       await emailjs.send(
         "service_kff4yqy",
         "template_dt1bpdu",
         {
           name: sanitized.name,
           email: sanitized.email,
-          message: sanitized.phone,
+          phone: sanitized.phone,
+          message: sanitized.message
+            ? `Phone: ${sanitized.phone}\nMessage: ${sanitized.message}`
+            : `Phone: ${sanitized.phone}`,
           title: product.title,
           available_from: product.available_from,
           image: product.image,
