@@ -131,7 +131,7 @@ const ProductCardRedesigned = ({
           {!imageLoaded && <div className="absolute inset-0 skeleton" />}
 
           <img
-            src={product.image || null}
+            src={product.image || '/placeholder.png'}
             alt={product.title}
             loading="lazy"
             className={`w-full h-full object-cover ${
@@ -144,7 +144,7 @@ const ProductCardRedesigned = ({
             onLoad={() => setImageLoaded(true)}
             onClick={onImageClick}
             onError={(e) => {
-              e.target.src = "/api/placeholder/400/400";
+              e.target.src = '/placeholder.png';
               setImageLoaded(true);
             }}
           />
@@ -319,7 +319,7 @@ const ProductCardRedesigned = ({
             )}
           </div>
 
-          {product.url && product.source && (
+          {product.url && /^https?:\/\//i.test(product.url) && (
             <a
               href={product.url}
               target="_blank"
@@ -328,7 +328,7 @@ const ProductCardRedesigned = ({
               onClick={(e) => e.stopPropagation()}
             >
               <FaExternalLinkAlt className="text-xs" />
-              View on {product.source}
+              {product.source ? `View on ${product.source}` : 'Visit Website'}
             </a>
           )}
         </div>
