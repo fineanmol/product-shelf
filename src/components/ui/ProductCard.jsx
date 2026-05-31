@@ -54,6 +54,7 @@ const ProductCard = ({
       {selectable && (
         <button
           type="button"
+          aria-label="Select product"
           onClick={(e) => { e.stopPropagation(); onSelect(product.id); }}
           className={`absolute top-3 left-3 z-20 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
             selected
