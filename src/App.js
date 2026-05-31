@@ -11,6 +11,7 @@ import AddProduct from "./pages/admin/add-product";
 import EditProduct from "./pages/admin/edit-product";
 import Users from "./pages/admin/users";
 import Feedback from "./pages/admin/feedback";
+import BulkImport from "./pages/admin/BulkImport";
 import VersionBadge from "./components/VersionBadge";
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           <Route path="products" element={<ProductsRedesigned />} />
           <Route path="products/add" element={<AddProduct />} />
           <Route path="products/edit/:id" element={<EditProduct />} />
+          <Route path="products/bulk-import" element={<BulkImport />} />
           <Route path="users" element={<Users />} />
           <Route path="feedback" element={<Feedback />} />
         </Route>

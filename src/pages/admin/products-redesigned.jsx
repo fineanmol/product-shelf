@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { getDatabase, ref, get, update, remove, push } from "firebase/database";
-import { FaPlus, FaTh, FaList, FaDownload } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { FaPlus, FaTh, FaList, FaDownload, FaFileImport } from "react-icons/fa";
 import DashboardLayout from "../../components/ui/DashboardLayout";
 import SearchAndFilter from "../../components/ui/SearchAndFilter";
 import ProductCard from "../../components/ui/ProductCard";
@@ -16,6 +17,7 @@ import GlassModal from "../../components/ui/GlassModal";
 import ProfileImage from "../../components/shared/ProfileImage";
 
 const ProductsRedesigned = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -279,6 +281,14 @@ const ProductsRedesigned = () => {
 
   const actions = (
     <div className="flex items-center gap-3">
+      <button
+        onClick={() => navigate("/admin/products/bulk-import")}
+        className="flex items-center gap-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-medium text-sm px-3 py-2 rounded-lg transition-colors"
+      >
+        <FaFileImport className="text-brand-sky" />
+        <span className="hidden sm:inline">Bulk Import</span>
+      </button>
+
       <AnimatedButton variant="secondary" size="sm" onClick={handleExport}>
         <FaDownload />
         Export

@@ -1,7 +1,7 @@
 // src/components/AdminSidebar.jsx
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaTimes, FaHome, FaBox, FaUsers, FaCommentDots } from "react-icons/fa";
+import { FaTimes, FaHome, FaBox, FaUsers, FaCommentDots, FaFileImport } from "react-icons/fa";
 import { getFormattedVersion } from "../../utils/version";
 
 function AdminSidebar({ onClose, userRole }) {
@@ -10,6 +10,7 @@ function AdminSidebar({ onClose, userRole }) {
   const baseLinks = [
     { to: "/admin", label: "Dashboard", icon: <FaHome /> },
     { to: "/admin/products", label: "Products", icon: <FaBox /> },
+    { to: "/admin/products/bulk-import", label: "Bulk Import", icon: <FaFileImport /> },
   ];
 
   const adminOnlyLinks = [
