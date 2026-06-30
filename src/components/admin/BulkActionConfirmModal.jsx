@@ -1,6 +1,6 @@
 // src/components/admin/BulkActionConfirmModal.jsx
 import React from "react";
-import { FaTrash, FaEye, FaEyeSlash, FaBoxOpen, FaExclamationTriangle, FaTimesCircle } from "react-icons/fa";
+import { FaTrash, FaEye, FaEyeSlash, FaBoxOpen, FaExclamationTriangle, FaTimesCircle, FaCopy } from "react-icons/fa";
 
 const ACTION_CONFIG = {
   delete:     { color: "red",    icon: <FaTrash />,      label: "Delete",         verb: "permanently deleted" },
@@ -10,6 +10,7 @@ const ACTION_CONFIG = {
   reserved:   { color: "amber",  icon: <FaBoxOpen />,    label: "Mark Reserved",  verb: "marked as Reserved" },
   soldOut:    { color: "red",    icon: <FaTimesCircle />,label: "Mark Sold Out",  verb: "marked as Sold Out" },
   unsoldOut:  { color: "green",  icon: <FaBoxOpen />,    label: "Unmark Sold Out",verb: "unmarked as Sold Out" },
+  duplicate:  { color: "blue",   icon: <FaCopy />,       label: "Duplicate",      verb: "duplicated as new listings" },
 };
 
 const COLOR_MAP = {

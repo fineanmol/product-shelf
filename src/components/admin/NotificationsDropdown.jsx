@@ -123,6 +123,39 @@ const NotificationsDropdown = ({ userRole }) => {
     }
   };
 
+  const handleMarkAllAsRead = async () => {
+    const db = getDatabase();
+    const unreadNotifications = notifications.filter((n) => !n.viewed);
+    
+    if (unreadNotifications.length === 0) return;
+
+    try {
+      const updates = {};
+      unreadNotifications.forEach((notification) => {
+        updates[`interests/${notification.productId}/${notification.id}/viewed`] = true;
+      });
+
+      await update(ref(db), updates);
+
+      // Local state update for instant UI feedback
+      setAllInterests((prev) => {
+        const updated = { ...prev };
+        unreadNotifications.forEach((n) => {
+          if (updated[n.productId] && updated[n.productId][n.id]) {
+            updated[n.productId][n.id] = {
+              ...updated[n.productId][n.id],
+              viewed: true,
+            };
+          }
+        });
+        return updated;
+      });
+      
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -140,10 +173,19 @@ const NotificationsDropdown = ({ userRole }) => {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-lg bg-white rounded-lg shadow-lg border z-50">
-          <div className="p-3 border-b">
+          <div className="p-3 border-b flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">
               Notifications
             </h3>
+            {unreadCount > 0 && (
+              <button
+                type="button"
+                onClick={handleMarkAllAsRead}
+                className="text-xs text-brand-sky hover:text-brand-navy font-semibold transition-colors"
+              >
+                Read All
+              </button>
+            )}
           </div>
 
           <div className="max-h-[80vh] sm:max-h-96 overflow-y-auto">

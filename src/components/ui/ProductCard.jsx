@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaEdit, FaTrash, FaEye, FaEyeSlash, FaHeart, FaExternalLinkAlt, FaCheck } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEye, FaEyeSlash, FaHeart, FaExternalLinkAlt, FaCheck, FaCopy } from 'react-icons/fa';
 import StatusBadge from './StatusBadge';
 import AnimatedButton from './AnimatedButton';
 
@@ -11,6 +11,7 @@ const ProductCard = ({
   onDelete, 
   onToggleVisibility,
   onToggleStatus,
+  onDuplicate,
   canEdit = true,
   isSuperAdmin = false,
   onAssignUser = null,
@@ -95,13 +96,16 @@ const ProductCard = ({
         }`}>
           {canEdit && (
             <>
-              <AnimatedButton variant="ghost" size="sm" onClick={() => onEdit(product)} className="text-white bg-white bg-opacity-20">
+              <AnimatedButton variant="ghost" size="sm" onClick={() => onEdit(product)} className="text-white bg-white bg-opacity-20" title="Edit">
                 <FaEdit />
               </AnimatedButton>
-              <AnimatedButton variant="ghost" size="sm" onClick={() => onToggleVisibility(product)} className="text-white bg-white bg-opacity-20">
-                {product.visible !== false ? <FaEyeSlash /> : <FaEye />}
+              <AnimatedButton variant="ghost" size="sm" onClick={() => onDuplicate(product)} className="text-white bg-white bg-opacity-20" title="Duplicate">
+                <FaCopy />
               </AnimatedButton>
-              <AnimatedButton variant="ghost" size="sm" onClick={() => onDelete(product)} className="text-white bg-red-500 bg-opacity-60">
+              <AnimatedButton variant="ghost" size="sm" onClick={() => onToggleVisibility(product)} className="text-white bg-white bg-opacity-20" title="Toggle Visibility">
+                {product.visible !== false ? <FaEye /> : <FaEyeSlash />}
+              </AnimatedButton>
+              <AnimatedButton variant="ghost" size="sm" onClick={() => onDelete(product)} className="text-white bg-red-500 bg-opacity-60" title="Delete">
                 <FaTrash />
               </AnimatedButton>
             </>

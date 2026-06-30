@@ -9,7 +9,8 @@ const ProductForm = ({
   isOpen, 
   onClose, 
   onSave, 
-  loading = false 
+  loading = false,
+  isSuperAdmin = false
 }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -23,7 +24,9 @@ const ProductForm = ({
     source: '',
     condition: 'new',
     category: 'Other',
-    delivery_options: ['pickup', 'shipping']
+    delivery_options: ['pickup', 'shipping'],
+    url: '',
+    admin_note: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -43,7 +46,9 @@ const ProductForm = ({
         source: product.source || '',
         condition: (product.condition || product.age || 'new').toLowerCase(),
         category: product.category || 'Other',
-        delivery_options: product.delivery_options || ['pickup', 'shipping']
+        delivery_options: product.delivery_options || ['pickup', 'shipping'],
+        url: product.url || '',
+        admin_note: product.admin_note || ''
       });
     } else {
       setFormData({
@@ -58,7 +63,9 @@ const ProductForm = ({
         source: '',
         condition: 'new',
         category: 'Other',
-        delivery_options: ['pickup', 'shipping']
+        delivery_options: ['pickup', 'shipping'],
+        url: '',
+        admin_note: ''
       });
     }
     setErrors({});
@@ -176,6 +183,19 @@ const ProductForm = ({
                 placeholder="e.g., Amazon, eBay"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+              Product URL
+            </label>
+            <input
+              type="url"
+              value={formData.url}
+              onChange={(e) => handleChange('url', e.target.value)}
+              className="glass-input"
+              placeholder="https://example.com/product"
+            />
           </div>
 
           <div>
@@ -380,6 +400,27 @@ const ProductForm = ({
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-sky/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-sky"></div>
             </label>
           </div>
+
+          {/* Admin Notes */}
+          {isSuperAdmin && (
+            <div className="space-y-4 pt-4 border-t border-opacity-10" style={{ borderColor: 'var(--text-muted)' }}>
+              <h3 className="text-md font-semibold" style={{ color: 'var(--text-primary)' }}>
+                Admin Notes
+              </h3>
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                  Internal Notes
+                </label>
+                <textarea
+                  value={formData.admin_note || ''}
+                  onChange={(e) => handleChange('admin_note', e.target.value)}
+                  className="glass-input min-h-[80px] resize-none"
+                  placeholder="Internal notes for administrators..."
+                  rows={3}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Preview */}

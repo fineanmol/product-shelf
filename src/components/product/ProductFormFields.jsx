@@ -454,7 +454,7 @@ const ProductFormFields = ({
                       setFormData((prev) => ({
                         ...prev,
                         sold_out: e.target.checked,
-                        status: e.target.checked ? "reserved" : "available",
+                        status: e.target.checked ? "sold" : "available",
                       }))
                     }
                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"

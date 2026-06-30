@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { getDatabase, ref, get, update, remove, push } from "firebase/database";
 import { useNavigate } from "react-router-dom";
-import { FaPlus, FaTh, FaList, FaDownload, FaFileImport, FaCheckSquare, FaTrash, FaEye, FaEyeSlash, FaBoxOpen, FaEdit, FaExternalLinkAlt, FaTimesCircle, FaUndo } from "react-icons/fa";
+import { FaPlus, FaTh, FaList, FaDownload, FaFileImport, FaCheckSquare, FaTrash, FaEye, FaEyeSlash, FaBoxOpen, FaEdit, FaExternalLinkAlt, FaTimesCircle, FaUndo, FaCopy } from "react-icons/fa";
 import DashboardLayout from "../../components/ui/DashboardLayout";
 import SearchAndFilter from "../../components/ui/SearchAndFilter";
 import ProductCard from "../../components/ui/ProductCard";
 import BulkActionConfirmModal from "../../components/admin/BulkActionConfirmModal";
-import ProductForm from "../../components/ui/ProductForm";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import AnimatedButton from "../../components/ui/AnimatedButton";
 import { showToast } from "../../utils/showToast";
@@ -24,10 +23,14 @@ const ProductsRedesigned = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({ status: "", condition: "", category: "" });
   const [sortBy, setSortBy] = useState("latest");
-  const [viewMode, setViewMode] = useState("grid");
-  const [showForm, setShowForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [formLoading, setFormLoading] = useState(false);
+  const [viewMode, setViewMode] = useState(() => {
+    return localStorage.getItem("admin_view_mode") || "grid";
+  });
+
+  // Persist viewMode in localStorage
+  useEffect(() => {
+    localStorage.setItem("admin_view_mode", viewMode);
+  }, [viewMode]);
   const [userRole, setUserRole] = useState(null);
   // Bulk selection
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -123,46 +126,37 @@ const ProductsRedesigned = () => {
   }, [products, searchTerm, filters, sortBy]);
 
   const handleAddProduct = () => {
-    setEditingProduct(null);
-    setShowForm(true);
+    navigate("/admin/products/add");
   };
 
   const handleEditProduct = (product) => {
-    setEditingProduct(product);
-    setShowForm(true);
+    navigate(`/admin/products/edit/${product.id}`);
   };
 
-  const handleSaveProduct = async (formData) => {
-    setFormLoading(true);
+  const handleDuplicateProduct = async (product) => {
     try {
       const db = getDatabase();
+      const newProduct = {
+        ...product,
+        title: `${product.title} (Copy)`,
+        timestamp: Date.now(),
+        visible: true,
+        status: "available",
+        interestCount: 0,
+      };
+      delete newProduct.id;
 
-      if (editingProduct) {
-        // Update existing product
-        await update(ref(db, `products/${editingProduct.id}`), {
-          ...formData,
-          updatedAt: Date.now(),
-        });
-        showToast("✅ Product updated successfully");
-      } else {
-        // Create new product
-        await push(ref(db, "products"), {
-          ...formData,
-          added_by: userRole.user?.uid,
-          added_email: userRole.user?.email,
-          timestamp: Date.now(),
-        });
-        showToast("✅ Product created successfully");
+      if (userRole?.user?.uid) {
+        newProduct.added_by = userRole.user.uid;
+        newProduct.added_email = userRole.user.email || "";
       }
 
-      setShowForm(false);
-      setEditingProduct(null);
+      await push(ref(db, "products"), newProduct);
+      showToast("✅ Product duplicated successfully");
       fetchProducts();
     } catch (error) {
-      console.error("Error saving product:", error);
-      showToast("❌ Failed to save product");
-    } finally {
-      setFormLoading(false);
+      console.error("Error duplicating product:", error);
+      showToast("❌ Failed to duplicate product");
     }
   };
 
@@ -289,7 +283,7 @@ const ProductsRedesigned = () => {
 
   const handleBulkMarkSoldOut = () => confirmBulk('soldOut', async () => {
     const db = getDatabase();
-    await Promise.allSettled([...selectedIds].map((id) => update(ref(db, `products/${id}`), { sold_out: true, status: 'reserved', updatedAt: Date.now() })));
+    await Promise.allSettled([...selectedIds].map((id) => update(ref(db, `products/${id}`), { sold_out: true, status: 'sold', updatedAt: Date.now() })));
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} marked as sold out`);
     setSelectedIds(new Set());
     fetchProducts();
@@ -299,6 +293,32 @@ const ProductsRedesigned = () => {
     const db = getDatabase();
     await Promise.allSettled([...selectedIds].map((id) => update(ref(db, `products/${id}`), { sold_out: false, status: 'available', updatedAt: Date.now() })));
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} marked as available`);
+    setSelectedIds(new Set());
+    fetchProducts();
+  });
+
+  const handleBulkDuplicate = () => confirmBulk('duplicate', async () => {
+    const db = getDatabase();
+    const duplicatedProducts = filteredAndSortedProducts.filter((p) => selectedIds.has(p.id));
+    
+    await Promise.allSettled(duplicatedProducts.map((p) => {
+      const newProduct = {
+        ...p,
+        title: `${p.title} (Copy)`,
+        timestamp: Date.now(),
+        visible: true,
+        status: "available",
+        interestCount: 0,
+      };
+      delete newProduct.id;
+      if (userRole?.user?.uid) {
+        newProduct.added_by = userRole.user.uid;
+        newProduct.added_email = userRole.user.email || "";
+      }
+      return push(ref(db, "products"), newProduct);
+    }));
+    
+    showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} duplicated successfully`);
     setSelectedIds(new Set());
     fetchProducts();
   });
@@ -511,6 +531,7 @@ const ProductsRedesigned = () => {
                 onDelete={handleDeleteProduct}
                 onToggleVisibility={handleToggleVisibility}
                 onToggleStatus={handleToggleStatus}
+                onDuplicate={handleDuplicateProduct}
                 canEdit={true}
                 isSuperAdmin={userRole?.isSuperAdmin}
                 onAssignUser={handleAssignUserClick}
@@ -578,9 +599,14 @@ const ProductsRedesigned = () => {
                         )}
                       </td>
                       <td className="px-3 py-3">
-                        <span className={"inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold " +
-                          (product.status === 'available' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700')}>
-                          {product.status === 'available' ? 'Available' : 'Reserved'}
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+                          product.status === 'available' ? 'bg-green-100 text-green-700' :
+                          product.status === 'sold' ? 'bg-red-100 text-red-700' :
+                          'bg-orange-100 text-orange-700'
+                        }`}>
+                          {product.status === 'available' ? 'Available' :
+                           product.status === 'sold' ? 'Sold' :
+                           'Reserved'}
                         </span>
                       </td>
                       <td className="px-3 py-3 text-xs text-gray-600">{product.age || product.condition || '—'}</td>
@@ -601,9 +627,13 @@ const ProductsRedesigned = () => {
                             className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-brand-sky transition-colors">
                             <FaEdit />
                           </button>
+                          <button onClick={() => handleDuplicateProduct(product)} title="Duplicate"
+                            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-brand-sky transition-colors">
+                            <FaCopy />
+                          </button>
                           <button onClick={() => handleToggleVisibility(product)} title={product.visible !== false ? 'Hide' : 'Show'}
                             className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-brand-sky transition-colors">
-                            {product.visible !== false ? <FaEyeSlash /> : <FaEye />}
+                            {product.visible !== false ? <FaEye /> : <FaEyeSlash />}
                           </button>
                           <button onClick={() => handleToggleStatus(product)} title="Toggle Status"
                             className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-amber-500 transition-colors text-[11px] font-semibold">
@@ -623,18 +653,6 @@ const ProductsRedesigned = () => {
           </div>
         )}
       </div>
-
-      {/* Product Form Modal */}
-      <ProductForm
-        product={editingProduct}
-        isOpen={showForm}
-        onClose={() => {
-          setShowForm(false);
-          setEditingProduct(null);
-        }}
-        onSave={handleSaveProduct}
-        loading={formLoading}
-      />
 
       {/* Assign Product Modal */}
       <GlassModal
@@ -760,6 +778,7 @@ const ProductsRedesigned = () => {
           </div>
           <div className="w-px h-5 bg-white/20" />
           <div className="flex items-center gap-1.5">
+            <button onClick={handleBulkDuplicate} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaCopy className="text-blue-300" /> Duplicate</button>
             <button onClick={handleExportSelected} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition-colors disabled:opacity-40"><FaDownload className="text-gray-300" /> Export</button>
             <button onClick={handleBulkDelete} disabled={bulkLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 text-white text-xs font-semibold transition-colors disabled:opacity-40"><FaTrash /> Delete</button>
           </div>
