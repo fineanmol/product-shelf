@@ -1,7 +1,38 @@
 {
-  /* Visit https://firebase.google.com/docs/database/security to learn more about security rules. */
   "rules": {
-    ".read": true,
-    ".write": true
+    "superAdmins": {
+      ".read": "auth != null && root.child('superAdmins').child(auth.uid).val() === true",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && root.child('superAdmins').child(auth.uid).val() === true"
+      }
+    },
+    "users": {
+      ".read": "auth != null && root.child('superAdmins').child(auth.uid).val() === true",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (auth.uid === $uid || root.child('superAdmins').child(auth.uid).val() === true)"
+      }
+    },
+    "products": {
+      ".read": true,
+      "$productId": {
+        ".write": "auth != null && (root.child('superAdmins').child(auth.uid).val() === true || !data.exists() || data.child('added_by').val() === auth.uid)"
+      }
+    },
+    "interests": {
+      ".read": "auth != null",
+      "$productId": {
+        "$interestId": {
+          ".write": "!data.exists() || auth != null"
+        }
+      }
+    },
+    "feedback": {
+      ".read": "auth != null && root.child('superAdmins').child(auth.uid).val() === true",
+      "$feedbackId": {
+        ".write": "!data.exists() || (auth != null && root.child('superAdmins').child(auth.uid).val() === true)"
+      }
+    }
   }
 }
