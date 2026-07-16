@@ -144,6 +144,12 @@ export default function PreviewTableStep({
                   <button
                     onClick={() => onToggleSkip(row._rowIndex)}
                     title={skippedRows.has(row._rowIndex) ? "Include this row" : "Skip this row"}
+                    aria-label={
+                      skippedRows.has(row._rowIndex)
+                        ? `Include row ${row._rowIndex} in import`
+                        : `Skip row ${row._rowIndex} from import`
+                    }
+                    aria-pressed={skippedRows.has(row._rowIndex)}
                     className={`w-8 h-5 rounded-full transition-all ${
                       skippedRows.has(row._rowIndex) ? "bg-gray-300" : "bg-brand-sky"
                     }`}

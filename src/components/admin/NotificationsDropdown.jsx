@@ -162,6 +162,13 @@ const NotificationsDropdown = ({ userRole }) => {
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none"
+        aria-label={
+          unreadCount > 0
+            ? `Notifications, ${unreadCount} unread`
+            : "Notifications"
+        }
+        aria-haspopup="true"
+        aria-expanded={isOpen}
       >
         <FaBell className="text-xl" />
         {unreadCount > 0 && (
@@ -198,7 +205,18 @@ const NotificationsDropdown = ({ userRole }) => {
                 <div
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification)}
-                  className={`p-3 border-b hover:bg-gray-50 cursor-pointer transition-colors ${
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      if (e.key === " ") e.preventDefault();
+                      handleNotificationClick(notification);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Notification: ${notification.name} is interested in ${notification.productTitle}${
+                    notification.viewed ? "" : " (unread)"
+                  }`}
+                  className={`p-3 border-b hover:bg-gray-50 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-sky ${
                     !notification.viewed ? "bg-blue-50" : ""
                   }`}
                 >
@@ -228,8 +246,10 @@ const NotificationsDropdown = ({ userRole }) => {
                           href={`https://wa.me/${notification.phone}`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          aria-label={`Message ${notification.name} on WhatsApp`}
                           className="text-green-600 hover:text-green-700 p-1 -mt-1 -mr-1"
                           onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => e.stopPropagation()}
                         >
                           <FaWhatsapp className="text-xl" />
                         </a>
