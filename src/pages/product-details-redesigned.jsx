@@ -14,7 +14,6 @@ import {
   FaStore,
   FaCheckCircle,
   FaHeart,
-  FaStar,
   FaShieldAlt,
   FaShareAlt,
   FaPhone,
@@ -24,7 +23,6 @@ import {
   FaTwitter,
   FaInstagram,
   FaLinkedin,
-  FaEye,
   FaUsers,
   FaAward,
   FaHeadset,
@@ -132,13 +130,6 @@ const ProductDetailsRedesigned = () => {
 
   const formatPrice = (price, currency = "EUR") => {
     return `${currencySymbols[currency] || "€"}${price}`;
-  };
-
-  // Mock data for enhanced features
-  const mockReviews = {
-    average: 4.5,
-    count: 127,
-    breakdown: { 5: 78, 4: 32, 3: 12, 2: 3, 1: 2 },
   };
 
   if (loading) {
@@ -392,35 +383,6 @@ const ProductDetailsRedesigned = () => {
                 >
                   {product.title}
                 </h1>
-
-                {/* Rating and reviews */}
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <FaStar
-                        key={star}
-                        className={
-                          star <= Math.floor(mockReviews.average)
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }
-                      />
-                    ))}
-                  </div>
-                  <span
-                    className="text-sm font-medium"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    {mockReviews.average} ({mockReviews.count} reviews)
-                  </span>
-                  <div
-                    className="flex items-center gap-1 text-sm"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    <FaEye />
-                    <span>2.3k views</span>
-                  </div>
-                </div>
 
                 {/* Status badges */}
                 <div className="flex flex-wrap gap-2 mb-6">
@@ -716,69 +678,12 @@ const ProductDetailsRedesigned = () => {
                 )}
 
                 {activeTab === "reviews" && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-6">
-                      <div className="text-center">
-                        <div
-                          className="text-4xl font-bold mb-1"
-                          style={{ color: "var(--accent-primary)" }}
-                        >
-                          {mockReviews.average}
-                        </div>
-                        <div className="flex items-center justify-center mb-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <FaStar
-                              key={star}
-                              className={
-                                star <= Math.floor(mockReviews.average)
-                                  ? "text-yellow-400"
-                                  : "text-gray-300"
-                              }
-                            />
-                          ))}
-                        </div>
-                        <div
-                          className="text-sm"
-                          style={{ color: "var(--text-muted)" }}
-                        >
-                          {mockReviews.count} reviews
-                        </div>
-                      </div>
-
-                      <div className="flex-1">
-                        {Object.entries(mockReviews.breakdown)
-                          .reverse()
-                          .map(([stars, count]) => (
-                            <div
-                              key={stars}
-                              className="flex items-center gap-2 mb-1"
-                            >
-                              <span className="text-sm w-8">{stars}★</span>
-                              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-yellow-400 rounded-full"
-                                  style={{
-                                    width: `${
-                                      (count / mockReviews.count) * 100
-                                    }%`,
-                                  }}
-                                />
-                              </div>
-                              <span className="text-sm w-8 text-right">
-                                {count}
-                              </span>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-
-                    <div
-                      className="text-center py-8"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      <FaUsers className="text-4xl mb-4 mx-auto" />
-                      <p>Customer reviews will appear here once available.</p>
-                    </div>
+                  <div
+                    className="text-center py-8"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    <FaUsers className="text-4xl mb-4 mx-auto" />
+                    <p>Customer reviews will appear here once available.</p>
                   </div>
                 )}
               </div>
