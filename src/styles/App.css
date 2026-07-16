@@ -28,6 +28,30 @@
   }
 }
 
+/* Wrapper rendered by <ToastProvider>. Owns the fixed positioning so that
+   multiple stacked toasts don't all render on top of one another; each
+   .toast child keeps its original visual style (color, padding, font,
+   animation) but is laid out in normal flow within this flex column. */
+.toast-stack {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast-stack .toast {
+  position: static;
+  transform: none;
+  bottom: auto;
+  left: auto;
+}
+
 .toggle-wrapper {
   position: relative;
   display: inline-block;

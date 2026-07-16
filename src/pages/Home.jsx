@@ -62,6 +62,11 @@ const Home = () => {
     };
   }, []);
 
+  const categoryOptions = useMemo(
+    () => [...new Set(items.map((p) => p.category).filter(Boolean))].sort(),
+    [items]
+  );
+
   const filteredItems = useMemo(() => {
     return items
       .filter((item) =>
@@ -218,6 +223,7 @@ const Home = () => {
               statusFilter={statusFilter}
               conditionFilter={conditionFilter}
               categoryFilter={categoryFilter}
+              categories={categoryOptions}
               sortBy={priceSort}
               onStatusChange={setStatusFilter}
               onConditionChange={setConditionFilter}

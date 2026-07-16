@@ -15,6 +15,7 @@ import NotificationsDropdown from "../components/admin/NotificationsDropdown";
 import { getCurrentUserRole } from "../utils/permissions";
 import ProfileImage from "../components/shared/ProfileImage";
 import GlassModal from "../components/ui/GlassModal";
+import FeedbackModal from "../components/FeedbackModal";
 import { showToast } from "../utils/showToast";
 
 function AdminLayout() {
@@ -27,6 +28,7 @@ function AdminLayout() {
 
   const [profileData, setProfileData] = useState({ name: "", photoURL: "", email: "", phone: "" });
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPhotoURL, setEditPhotoURL] = useState("");
   const [editPhone, setEditPhone] = useState("");
@@ -316,7 +318,12 @@ function AdminLayout() {
 
         {/* Page Content */}
         <main className="flex-1 overflow-auto">
-          <Outlet context={{ openProfileModal: () => setShowProfileModal(true) }} />
+          <Outlet
+            context={{
+              openProfileModal: () => setShowProfileModal(true),
+              openFeedbackModal: () => setShowFeedbackModal(true),
+            }}
+          />
         </main>
       </div>
 
@@ -420,6 +427,12 @@ function AdminLayout() {
           </form>
         </div>
       </GlassModal>
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+      />
     </div>
   );
 }

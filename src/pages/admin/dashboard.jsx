@@ -23,7 +23,7 @@ import { showToast } from "../../utils/showToast";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { openProfileModal } = useOutletContext() || {};
+  const { openProfileModal, openFeedbackModal } = useOutletContext() || {};
   const [currentUser, setCurrentUser] = useState(null);
   const [productCount, setProductCount] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -224,11 +224,7 @@ const AdminDashboard = () => {
                   <button
                     onClick={() => {
                       if (openProfileModal) openProfileModal();
-                      else {
-                        const button = document.querySelector('button[className*="ProfileImage"]');
-                        if (button) button.click();
-                        else showToast("ℹ️ Click on your profile name at the top right to view details.");
-                      }
+                      else showToast("ℹ️ Click on your profile name at the top right to view details.");
                     }}
                     className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-sm font-semibold px-4 py-2.5 rounded-lg transition-all shadow-sm"
                   >
@@ -256,15 +252,8 @@ const AdminDashboard = () => {
                   </div>
                   <button
                     onClick={() => {
-                      const feedbackBtn = document.querySelector('button[className*="feedback"]');
-                      if (feedbackBtn) {
-                        feedbackBtn.click();
-                      } else {
-                        // fallback trigger via click event on document or simulate it
-                        const customEvent = new CustomEvent('open-feedback');
-                        window.dispatchEvent(customEvent);
-                        showToast("ℹ️ Click on the floating Feedback button in the bottom corner to share your thoughts!");
-                      }
+                      if (openFeedbackModal) openFeedbackModal();
+                      else showToast("ℹ️ Feedback is currently unavailable. Please try again shortly.");
                     }}
                     className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-sm font-semibold px-4 py-2.5 rounded-lg transition-all shadow-sm"
                   >

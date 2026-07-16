@@ -10,6 +10,37 @@ export const getOwnedProductIds = async (uid) => {
   return snap.exists() ? Object.keys(snap.val()) : [];
 };
 
+// Shared internal helper: fetches superAdmins/${uid} and users/${uid} from
+// RTDB and derives { isSuperAdmin, role } for the given user. Centralizes
+// the fetch/derivation logic (including the 'editor' default role and a
+// consistent try/catch fallback) that getUserAccess and getCurrentUserRole
+// both need, so they no longer duplicate it independently.
+const fetchUserRoleData = async (uid) => {
+  const db = getDatabase();
+
+  try {
+    // Check if user is super admin
+    const adminRef = ref(db, `superAdmins/${uid}`);
+    const adminSnap = await get(adminRef);
+    const isSuperAdmin = adminSnap.exists() && adminSnap.val() === true;
+
+    // Get user role from users table
+    const userRef = ref(db, `users/${uid}`);
+    const userSnap = await get(userRef);
+    const userData = userSnap.exists() ? userSnap.val() : {};
+
+    // Default role is 'editor' if not specified
+    const role = userData.role || 'editor';
+
+    return { isSuperAdmin, role };
+  } catch (error) {
+    console.error('Error getting user role:', error);
+    // Fall back to the safest defaults: non-privileged 'editor' role and
+    // no super-admin access.
+    return { isSuperAdmin: false, role: 'editor' };
+  }
+};
+
 export const getUserAccess = async (product) => {
   const auth = getAuth();
   const currentUser = auth.currentUser;
@@ -26,20 +57,7 @@ export const getUserAccess = async (product) => {
     };
   }
 
-  const db = getDatabase();
-  
-  // Check if user is super admin
-  const adminRef = ref(db, `superAdmins/${currentUser.uid}`);
-  const adminSnap = await get(adminRef);
-  const isSuperAdmin = adminSnap.exists() && adminSnap.val() === true;
-
-  // Get user role from users table
-  const userRef = ref(db, `users/${currentUser.uid}`);
-  const userSnap = await get(userRef);
-  const userData = userSnap.exists() ? userSnap.val() : {};
-  
-  // Default role is 'editor' if not specified
-  const role = userData.role || 'editor';
+  const { isSuperAdmin, role } = await fetchUserRoleData(currentUser.uid);
 
   // 3. isAuthor checks product's 'added_by'.
   const isAuthor = currentUser.uid === product?.added_by;
@@ -65,31 +83,11 @@ export const getCurrentUserRole = async () => {
     return { role: null, isSuperAdmin: false, user: null };
   }
 
-  const db = getDatabase();
-  
-  try {
-    // Check if user is super admin
-    const adminRef = ref(db, `superAdmins/${currentUser.uid}`);
-    const adminSnap = await get(adminRef);
-    const isSuperAdmin = adminSnap.exists() && adminSnap.val() === true;
+  const { isSuperAdmin, role } = await fetchUserRoleData(currentUser.uid);
 
-    // Get user role from users table
-    const userRef = ref(db, `users/${currentUser.uid}`);
-    const userSnap = await get(userRef);
-    const userData = userSnap.exists() ? userSnap.val() : {};
-    
-    // Default role is 'editor' if not specified
-    const role = userData.role || 'editor';
-
-    
-
-    return {
-      role,
-      isSuperAdmin,
-      user: currentUser,
-    };
-  } catch (error) {
-    console.error('Error getting user role:', error);
-    return { role: 'editor', isSuperAdmin: false, user: currentUser };
-  }
+  return {
+    role,
+    isSuperAdmin,
+    user: currentUser,
+  };
 };

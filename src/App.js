@@ -13,6 +13,7 @@ import Users from "./pages/admin/users";
 import Feedback from "./pages/admin/feedback";
 import BulkImport from "./pages/admin/BulkImport";
 import VersionBadge from "./components/VersionBadge";
+import ToastProvider from "./components/ToastProvider";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
         </Route>
       </Routes>
       <VersionBadge />
+      <ToastProvider />
     </div>
   );
 }

@@ -1,3 +1,14 @@
+#!/usr/bin/env node
+/**
+ * One-off maintainer script: seeds the production RTDB with the contents of
+ * src/data/products.json. Not used by the app at runtime — run manually only.
+ *
+ * Auth: uses firebase-admin applicationDefault() credentials. Requires either
+ * `gcloud auth application-default login` (interactive user ADC) or
+ * GOOGLE_APPLICATION_CREDENTIALS pointing at a service account key for a
+ * principal authorized against the product-shelf-inventory Firebase project.
+ */
+
 const { initializeApp, applicationDefault } = require("firebase-admin/app");
 const { getDatabase } = require("firebase-admin/database");
 
