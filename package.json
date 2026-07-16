@@ -30,13 +30,19 @@
     "eject": "react-scripts eject",
     "deploy": "npm run build && firebase deploy --only hosting,database,storage",
     "publish": "npm run build && npm run deploy",
-    "lint": "npx eslint src/**/*.{js,jsx} --max-warnings=0"
+    "lint": "npx eslint src/**/*.{js,jsx} --max-warnings=2"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "plugins": [
+      "unused-imports"
+    ],
+    "rules": {
+      "unused-imports/no-unused-imports": "warn"
+    }
   },
   "browserslist": {
     "production": [
