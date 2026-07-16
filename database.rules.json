@@ -30,8 +30,8 @@
       }
     },
     "interests": {
-      ".read": "auth != null && root.child('superAdmins').child(auth.uid).val() === true",
       "$productId": {
+        ".read": "auth != null && (root.child('superAdmins').child(auth.uid).val() === true || root.child('products').child($productId).child('added_by').val() === auth.uid)",
         "$interestId": {
           ".write": "!data.exists()"
         }

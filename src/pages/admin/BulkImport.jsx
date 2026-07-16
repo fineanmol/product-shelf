@@ -1,7 +1,7 @@
 // src/pages/admin/BulkImport.jsx
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getDatabase, ref, push, get } from "firebase/database";
+import { getDatabase, ref, push, get, update } from "firebase/database";
 import { getAuth } from "firebase/auth";
 import {
   autoMapColumns,
@@ -18,7 +18,8 @@ import PreviewTableStep from "../../components/admin/bulk-import/PreviewTableSte
 import UploadProgressStep from "../../components/admin/bulk-import/UploadProgressStep";
 import { showToast } from "../../utils/showToast";
 import { FaArrowLeft, FaFileUpload } from "react-icons/fa";
-import { getCurrentUserRole, filterDataByUserRole } from "../../utils/permissions";
+import { getCurrentUserRole, getOwnedProductIds } from "../../utils/permissions";
+import { withOwnerIndexOnCreate } from "../../utils/productOwnerIndex";
 
 const STEPS = ["Upload", "Map Columns", "Validate", "Preview", "Upload"];
 
@@ -56,18 +57,28 @@ export default function BulkImport() {
       try {
         const db = getDatabase();
         const roleData = await getCurrentUserRole();
-        const snapshot = await get(ref(db, "products"));
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          let list = Object.entries(data).map(([id, val]) => ({ id, ...val }));
-          list = filterDataByUserRole(
-            list,
-            roleData.role,
-            roleData.user?.uid,
-            roleData.isSuperAdmin
-          );
-          setExistingProducts(list);
+
+        if (roleData.isSuperAdmin) {
+          const snapshot = await get(ref(db, "products"));
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            const list = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+            setExistingProducts(list);
+          }
+          return;
         }
+
+        // Non-superadmins only ever fetch their own products, via the owner index
+        // (products/.read is public, but a plain fetch-then-filter would still
+        // download every seller's inventory to the browser before discarding it).
+        const ownedIds = await getOwnedProductIds(roleData.user?.uid);
+        const ownedProducts = await Promise.all(
+          ownedIds.map(async (id) => {
+            const snap = await get(ref(db, `products/${id}`));
+            return snap.exists() ? { id, ...snap.val() } : null;
+          })
+        );
+        setExistingProducts(ownedProducts.filter(Boolean));
       } catch (_) {
         // Non-critical — duplicate detection will just not work if this fails
       }
@@ -246,7 +257,10 @@ export default function BulkImport() {
       const batchResults = await Promise.allSettled(
         batch.map(async (row) => {
           const payload = buildRowPayload(row, user, customDefaults);
-          await push(ref(db, "products"), payload);
+          const newProductRef = push(ref(db, "products"));
+          const updates = { [`products/${newProductRef.key}`]: payload };
+          if (user?.uid) withOwnerIndexOnCreate(updates, newProductRef.key, user.uid);
+          await update(ref(db), updates);
           return { status: "success", row, rowIndex: row._rowIndex };
         })
       );

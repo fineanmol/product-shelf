@@ -18,7 +18,7 @@ import {
   FaCopy,
   FaCheckCircle 
 } from "react-icons/fa";
-import { getCurrentUserRole, filterDataByUserRole } from "../../utils/permissions";
+import { getCurrentUserRole, getOwnedProductIds } from "../../utils/permissions";
 import { showToast } from "../../utils/showToast";
 
 const AdminDashboard = () => {
@@ -45,18 +45,15 @@ const AdminDashboard = () => {
           const roleData = await getCurrentUserRole();
 
           // Fetch products to determine onboarding state
-          const snapshot = await get(ref(db, "products"));
           let count = 0;
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            let productsList = Object.entries(data).map(([id, val]) => ({ id, ...val }));
-            productsList = filterDataByUserRole(
-              productsList,
-              roleData.role,
-              user.uid,
-              roleData.isSuperAdmin
-            );
-            count = productsList.length;
+          if (roleData.isSuperAdmin) {
+            const snapshot = await get(ref(db, "products"));
+            if (snapshot.exists()) {
+              count = Object.keys(snapshot.val()).length;
+            }
+          } else {
+            const ownedIds = await getOwnedProductIds(user.uid);
+            count = ownedIds.length;
           }
           setProductCount(count);
         } catch (error) {

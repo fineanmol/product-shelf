@@ -93,13 +93,3 @@ export const getCurrentUserRole = async () => {
     return { role: 'editor', isSuperAdmin: false, user: currentUser };
   }
 };
-
-export const filterDataByUserRole = (data, userRole, userId, isSuperAdmin) => {
-  if (isSuperAdmin) {
-    // Super admins see everything
-    return data;
-  }
-
-  // Every non-superAdmin role (only "editor" exists today) only sees their own data.
-  return data.filter(item => item.added_by === userId);
-};

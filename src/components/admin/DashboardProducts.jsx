@@ -4,7 +4,7 @@ import { getDatabase, ref, get } from "firebase/database";
 import { Link } from "react-router-dom";
 import {
   getCurrentUserRole,
-  filterDataByUserRole,
+  getOwnedProductIds,
 } from "../../utils/permissions";
 
 const DashboardProducts = () => {
@@ -19,35 +19,42 @@ const DashboardProducts = () => {
       const userRoleData = await getCurrentUserRole();
       setUserRole(userRoleData);
 
-      const snap = await get(ref(db, "products"));
-      if (snap.exists()) {
-        let data = snap.val();
-        let entries = Object.entries(data).map(([id, val]) => ({
-          id,
-          ...val,
-        }));
+      if (userRoleData.isSuperAdmin) {
+        const snap = await get(ref(db, "products"));
+        if (snap.exists()) {
+          let data = snap.val();
+          let entries = Object.entries(data).map(([id, val]) => ({
+            id,
+            ...val,
+          }));
 
-        setAllProducts(entries);
+          setAllProducts(entries);
+        }
+        return;
       }
+
+      // Non-superadmins only ever fetch their own products, via the owner index
+      // (products/.read is public, but a plain fetch-then-filter would still
+      // download every seller's inventory to the browser before discarding it).
+      const ownedIds = await getOwnedProductIds(userRoleData.user?.uid);
+      const ownedProducts = await Promise.all(
+        ownedIds.map(async (id) => {
+          const snap = await get(ref(db, `products/${id}`));
+          return snap.exists() ? { id, ...snap.val() } : null;
+        })
+      );
+      setAllProducts(ownedProducts.filter(Boolean));
     };
 
     fetchProducts();
   }, []);
 
-  // Memoize expensive filtering, sorting, and slicing operations
+  // Memoize expensive sorting and slicing operations
   const products = useMemo(() => {
     if (!allProducts.length || !userRole) return [];
 
-    // Filter products based on user role
-    let filteredEntries = filterDataByUserRole(
-      allProducts,
-      userRole.role,
-      userRole.user?.uid,
-      userRole.isSuperAdmin
-    );
-
     // Sort by timestamp descending and take top 5
-    return filteredEntries
+    return [...allProducts]
       .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
       .slice(0, 5);
   }, [allProducts, userRole]);

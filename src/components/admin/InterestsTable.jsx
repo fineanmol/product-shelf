@@ -3,7 +3,7 @@ import { getDatabase, ref, get, update } from "firebase/database";
 import { FaWhatsapp } from "react-icons/fa";
 import SearchInput from "../shared/SearchInput";
 import ExportCSVButton from "../shared/ExportCSVButton";
-import { getCurrentUserRole } from "../../utils/permissions";
+import { getCurrentUserRole, getOwnedProductIds } from "../../utils/permissions";
 import { showToast } from "../../utils/showToast";
 
 const ITEMS_PER_PAGE = 10;
@@ -14,6 +14,11 @@ const InterestsTable = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("active");
+  // True when a non-superAdmin editor's interests fetch was denied by the
+  // database rules (interests/.read is superAdmin-only, with no per-product
+  // ownership exception today), so we can show an explanatory empty state
+  // instead of crashing or surfacing a raw Firebase error.
+  const [interestsRestricted, setInterestsRestricted] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -46,48 +51,94 @@ const InterestsTable = () => {
       // Get current user role
       const userRoleData = await getCurrentUserRole();
 
-      const [interestsSnap, productsSnap] = await Promise.all([
-        get(ref(db, "interests")),
-        get(ref(db, "products")),
-      ]);
+      if (userRoleData.isSuperAdmin) {
+        // Superadmins are entitled to see everything: keep fetching the full
+        // interests and products trees, unchanged.
+        const [interestsSnap, productsSnap] = await Promise.all([
+          get(ref(db, "interests")),
+          get(ref(db, "products")),
+        ]);
 
-      let productsList = {};
-      if (productsSnap.exists()) {
-        productsList = productsSnap.val();
-
-        // Filter products based on user role
-        if (!userRoleData.isSuperAdmin && userRoleData.role === "editor") {
-          // For editors, filter to only their products
-          const filteredProducts = {};
-          Object.entries(productsList).forEach(([productId, productData]) => {
-            if (productData.added_by === userRoleData.user?.uid) {
-              filteredProducts[productId] = productData;
-            }
-          });
-          productsList = filteredProducts;
+        let productsList = {};
+        if (productsSnap.exists()) {
+          productsList = productsSnap.val();
+          setProducts(productsList);
         }
 
-        setProducts(productsList);
-      }
-
-      const interestList = [];
-      if (interestsSnap.exists()) {
-        const rawData = interestsSnap.val();
-        Object.entries(rawData).forEach(([productId, entries]) => {
-          // Only include interests for products the user can see
-          if (productsList[productId]) {
-            Object.entries(entries).forEach(([interestId, entry]) => {
-              interestList.push({
-                ...entry,
-                interestId,
-                productId,
+        const interestList = [];
+        if (interestsSnap.exists()) {
+          const rawData = interestsSnap.val();
+          Object.entries(rawData).forEach(([productId, entries]) => {
+            // Only include interests for products the user can see
+            if (productsList[productId]) {
+              Object.entries(entries).forEach(([interestId, entry]) => {
+                interestList.push({
+                  ...entry,
+                  interestId,
+                  productId,
+                });
               });
-            });
-          }
-        });
+            }
+          });
 
-        setInterests(interestList);
+          setInterests(interestList);
+        }
+        return;
       }
+
+      // Non-superadmins: fetch only their own product IDs via the owner
+      // index, then fetch each owned product individually, instead of
+      // downloading the full (rules-public) products tree and filtering it
+      // client-side.
+      const ownedIds = await getOwnedProductIds(userRoleData.user?.uid);
+      const ownedProductEntries = await Promise.all(
+        ownedIds.map(async (id) => {
+          const snap = await get(ref(db, `products/${id}`));
+          return snap.exists() ? [id, snap.val()] : null;
+        })
+      );
+      const productsList = Object.fromEntries(
+        ownedProductEntries.filter(Boolean)
+      );
+      setProducts(productsList);
+
+      // interests/.read is restricted to superAdmins only today, with no
+      // per-product ownership exception -- so interests/<productId> is also
+      // rules-denied for a non-superAdmin editor, even for their own
+      // products. Fetch per-product and gracefully degrade to an empty,
+      // explained state on PERMISSION_DENIED rather than crashing or
+      // surfacing a raw Firebase error.
+      const interestList = [];
+      let anyPermissionDenied = false;
+      await Promise.all(
+        ownedIds.map(async (productId) => {
+          try {
+            const snap = await get(ref(db, `interests/${productId}`));
+            if (snap.exists()) {
+              const entries = snap.val();
+              Object.entries(entries).forEach(([interestId, entry]) => {
+                interestList.push({
+                  ...entry,
+                  interestId,
+                  productId,
+                });
+              });
+            }
+          } catch (err) {
+            if (err?.code === "PERMISSION_DENIED") {
+              anyPermissionDenied = true;
+            } else {
+              console.error(
+                `Error fetching interests for product ${productId}:`,
+                err
+              );
+            }
+          }
+        })
+      );
+
+      setInterests(interestList);
+      setInterestsRestricted(anyPermissionDenied);
     };
 
     fetchData();
@@ -178,7 +229,11 @@ const InterestsTable = () => {
         </div>
       </div>
 
-      {filteredAndSorted.length === 0 ? (
+      {interestsRestricted ? (
+        <p className="text-sm text-gray-500">
+          Interest details are only visible to admins.
+        </p>
+      ) : filteredAndSorted.length === 0 ? (
         <p className="text-sm text-gray-500">No matching users found.</p>
       ) : (
         <>

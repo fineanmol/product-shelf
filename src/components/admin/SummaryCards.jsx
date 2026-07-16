@@ -4,7 +4,7 @@ import { getDatabase, ref, get } from "firebase/database";
 import { FaBox, FaUsers, FaCommentDots, FaClock } from "react-icons/fa";
 import {
   getCurrentUserRole,
-  filterDataByUserRole,
+  getOwnedProductIds,
 } from "../../utils/permissions";
 
 function SummaryCards() {
@@ -26,22 +26,27 @@ function SummaryCards() {
         setUserRole(userRoleData);
 
         // Fetch products
-        const productsSnapshot = await get(ref(db, "products"));
-        const productsData = productsSnapshot.val() || {};
-
-        // Optimize: Move expensive operations out of useEffect
-        let productsList = Object.entries(productsData).map(([id, data]) => ({
-          id,
-          ...data,
-        }));
-
-        // Filter products based on user role
-        productsList = filterDataByUserRole(
-          productsList,
-          userRoleData.role,
-          userRoleData.user?.uid,
-          userRoleData.isSuperAdmin
-        );
+        let productsList;
+        if (userRoleData.isSuperAdmin) {
+          const productsSnapshot = await get(ref(db, "products"));
+          const productsData = productsSnapshot.val() || {};
+          productsList = Object.entries(productsData).map(([id, data]) => ({
+            id,
+            ...data,
+          }));
+        } else {
+          // Non-superadmins only ever fetch their own products, via the owner index
+          // (products/.read is public, but a plain fetch-then-filter would still
+          // download every seller's inventory to the browser before discarding it).
+          const ownedIds = await getOwnedProductIds(userRoleData.user?.uid);
+          const ownedProducts = await Promise.all(
+            ownedIds.map(async (id) => {
+              const snap = await get(ref(db, `products/${id}`));
+              return snap.exists() ? { id, ...snap.val() } : null;
+            })
+          );
+          productsList = ownedProducts.filter(Boolean);
+        }
 
         setProductCount(productsList.length);
 
