@@ -11,20 +11,29 @@
       ".read": "auth != null && root.child('superAdmins').child(auth.uid).val() === true",
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && (auth.uid === $uid || root.child('superAdmins').child(auth.uid).val() === true)"
+        ".write": "auth != null && (root.child('superAdmins').child(auth.uid).val() === true || (auth.uid === $uid && root.child('users').child(auth.uid).child('disabled').val() !== true))"
       }
     },
     "products": {
       ".read": true,
       "$productId": {
-        ".write": "auth != null && (root.child('superAdmins').child(auth.uid).val() === true || !data.exists() || data.child('added_by').val() === auth.uid)"
+        ".write": "auth != null && root.child('users').child(auth.uid).child('disabled').val() !== true && (root.child('superAdmins').child(auth.uid).val() === true || (!data.exists() && newData.child('added_by').val() === auth.uid) || data.child('added_by').val() === auth.uid)",
+        "interestCount": {
+          ".write": "!data.parent().exists() || newData.val() === (data.val() + 1)"
+        }
+      }
+    },
+    "products_by_owner": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('superAdmins').child(auth.uid).val() === true)",
+        ".write": "auth != null && (auth.uid === $uid || root.child('superAdmins').child(auth.uid).val() === true)"
       }
     },
     "interests": {
-      ".read": "auth != null",
+      ".read": "auth != null && root.child('superAdmins').child(auth.uid).val() === true",
       "$productId": {
         "$interestId": {
-          ".write": "!data.exists() || auth != null"
+          ".write": "!data.exists()"
         }
       }
     },

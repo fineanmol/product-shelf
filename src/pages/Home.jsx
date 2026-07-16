@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { ref, push, onValue, limitToLast, query, getDatabase, update } from "firebase/database";
+import { ref, push, set, onValue, limitToLast, query, getDatabase, runTransaction } from "firebase/database";
 import { db, analytics } from "../firebase";
 import ProductCard from "../components/product/ProductCard";
 import ProductInterestModal from "../components/product/ProductInterestModal";
@@ -91,21 +91,33 @@ const Home = () => {
     const product = showInterestForm;
     try {
       const db = getDatabase();
-      const updates = {};
       const newInterestRef = push(ref(db, `interests/${product.id}`));
 
-      updates[`interests/${product.id}/${newInterestRef.key}`] = {
+      // Two independent writes: the interest record is create-only and
+      // requires no auth (anonymous visitors submit this), while the
+      // interestCount bump is scoped by its own narrower rule. Bundling
+      // them in one atomic multi-path update previously made the whole
+      // submission require auth, since RTDB validates every path in a
+      // multi-path update against its own rule and rejects the write if
+      // any single path fails.
+      await set(newInterestRef, {
         name,
         email,
         phone,
         delivery_preferences,
         timestamp: Date.now(),
-      };
+      });
 
-      const currentCount = product.interestCount || 0;
-      updates[`products/${product.id}/interestCount`] = currentCount + 1;
-
-      await update(ref(db), updates);
+      try {
+        await runTransaction(
+          ref(db, `products/${product.id}/interestCount`),
+          (current) => (current || 0) + 1
+        );
+      } catch (countErr) {
+        // Non-fatal: the interest itself was recorded; the counter is a
+        // display aggregate and can lag if this second write is rejected.
+        console.error("Failed to increment interestCount:", countErr);
+      }
 
       if (analytics)
         logEvent(analytics, "submit_interest", { product_id: product.id });

@@ -8,6 +8,7 @@ import { getAuth } from "firebase/auth";
 import ProductFormFields from "./ProductFormFields";
 import ProductPreview from "./ProductPreview";
 import { buildProductPayload } from "../../utils/buildProductPayload";
+import { withOwnerIndexOnCreate, withOwnerIndexOnDelete } from "../../utils/productOwnerIndex";
 import ProductToggles from "./ProductToggles";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { FaSave, FaPlus, FaEye, FaTrash, FaArrowLeft } from "react-icons/fa";
@@ -113,7 +114,10 @@ const ProductManager = ({ product = null, onRefresh = null }) => {
       } else {
         // Create new product
         const payload = buildProductPayload(formData, user, true);
-        await push(ref(db, "products"), payload);
+        const newProductRef = push(ref(db, "products"));
+        const updates = { [`products/${newProductRef.key}`]: payload };
+        withOwnerIndexOnCreate(updates, newProductRef.key, user.uid);
+        await update(ref(db), updates);
         showToast("✅ Product added successfully");
         setFormData(initial);
       }
@@ -137,6 +141,8 @@ const ProductManager = ({ product = null, onRefresh = null }) => {
     if (confirmDelete) {
       setLoading(true);
       try {
+        const updates = withOwnerIndexOnDelete({}, product.id, product.added_by);
+        await update(ref(db), updates);
         await remove(ref(db, `products/${product.id}`));
         showToast("✅ Product deleted successfully");
         navigate("/admin/products");

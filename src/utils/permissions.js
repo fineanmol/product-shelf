@@ -2,6 +2,14 @@
 import { getAuth } from "firebase/auth";
 import { getDatabase, ref, get } from "firebase/database";
 
+// Returns the set of product IDs owned by uid, from the products_by_owner index.
+export const getOwnedProductIds = async (uid) => {
+  if (!uid) return [];
+  const db = getDatabase();
+  const snap = await get(ref(db, `products_by_owner/${uid}`));
+  return snap.exists() ? Object.keys(snap.val()) : [];
+};
+
 export const getUserAccess = async (product) => {
   const auth = getAuth();
   const currentUser = auth.currentUser;
@@ -92,11 +100,6 @@ export const filterDataByUserRole = (data, userRole, userId, isSuperAdmin) => {
     return data;
   }
 
-  if (userRole === 'editor') {
-    // Editors only see their own data
-    return data.filter(item => item.added_by === userId);
-  }
-
-  // Default: return all data (shouldn't reach here normally)
-  return data;
+  // Every non-superAdmin role (only "editor" exists today) only sees their own data.
+  return data.filter(item => item.added_by === userId);
 };

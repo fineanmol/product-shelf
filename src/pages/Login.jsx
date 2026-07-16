@@ -51,7 +51,6 @@ const Login = () => {
         email: user.email,
         name: user.displayName || "User",
         photoURL: user.photoURL || "",
-        password: providerType === "google" ? "google-auth" : password,
         role: "editor",
         disabled: false,
         createdAt: Date.now(),

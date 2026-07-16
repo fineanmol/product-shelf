@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from "react";
 import { getDatabase, ref, get, update } from "firebase/database";
 import {
   FaUsers,
-  FaShieldAlt,
   FaSearch,
   FaCrown,
   FaUserCheck,
@@ -101,15 +100,13 @@ function AdminUsers() {
       total: users.length,
       active: users.filter((u) => !u.disabled).length,
       disabled: users.filter((u) => u.disabled).length,
-      admins: users.filter((u) => u.role === "admin" || u.role === "superadmin")
-        .length,
+      admins: users.filter((u) => u.role === "superadmin").length,
     };
   }, [users]);
 
   const getRoleIcon = (role) => {
     const icons = {
       editor: <FaUserCheck className="text-brand-sky" />,
-      admin: <FaShieldAlt className="text-brand-navy" />,
       superadmin: <FaCrown className="text-red-600" />,
     };
     return icons[role] || <FaUsers className="text-gray-600" />;
@@ -292,7 +289,6 @@ function AdminUsers() {
                               className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                               <option value="editor">Editor</option>
-                              <option value="admin">Admin</option>
                               <option value="superadmin">Superadmin</option>
                             </select>
                             {getRoleIcon(user.role)}

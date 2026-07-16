@@ -11,8 +11,13 @@ import AnimatedButton from "../../components/ui/AnimatedButton";
 import { showToast } from "../../utils/showToast";
 import {
   getCurrentUserRole,
-  filterDataByUserRole,
+  getOwnedProductIds,
 } from "../../utils/permissions";
+import {
+  withOwnerIndexOnCreate,
+  withOwnerIndexOnDelete,
+  withOwnerIndexOnReassign,
+} from "../../utils/productOwnerIndex";
 import GlassModal from "../../components/ui/GlassModal";
 import ProfileImage from "../../components/shared/ProfileImage";
 
@@ -61,25 +66,33 @@ const Products = () => {
       setUserRole(userRoleData);
 
       const db = getDatabase();
-      const snapshot = await get(ref(db, "products"));
 
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        let productsList = Object.entries(data).map(([id, product]) => ({
-          id,
-          ...product,
-        }));
-
-        // Filter products based on user role
-        productsList = filterDataByUserRole(
-          productsList,
-          userRoleData.role,
-          userRoleData.user?.uid,
-          userRoleData.isSuperAdmin
-        );
-
-        setProducts(productsList);
+      if (userRoleData.isSuperAdmin) {
+        const snapshot = await get(ref(db, "products"));
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const productsList = Object.entries(data).map(([id, product]) => ({
+            id,
+            ...product,
+          }));
+          setProducts(productsList);
+        } else {
+          setProducts([]);
+        }
+        return;
       }
+
+      // Non-superadmins only ever fetch their own products, via the owner index
+      // (products/.read is public, but a plain fetch-then-filter would still
+      // download every seller's inventory to the browser before discarding it).
+      const ownedIds = await getOwnedProductIds(userRoleData.user?.uid);
+      const ownedProducts = await Promise.all(
+        ownedIds.map(async (id) => {
+          const snap = await get(ref(db, `products/${id}`));
+          return snap.exists() ? { id, ...snap.val() } : null;
+        })
+      );
+      setProducts(ownedProducts.filter(Boolean));
     } catch (error) {
       console.error("Error fetching products:", error);
       showToast("❌ Failed to load products");
@@ -151,7 +164,12 @@ const Products = () => {
         newProduct.added_email = userRole.user.email || "";
       }
 
-      await push(ref(db, "products"), newProduct);
+      const newProductRef = push(ref(db, "products"));
+      const updates = { [`products/${newProductRef.key}`]: newProduct };
+      if (userRole?.user?.uid) {
+        withOwnerIndexOnCreate(updates, newProductRef.key, userRole.user.uid);
+      }
+      await update(ref(db), updates);
       showToast("✅ Product duplicated successfully");
       fetchProducts();
     } catch (error) {
@@ -169,6 +187,8 @@ const Products = () => {
 
     try {
       const db = getDatabase();
+      const updates = withOwnerIndexOnDelete({}, product.id, product.added_by);
+      await update(ref(db), updates);
       await remove(ref(db, `products/${product.id}`));
       showToast("✅ Product deleted successfully");
       fetchProducts();
@@ -243,7 +263,11 @@ const Products = () => {
   // ── Individual bulk action handlers ─────────────────────────────────────────
   const handleBulkDelete = () => confirmBulk('delete', async () => {
     const db = getDatabase();
-    await Promise.allSettled([...selectedIds].map((id) => remove(ref(db, `products/${id}`))));
+    await Promise.allSettled([...selectedIds].map((id) => {
+      const product = selectedProducts.find((p) => p.id === id);
+      const updates = withOwnerIndexOnDelete({}, id, product?.added_by);
+      return update(ref(db), updates).then(() => remove(ref(db, `products/${id}`)));
+    }));
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} deleted`);
     setSelectedIds(new Set());
     fetchProducts();
@@ -300,7 +324,7 @@ const Products = () => {
   const handleBulkDuplicate = () => confirmBulk('duplicate', async () => {
     const db = getDatabase();
     const duplicatedProducts = filteredAndSortedProducts.filter((p) => selectedIds.has(p.id));
-    
+
     await Promise.allSettled(duplicatedProducts.map((p) => {
       const newProduct = {
         ...p,
@@ -315,9 +339,14 @@ const Products = () => {
         newProduct.added_by = userRole.user.uid;
         newProduct.added_email = userRole.user.email || "";
       }
-      return push(ref(db, "products"), newProduct);
+      const newProductRef = push(ref(db, "products"));
+      const updates = { [`products/${newProductRef.key}`]: newProduct };
+      if (userRole?.user?.uid) {
+        withOwnerIndexOnCreate(updates, newProductRef.key, userRole.user.uid);
+      }
+      return update(ref(db), updates);
     }));
-    
+
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} duplicated successfully`);
     setSelectedIds(new Set());
     fetchProducts();
@@ -375,11 +404,17 @@ const Products = () => {
     if (!assigningProduct) return;
     try {
       const db = getDatabase();
-      await update(ref(db, `products/${assigningProduct.id}`), {
-        added_by: user.uid,
-        added_email: user.email,
-        updatedAt: Date.now(),
-      });
+      const updates = withOwnerIndexOnReassign(
+        {
+          [`products/${assigningProduct.id}/added_by`]: user.uid,
+          [`products/${assigningProduct.id}/added_email`]: user.email,
+          [`products/${assigningProduct.id}/updatedAt`]: Date.now(),
+        },
+        assigningProduct.id,
+        assigningProduct.added_by,
+        user.uid
+      );
+      await update(ref(db), updates);
       showToast(`✅ Assigned to ${user.name || user.email}`);
       setAssigningProduct(null);
       fetchProducts();

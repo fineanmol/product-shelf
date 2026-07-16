@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ref, get, push, update } from "firebase/database";
+import { ref, get, push, set, runTransaction } from "firebase/database";
 import { db, analytics } from "../firebase";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import ProductInterestModal from "../components/product/ProductInterestModal";
@@ -903,10 +903,13 @@ const ProductDetails = () => {
           onClose={() => setShowInterestForm(false)}
           onSubmit={async (interestData) => {
             try {
-              const updates = {};
               const newInterestRef = push(ref(db, `interests/${product.id}`));
 
-              updates[`interests/${product.id}/${newInterestRef.key}`] = {
+              // Two independent writes, same reasoning as Home.jsx's
+              // handleInterestSubmit: the interest record is create-only
+              // and needs no auth; the counter uses its own transaction
+              // so it can't block or be blocked by the interest write.
+              await set(newInterestRef, {
                 name: interestData.name,
                 email: interestData.email,
                 phone: interestData.phone,
@@ -914,21 +917,23 @@ const ProductDetails = () => {
                 delivery_preferences: interestData.delivery_preferences,
                 timestamp: interestData.timestamp,
                 resolved: false,
-              };
-
-              const currentCount = product.interestCount || 0;
-              updates[`products/${product.id}/interestCount`] = currentCount + 1;
-
-              await update(ref(db), updates);
-
-              // Update local state to reflect the interestCount increment
-              setProduct((prev) => {
-                if (!prev) return null;
-                return {
-                  ...prev,
-                  interestCount: (prev.interestCount || 0) + 1,
-                };
               });
+
+              try {
+                await runTransaction(
+                  ref(db, `products/${product.id}/interestCount`),
+                  (current) => (current || 0) + 1
+                );
+                setProduct((prev) => {
+                  if (!prev) return null;
+                  return {
+                    ...prev,
+                    interestCount: (prev.interestCount || 0) + 1,
+                  };
+                });
+              } catch (countErr) {
+                console.error("Failed to increment interestCount:", countErr);
+              }
 
               if (analytics) {
                 logEvent(analytics, "submit_interest", {
