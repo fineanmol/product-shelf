@@ -34,7 +34,7 @@ import { logEvent } from "firebase/analytics";
 import { currencySymbols } from "../utils/utils";
 import AnimatedButton from "../components/ui/AnimatedButton";
 
-const ProductDetailsRedesigned = () => {
+const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
@@ -945,4 +945,4 @@ const ProductDetailsRedesigned = () => {
   );
 };
 
-export default ProductDetailsRedesigned;
+export default ProductDetails;

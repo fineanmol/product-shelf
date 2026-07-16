@@ -11,7 +11,7 @@ import { currencySymbols, getConditionLabel } from "../../utils/utils";
 import { shareProduct } from "../../utils/shareUtils";
 import AnimatedButton from "../ui/AnimatedButton";
 
-const ProductCardRedesigned = ({
+const ProductCard = ({
   product,
   isInterested,
   pulse,
@@ -331,4 +331,4 @@ const ProductCardRedesigned = ({
   );
 };
 
-export default ProductCardRedesigned;
+export default ProductCard;

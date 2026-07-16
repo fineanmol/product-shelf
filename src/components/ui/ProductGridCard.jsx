@@ -5,7 +5,7 @@ import AnimatedButton from './AnimatedButton';
 
 const PLACEHOLDER = '/placeholder.png';
 
-const ProductCard = ({ 
+const ProductGridCard = ({
   product, 
   onEdit, 
   onDelete, 
@@ -207,4 +207,4 @@ const ProductCard = ({
   );
 };
 
-export default ProductCard;
+export default ProductGridCard;

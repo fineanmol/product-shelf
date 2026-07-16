@@ -1,12 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 import "./styles/App.css";
-import HomeRedesigned from "./pages/home-redesigned";
-import ProductDetailsRedesigned from "./pages/product-details-redesigned";
+import Home from "./pages/Home";
+import ProductDetails from "./pages/ProductDetails";
 import Login from "./pages/Login";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import Dashboard from "./pages/admin/dashboard";
-import ProductsRedesigned from "./pages/admin/products-redesigned";
+import Products from "./pages/admin/Products";
 import AddProduct from "./pages/admin/add-product";
 import EditProduct from "./pages/admin/edit-product";
 import Users from "./pages/admin/users";
@@ -18,9 +18,9 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/" element={<HomeRedesigned />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/product/:id" element={<ProductDetailsRedesigned />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
 
         {/* Admin (protected) */}
         <Route
@@ -32,7 +32,7 @@ function App() {
           }
         >
           <Route index element={<Dashboard />} />
-          <Route path="products" element={<ProductsRedesigned />} />
+          <Route path="products" element={<Products />} />
           <Route path="products/add" element={<AddProduct />} />
           <Route path="products/edit/:id" element={<EditProduct />} />
           <Route path="products/bulk-import" element={<BulkImport />} />
