@@ -230,7 +230,7 @@ function AdminLayout() {
               {/* Visit Website Link */}
               <a
                 href={
-                  process.env.NODE_ENV === "development"
+                  import.meta.env.DEV
                     ? "http://localhost:3000/"
                     : "https://product-shelf-inventory.web.app/"
                 }

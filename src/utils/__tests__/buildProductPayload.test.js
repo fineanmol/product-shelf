@@ -28,11 +28,11 @@ describe("buildProductPayload and price utils", () => {
     };
 
     beforeAll(() => {
-      jest.useFakeTimers().setSystemTime(new Date("2026-05-31T18:00:00Z"));
+      vi.useFakeTimers().setSystemTime(new Date("2026-05-31T18:00:00Z"));
     });
 
     afterAll(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     it("should construct a creation payload for a new product", () => {

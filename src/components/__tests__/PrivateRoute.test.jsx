@@ -7,13 +7,13 @@ import PrivateRoute from "../PrivateRoute";
 
 describe("PrivateRoute", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render checking authentication loader when auth state is unresolved (loading)", () => {
     onAuthStateChanged.mockImplementationOnce((auth, cb) => {
       // Simulate no auth state changes yet (loading)
-      return jest.fn();
+      return vi.fn();
     });
 
     render(
@@ -31,7 +31,7 @@ describe("PrivateRoute", () => {
   it("should redirect to /login when user is not authenticated", () => {
     onAuthStateChanged.mockImplementationOnce((auth, cb) => {
       cb(null);
-      return jest.fn();
+      return vi.fn();
     });
 
     render(
@@ -57,7 +57,7 @@ describe("PrivateRoute", () => {
   it("should render children when user is authenticated", () => {
     onAuthStateChanged.mockImplementationOnce((auth, cb) => {
       cb({ uid: "user-456", email: "user@example.com" });
-      return jest.fn();
+      return vi.fn();
     });
 
     render(

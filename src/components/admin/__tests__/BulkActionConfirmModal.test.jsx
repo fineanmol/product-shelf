@@ -12,12 +12,12 @@ describe("BulkActionConfirmModal", () => {
   const defaultProps = {
     action: "delete",
     products: mockProducts,
-    onConfirm: jest.fn(),
-    onCancel: jest.fn(),
+    onConfirm: vi.fn(),
+    onCancel: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return null if action is missing or products list is empty", () => {

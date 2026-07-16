@@ -1,47 +1,47 @@
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 import { TextEncoder, TextDecoder } from 'util';
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
 // Global mocks for Firebase App, Analytics, Auth, and Database
-jest.mock("firebase/app", () => ({
-  initializeApp: jest.fn(() => ({})),
+vi.mock("firebase/app", () => ({
+  initializeApp: vi.fn(() => ({})),
 }));
 
-jest.mock("firebase/analytics", () => ({
-  getAnalytics: jest.fn(() => ({})),
+vi.mock("firebase/analytics", () => ({
+  getAnalytics: vi.fn(() => ({})),
 }));
 
 const mockAuth = {
   currentUser: null,
 };
 
-jest.mock("firebase/auth", () => ({
-  getAuth: jest.fn(() => mockAuth),
-  onAuthStateChanged: jest.fn((auth, cb) => {
+vi.mock("firebase/auth", () => ({
+  getAuth: vi.fn(() => mockAuth),
+  onAuthStateChanged: vi.fn((auth, cb) => {
     cb(mockAuth.currentUser);
-    return jest.fn(); // Unsubscribe function
+    return vi.fn(); // Unsubscribe function
   }),
-  signInWithEmailAndPassword: jest.fn(),
-  GoogleAuthProvider: jest.fn(),
-  signInWithPopup: jest.fn(),
-  signOut: jest.fn(),
+  signInWithEmailAndPassword: vi.fn(),
+  GoogleAuthProvider: vi.fn(),
+  signInWithPopup: vi.fn(),
+  signOut: vi.fn(),
 }));
 
-jest.mock("firebase/database", () => ({
-  getDatabase: jest.fn(() => ({})),
-  ref: jest.fn((db, path) => ({ db, path })),
-  get: jest.fn(() =>
+vi.mock("firebase/database", () => ({
+  getDatabase: vi.fn(() => ({})),
+  ref: vi.fn((db, path) => ({ db, path })),
+  get: vi.fn(() =>
     Promise.resolve({
       exists: () => false,
       val: () => null,
     })
   ),
-  set: jest.fn(() => Promise.resolve()),
-  update: jest.fn(() => Promise.resolve()),
-  remove: jest.fn(() => Promise.resolve()),
-  push: jest.fn((ref, value) => ({ key: "mock-key", ref })),
-  runTransaction: jest.fn(() => Promise.resolve()),
+  set: vi.fn(() => Promise.resolve()),
+  update: vi.fn(() => Promise.resolve()),
+  remove: vi.fn(() => Promise.resolve()),
+  push: vi.fn((ref, value) => ({ key: "mock-key", ref })),
+  runTransaction: vi.fn(() => Promise.resolve()),
 }));
-

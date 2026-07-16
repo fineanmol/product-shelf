@@ -268,7 +268,7 @@ describe("permissions", () => {
 
       get.mockImplementationOnce(() => Promise.reject(new Error("RTDB unavailable")));
 
-      const consoleErrorSpy = jest
+      const consoleErrorSpy = vi
         .spyOn(console, "error")
         .mockImplementation(() => {});
 

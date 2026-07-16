@@ -20,15 +20,15 @@ describe("ProductGridCard", () => {
 
   const defaultProps = {
     product: mockProduct,
-    onEdit: jest.fn(),
-    onDelete: jest.fn(),
-    onToggleVisibility: jest.fn(),
-    onToggleStatus: jest.fn(),
+    onEdit: vi.fn(),
+    onDelete: vi.fn(),
+    onToggleVisibility: vi.fn(),
+    onToggleStatus: vi.fn(),
     canEdit: true,
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render product title, description, and price with correct currency symbol", () => {
@@ -85,7 +85,7 @@ describe("ProductGridCard", () => {
   });
 
   it("should show selection checkbox when selectable and toggle onSelect when clicked", () => {
-    const onSelectMock = jest.fn();
+    const onSelectMock = vi.fn();
     const { rerender } = render(
       <ProductGridCard {...defaultProps} onSelect={onSelectMock} selected={false} />
     );

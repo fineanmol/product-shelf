@@ -1,6 +1,6 @@
 import React from "react";
 
-const version = process.env.REACT_APP_VERSION;
+const version = import.meta.env.VITE_VERSION;
 
 const VersionBadge = () => {
   if (!version) return null;
