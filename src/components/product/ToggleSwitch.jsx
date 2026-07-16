@@ -29,6 +29,9 @@ const ToggleSwitch = ({ label, checked, onChange, disabled = false }) => {
           checked={checked}
           onChange={onChange}
           disabled={disabled}
+          role="switch"
+          aria-checked={checked}
+          aria-label={`${label}: ${statusLabel}`}
         />
         <span className="toggle-slider" />
       </div>

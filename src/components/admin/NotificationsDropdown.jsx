@@ -179,7 +179,11 @@ const NotificationsDropdown = ({ userRole }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-lg bg-white rounded-lg shadow-lg border z-50">
+        <div
+          className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-lg bg-white rounded-lg shadow-lg border z-50"
+          role="region"
+          aria-label="Notifications"
+        >
           <div className="p-3 border-b flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">
               Notifications

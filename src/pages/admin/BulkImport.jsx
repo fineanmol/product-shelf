@@ -49,6 +49,7 @@ export default function BulkImport() {
   // Step 5: upload state
   const [uploadResults, setUploadResults] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [retrying, setRetrying] = useState(false);
 
   // ── Fetch existing products for duplicate detection ──────────────────────────
   useEffect(() => {
@@ -219,10 +220,51 @@ export default function BulkImport() {
   };
 
   // ── Step 5: Upload ───────────────────────────────────────────────────────────
-  const handleUpload = useCallback(async () => {
-    const auth = getAuth();
-    const user = auth.currentUser;
+  // Shared batching/upload core (BATCH=10, Promise.allSettled per batch) used by
+  // both the initial upload and the "Retry Failed Rows" action, so the two never
+  // drift out of sync. Reports incremental progress via onProgress and returns
+  // the final results array; does not touch step/uploading state itself.
+  const runUploadBatches = useCallback(
+    async (rowsToUpload, { onProgress } = {}) => {
+      const auth = getAuth();
+      const user = auth.currentUser;
 
+      const BATCH = 10;
+      const results = [];
+
+      for (let i = 0; i < rowsToUpload.length; i += BATCH) {
+        const batch = rowsToUpload.slice(i, i + BATCH);
+        const batchResults = await Promise.allSettled(
+          batch.map(async (row) => {
+            const payload = buildRowPayload(row, user, customDefaults);
+            await createProduct(payload, user?.uid);
+            return { status: "success", row, rowIndex: row._rowIndex };
+          })
+        );
+
+        batchResults.forEach((res, idx) => {
+          if (res.status === "fulfilled") {
+            results.push(res.value);
+          } else {
+            results.push({
+              status: "error",
+              row: batch[idx],
+              rowIndex: batch[idx]._rowIndex,
+              error: res.reason?.message || "Unknown error",
+            });
+          }
+        });
+
+        onProgress?.([...results]);
+        await new Promise((r) => setTimeout(r, 200));
+      }
+
+      return results;
+    },
+    [customDefaults]
+  );
+
+  const handleUpload = useCallback(async () => {
     const toUpload = processedRows.filter(
       (row) => !skippedRows.has(row._rowIndex) && row._status !== "skipped"
     );
@@ -236,40 +278,57 @@ export default function BulkImport() {
     setUploadResults([]);
     setStep(4);
 
-    const BATCH = 10;
-    const results = [];
-
-    for (let i = 0; i < toUpload.length; i += BATCH) {
-      const batch = toUpload.slice(i, i + BATCH);
-      const batchResults = await Promise.allSettled(
-        batch.map(async (row) => {
-          const payload = buildRowPayload(row, user, customDefaults);
-          await createProduct(payload, user?.uid);
-          return { status: "success", row, rowIndex: row._rowIndex };
-        })
-      );
-
-      batchResults.forEach((res, idx) => {
-        if (res.status === "fulfilled") {
-          results.push(res.value);
-        } else {
-          results.push({
-            status: "error",
-            row: batch[idx],
-            rowIndex: batch[idx]._rowIndex,
-            error: res.reason?.message || "Unknown error",
-          });
-        }
-      });
-
-      setUploadResults([...results]);
-      await new Promise((r) => setTimeout(r, 200));
-    }
+    const results = await runUploadBatches(toUpload, {
+      onProgress: setUploadResults,
+    });
 
     setUploading(false);
     const successCount = results.filter((r) => r.status === "success").length;
     showToast(`✅ ${successCount} product${successCount !== 1 ? "s" : ""} imported!`);
-  }, [processedRows, skippedRows, customDefaults]);
+  }, [processedRows, skippedRows, runUploadBatches]);
+
+  // ── Retry only the currently-failed rows, without leaving step 5 ────────────
+  const handleRetryFailed = useCallback(async () => {
+    if (retrying || uploading) return; // guard against double-click / overlap with initial upload
+
+    const failedEntries = uploadResults.filter((r) => r.status === "error");
+    if (failedEntries.length === 0) return;
+
+    const rowsToRetry = failedEntries.map((r) => r.row);
+    const retryRowIndexes = new Set(rowsToRetry.map((r) => r._rowIndex));
+
+    setRetrying(true);
+
+    const retryResults = await runUploadBatches(rowsToRetry, {
+      onProgress: (partial) => {
+        // Merge in-flight retry results into uploadResults as they land, so the
+        // progress list/summary cards reflect retry progress live. Rows not yet
+        // retried in this pass keep their previous (failed) result.
+        setUploadResults((prev) => {
+          const byIndex = new Map(partial.map((r) => [r.rowIndex, r]));
+          return prev.map((r) =>
+            retryRowIndexes.has(r.rowIndex) && byIndex.has(r.rowIndex)
+              ? byIndex.get(r.rowIndex)
+              : r
+          );
+        });
+      },
+    });
+
+    setRetrying(false);
+
+    const retrySuccessCount = retryResults.filter((r) => r.status === "success").length;
+    const retryFailCount = retryResults.length - retrySuccessCount;
+    if (retrySuccessCount > 0) {
+      showToast(
+        `✅ ${retrySuccessCount} row${retrySuccessCount !== 1 ? "s" : ""} imported on retry${
+          retryFailCount > 0 ? `, ${retryFailCount} still failing.` : "!"
+        }`
+      );
+    } else {
+      showToast(`⚠️ Retry failed — ${retryFailCount} row${retryFailCount !== 1 ? "s" : ""} still failing.`);
+    }
+  }, [uploadResults, runUploadBatches, retrying, uploading]);
 
   const uploadableCount = processedRows.filter(
     (r) => !skippedRows.has(r._rowIndex) && r._status !== "skipped"
@@ -363,6 +422,8 @@ export default function BulkImport() {
               )}
               results={uploadResults}
               uploading={uploading}
+              retrying={retrying}
+              onRetryFailed={handleRetryFailed}
               onGoToProducts={() => navigate("/admin/products")}
             />
           )}

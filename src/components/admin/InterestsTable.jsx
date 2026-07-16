@@ -188,6 +188,7 @@ const InterestsTable = () => {
           <div className="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
             <button
               onClick={() => setActiveTab("active")}
+              aria-pressed={activeTab === "active"}
               className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
                 activeTab === "active"
                   ? "bg-white text-brand-navy shadow-sm"
@@ -198,6 +199,7 @@ const InterestsTable = () => {
             </button>
             <button
               onClick={() => setActiveTab("resolved")}
+              aria-pressed={activeTab === "resolved"}
               className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
                 activeTab === "resolved"
                   ? "bg-white text-brand-navy shadow-sm"
@@ -278,6 +280,8 @@ const InterestsTable = () => {
                     <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => handleToggleResolve(entry.productId, entry.interestId, entry.resolved)}
+                        aria-pressed={entry.resolved}
+                        aria-label={`Mark ${entry.name}'s interest as ${entry.resolved ? "Active" : "Resolved"}`}
                         className={`px-3 py-1 text-xs font-semibold rounded-full border transition-all ${
                           entry.resolved
                             ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
@@ -298,6 +302,7 @@ const InterestsTable = () => {
                           rel="noopener noreferrer"
                           className="inline-flex text-green-600 hover:text-green-700 text-lg transition-colors p-1"
                           title="Chat on WhatsApp"
+                          aria-label={`Message ${entry.name} on WhatsApp`}
                         >
                           <FaWhatsapp />
                         </a>

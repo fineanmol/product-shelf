@@ -3,6 +3,7 @@ import { ref, onValue, update } from "firebase/database";
 import { db, analytics } from "../../firebase";
 import { showToast } from "../../utils/showToast";
 import { logEvent } from "firebase/analytics";
+import emailjs from "emailjs-com";
 import {
   FaBug,
   FaLightbulb,
@@ -64,6 +65,44 @@ const AdminFeedback = () => {
           feedback_id: feedbackId,
           new_status: newStatus,
         });
+      }
+
+      // Notify the original submitter by email, if they provided one.
+      // This is best-effort: the RTDB status write above has already
+      // succeeded and must not be rolled back or blocked by an email
+      // failure, so this runs in its own try/catch and only logs on error.
+      const feedbackItem = feedback.find((item) => item.id === feedbackId);
+      const submitterEmail = feedbackItem?.email?.trim();
+      if (submitterEmail) {
+        try {
+          // TODO(EmailJS dashboard setup required before this succeeds in production):
+          // "template_feedback_status_update" is a PLACEHOLDER template ID. It must be
+          // created in the EmailJS dashboard (same account/service as "service_kff4yqy",
+          // used by ProductInterestModal.jsx) before this send will actually deliver mail.
+          // The template must accept these variables: title, status, name, message.
+          await emailjs.send(
+            "service_kff4yqy",
+            "template_feedback_status_update",
+            {
+              name: feedbackItem?.name || "there",
+              title: feedbackItem?.title || "your feedback",
+              status: newStatus,
+              email: submitterEmail,
+              message: `Hi,\n\nThe status of your feedback "${
+                feedbackItem?.title || ""
+              }" has been updated to "${newStatus}".\n\nThank you for helping us improve!`,
+              time: new Date().toLocaleString(),
+            },
+            "hjrAAqHXUVuBPn-AD"
+          );
+        } catch (emailError) {
+          // Do not surface this to the admin as an error toast; the status
+          // update itself succeeded regardless of email delivery.
+          console.error(
+            "Failed to send feedback status-update email:",
+            emailError
+          );
+        }
       }
     } catch (error) {
       console.error("Failed to update feedback status:", error);
@@ -333,7 +372,12 @@ const AdminFeedback = () => {
 
       {/* Feedback Detail Modal */}
       {selectedFeedback && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-center items-center px-4">
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-center items-center px-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="feedback-detail-modal-title"
+        >
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-hidden">
             {/* Modal Header */}
             <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
@@ -379,7 +423,7 @@ const AdminFeedback = () => {
                       {selectedFeedback.status || "todo"}
                     </span>
                   </div>
-                  <h2 className="text-2xl font-bold text-white mb-2 leading-tight">
+                  <h2 id="feedback-detail-modal-title" className="text-2xl font-bold text-white mb-2 leading-tight">
                     {selectedFeedback.title}
                   </h2>
                   <div className="flex items-center gap-4 text-white/80 text-sm">

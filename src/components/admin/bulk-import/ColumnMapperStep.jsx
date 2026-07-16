@@ -19,7 +19,10 @@ export default function ColumnMapperStep({ headers, mapping, onChange, sampleRow
       </div>
 
       {unmappedRequired.length > 0 && (
-        <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
+        <div
+          className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm"
+          aria-live="polite"
+        >
           <FaExclamationTriangle className="text-amber-500 mt-0.5 flex-shrink-0" />
           <p className="text-amber-800">
             <strong>Required fields not yet mapped:</strong>{" "}
@@ -64,6 +67,7 @@ export default function ColumnMapperStep({ headers, mapping, onChange, sampleRow
                 <select
                   value={mapping[field.key] || ""}
                   onChange={(e) => onChange(field.key, e.target.value)}
+                  aria-label={`Source column mapped to ${field.label}${field.required ? " (required)" : ""}`}
                   className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-sky focus:border-transparent transition-all"
                 >
                   <option value="">— Not mapped —</option>

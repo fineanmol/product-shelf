@@ -48,6 +48,7 @@ function AdminSidebar({ onClose, userRole }) {
             <button
               className="lg:hidden p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
               onClick={onClose}
+              aria-label="Close sidebar"
             >
               <FaTimes />
             </button>
@@ -64,6 +65,7 @@ function AdminSidebar({ onClose, userRole }) {
               key={link.to}
               to={link.to}
               onClick={handleLinkClick}
+              aria-current={isActive ? "page" : undefined}
               className={`flex items-center p-3 rounded-lg transition-all duration-200 ${
                 isActive
                   ? "bg-brand-sky text-white hover:bg-brand-navy"

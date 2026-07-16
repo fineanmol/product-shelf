@@ -76,6 +76,15 @@ export default function FileUploadStep({ onParsed }) {
           onDragLeave={() => setDragging(false)}
           onDrop={onDrop}
           onClick={() => inputRef.current?.click()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              inputRef.current?.click();
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Drop your file here, or activate to browse for a file to upload"
           className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all ${
             dragging
               ? "border-brand-sky bg-brand-sky/5 scale-[1.01]"
@@ -124,6 +133,7 @@ export default function FileUploadStep({ onParsed }) {
             <button
               onClick={() => { setPreview(null); onParsed(null); }}
               className="text-gray-400 hover:text-red-500 transition-colors"
+              aria-label={`Remove ${preview.fileName} and choose a different file`}
             >
               <FaTimesCircle />
             </button>
@@ -167,7 +177,7 @@ export default function FileUploadStep({ onParsed }) {
       )}
 
       {error && (
-        <p className="text-sm text-red-600 flex items-center gap-2">
+        <p className="text-sm text-red-600 flex items-center gap-2" role="alert" aria-live="polite">
           <FaTimesCircle /> {error}
         </p>
       )}

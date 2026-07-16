@@ -29,7 +29,12 @@ export default function BulkActionConfirmModal({ action, products, onConfirm, on
   const isDestructive = cfg.color === "red";
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="bulk-action-modal-title"
+    >
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -46,7 +51,7 @@ export default function BulkActionConfirmModal({ action, products, onConfirm, on
             {isDestructive ? <FaExclamationTriangle /> : cfg.icon}
           </div>
           <div>
-            <h2 className="font-bold text-gray-900 text-lg leading-tight">
+            <h2 id="bulk-action-modal-title" className="font-bold text-gray-900 text-lg leading-tight">
               {cfg.label} {products.length} product{products.length !== 1 ? "s" : ""}?
             </h2>
             <p className="text-sm text-gray-600 mt-1">

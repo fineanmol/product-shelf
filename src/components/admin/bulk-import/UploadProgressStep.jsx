@@ -3,7 +3,14 @@ import React from "react";
 import { FaCheckCircle, FaTimesCircle, FaSpinner } from "react-icons/fa";
 import * as XLSX from "xlsx";
 
-export default function UploadProgressStep({ rows, results, uploading, onGoToProducts }) {
+export default function UploadProgressStep({
+  rows,
+  results,
+  uploading,
+  retrying = false,
+  onRetryFailed,
+  onGoToProducts,
+}) {
   const done = results.filter((r) => r.status === "success").length;
   const failed = results.filter((r) => r.status === "error").length;
   const progress = rows.length > 0 ? Math.round((results.length / rows.length) * 100) : 0;
@@ -22,12 +29,18 @@ export default function UploadProgressStep({ rows, results, uploading, onGoToPro
 
   return (
     <div className="space-y-6">
-      <div>
+      <div aria-live="polite">
         <h2 className="text-xl font-bold text-brand-navy">
-          {isComplete ? "Import Complete!" : "Uploading Products…"}
+          {retrying
+            ? "Retrying Failed Rows…"
+            : isComplete
+            ? "Import Complete!"
+            : "Uploading Products…"}
         </h2>
         <p className="text-sm text-gray-500 mt-1">
-          {isComplete
+          {retrying
+            ? "Re-uploading only the rows that failed…"
+            : isComplete
             ? `${done} product${done !== 1 ? "s" : ""} uploaded successfully.`
             : `Uploading ${rows.length} products in batches…`}
         </p>
@@ -39,7 +52,14 @@ export default function UploadProgressStep({ rows, results, uploading, onGoToPro
           <span>{results.length} of {rows.length} processed</span>
           <span>{progress}%</span>
         </div>
-        <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+        <div
+          className="h-3 bg-gray-100 rounded-full overflow-hidden"
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Import upload progress"
+        >
           <div
             className="h-full bg-brand-sky rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
@@ -65,7 +85,11 @@ export default function UploadProgressStep({ rows, results, uploading, onGoToPro
 
       {/* Row-by-row status list (last 20 processed) */}
       {results.length > 0 && (
-        <div className="max-h-64 overflow-y-auto border border-gray-100 rounded-xl divide-y divide-gray-50">
+        <div
+          className="max-h-64 overflow-y-auto border border-gray-100 rounded-xl divide-y divide-gray-50"
+          aria-live="polite"
+          aria-label="Import row status log"
+        >
           {results.slice(-20).reverse().map((r, i) => (
             <div key={i} className="flex items-center gap-3 px-4 py-2.5 text-sm">
               {r.status === "success"
@@ -88,6 +112,14 @@ export default function UploadProgressStep({ rows, results, uploading, onGoToPro
         </div>
       )}
 
+      {/* Retrying spinner (distinct from the initial-upload spinner above) */}
+      {retrying && (
+        <div className="flex items-center gap-3 text-sm text-gray-500">
+          <FaSpinner className="animate-spin text-brand-sky" />
+          Retrying failed rows in batches of 10…
+        </div>
+      )}
+
       {/* Actions when done */}
       {isComplete && (
         <div className="flex items-center gap-3 pt-2">
@@ -98,12 +130,23 @@ export default function UploadProgressStep({ rows, results, uploading, onGoToPro
             Go to Products →
           </button>
           {failed > 0 && (
-            <button
-              onClick={downloadFailedRows}
-              className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-            >
-              Download Failed Rows
-            </button>
+            <>
+              <button
+                onClick={onRetryFailed}
+                disabled={retrying}
+                className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+              >
+                {retrying && <FaSpinner className="animate-spin" />}
+                {retrying ? "Retrying…" : "Retry Failed Rows"}
+              </button>
+              <button
+                onClick={downloadFailedRows}
+                disabled={retrying}
+                className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+              >
+                Download Failed Rows
+              </button>
+            </>
           )}
         </div>
       )}

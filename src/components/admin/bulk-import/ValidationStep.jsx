@@ -81,6 +81,7 @@ export default function ValidationStep({ validationResults, customDefaults, onDe
                     <select
                       value={customDefaults[fieldKey] || ""}
                       onChange={(e) => onDefaultChange(fieldKey, e.target.value)}
+                      aria-label={`Default value for ${def?.label || fieldKey}`}
                       className="flex-1 text-sm border border-red-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-sky"
                     >
                       <option value="">— Set a default value —</option>
@@ -92,11 +93,13 @@ export default function ValidationStep({ validationResults, customDefaults, onDe
                       placeholder={`Set default ${def?.label || fieldKey}…`}
                       value={customDefaults[fieldKey] || ""}
                       onChange={(e) => onDefaultChange(fieldKey, e.target.value)}
+                      aria-label={`Default value for ${def?.label || fieldKey}`}
                       className="flex-1 text-sm border border-red-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-sky"
                     />
                   )}
                   <button
                     onClick={() => onSkipField(fieldKey)}
+                    aria-label={`Skip the ${count} row${count !== 1 ? "s" : ""} missing ${def?.label || fieldKey}`}
                     className="text-xs text-gray-500 hover:text-red-600 whitespace-nowrap px-3 py-2 border border-gray-200 rounded-lg hover:border-red-200 transition-colors"
                   >
                     Skip these {count} rows
@@ -136,6 +139,7 @@ export default function ValidationStep({ validationResults, customDefaults, onDe
                     <select
                       value={customDefaults[fieldKey] || defaultVal || ""}
                       onChange={(e) => onDefaultChange(fieldKey, e.target.value)}
+                      aria-label={`Default value for ${def?.label || fieldKey}`}
                       className="flex-1 text-sm border border-amber-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-sky"
                     >
                       {def.options.map((o) => <option key={o} value={o}>{o}</option>)}
@@ -146,6 +150,7 @@ export default function ValidationStep({ validationResults, customDefaults, onDe
                       placeholder={`Default: ${defaultVal ?? "none"}`}
                       value={customDefaults[fieldKey] ?? defaultVal ?? ""}
                       onChange={(e) => onDefaultChange(fieldKey, e.target.value)}
+                      aria-label={`Default value for ${def?.label || fieldKey}`}
                       className="flex-1 text-sm border border-amber-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-sky"
                     />
                   )}
