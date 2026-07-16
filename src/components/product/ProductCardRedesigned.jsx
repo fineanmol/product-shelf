@@ -1,12 +1,10 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import {
   FaHeart,
   FaEye,
   FaShare,
   FaTruck,
   FaStore,
-  FaStar,
-  FaRegStar,
   FaExternalLinkAlt,
 } from "react-icons/fa";
 import { currencySymbols, getConditionLabel } from "../../utils/utils";
@@ -25,11 +23,6 @@ const ProductCardRedesigned = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-
-  // Helper to return a random integer between min and max (inclusive)
-  function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
 
   const isSoldOut = product.sold_out === true;
 
@@ -101,14 +94,8 @@ const ProductCardRedesigned = ({
     return 0;
   };
 
-  // Memoize visitor count so it doesn't change on hover/re-render
-  const displayedVisitors = useMemo(() => {
-    return typeof product.visitors === "number" && product.visitors > 0
-      ? product.visitors
-      : getRandomInt(1200, 5000);
-  }, [product.visitors]);
-
-  const mockRating = 4.2 + Math.random() * 0.6; // Random rating between 4.2-4.8
+  const hasRealVisitors =
+    typeof product.visitors === "number" && product.visitors > 0;
 
   return (
     <div
@@ -240,24 +227,6 @@ const ProductCardRedesigned = ({
             {product.title}
           </h3>
 
-          {/* Rating */}
-          <div className="flex items-center gap-2 mb-2">
-            <div className="flex items-center">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span key={star}>
-                  {star <= Math.floor(mockRating) ? (
-                    <FaStar className="text-yellow-400 text-sm" />
-                  ) : (
-                    <FaRegStar className="text-gray-300 text-sm" />
-                  )}
-                </span>
-              ))}
-            </div>
-            <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-              ({mockRating.toFixed(1)})
-            </span>
-          </div>
-
           <p
             className="text-sm line-clamp-2 leading-relaxed"
             style={{ color: "var(--text-secondary)" }}
@@ -307,10 +276,12 @@ const ProductCardRedesigned = ({
           style={{ color: "var(--text-muted)" }}
         >
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1">
-              <FaEye />
-              {displayedVisitors.toLocaleString()}
-            </span>
+            {hasRealVisitors && (
+              <span className="flex items-center gap-1">
+                <FaEye />
+                {product.visitors.toLocaleString()}
+              </span>
+            )}
             {interestCount > 0 && (
               <span className="flex items-center gap-1 text-red-500">
                 <FaHeart />
