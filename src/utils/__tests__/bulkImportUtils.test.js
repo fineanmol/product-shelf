@@ -6,7 +6,6 @@ import {
   applyDefaults,
   detectDuplicates,
   isTemplateFile,
-  FIELD_DEFS,
 } from "../bulkImportUtils";
 
 describe("bulkImportUtils", () => {

@@ -21,15 +21,12 @@ describe("BulkActionConfirmModal", () => {
   });
 
   it("should return null if action is missing or products list is empty", () => {
-    const { container: container1 } = render(
-      <BulkActionConfirmModal {...defaultProps} action="" />
-    );
-    expect(container1.firstChild).toBeNull();
+    const { unmount } = render(<BulkActionConfirmModal {...defaultProps} action="" />);
+    expect(screen.queryByText(/products?\?$/i)).not.toBeInTheDocument();
+    unmount();
 
-    const { container: container2 } = render(
-      <BulkActionConfirmModal {...defaultProps} products={[]} />
-    );
-    expect(container2.firstChild).toBeNull();
+    render(<BulkActionConfirmModal {...defaultProps} products={[]} />);
+    expect(screen.queryByText(/products?\?$/i)).not.toBeInTheDocument();
   });
 
   it("should render correct details for destructive actions (e.g., Delete)", () => {
@@ -78,7 +75,7 @@ describe("BulkActionConfirmModal", () => {
   });
 
   it("should trigger onCancel when the cancel button or backdrop is clicked", () => {
-    const { container } = render(<BulkActionConfirmModal {...defaultProps} />);
+    render(<BulkActionConfirmModal {...defaultProps} />);
 
     // Click cancel button
     const cancelBtn = screen.getByRole("button", { name: /Cancel/i });
@@ -86,8 +83,7 @@ describe("BulkActionConfirmModal", () => {
     expect(defaultProps.onCancel).toHaveBeenCalledTimes(1);
 
     // Click backdrop
-    // The backdrop is the first child div inside the root wrapper
-    const backdrop = container.querySelector(".absolute.inset-0.bg-black\\/50");
+    const backdrop = screen.getByTestId("modal-backdrop");
     fireEvent.click(backdrop);
     expect(defaultProps.onCancel).toHaveBeenCalledTimes(2);
   });

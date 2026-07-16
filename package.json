@@ -30,7 +30,7 @@
     "eject": "react-scripts eject",
     "deploy": "npm run build && firebase deploy --only hosting,database,storage",
     "publish": "npm run build && npm run deploy",
-    "lint": "npx eslint src/**/*.{js,jsx} --max-warnings=2"
+    "lint": "npx eslint src/**/*.{js,jsx} --max-warnings=0"
   },
   "eslintConfig": {
     "extends": [

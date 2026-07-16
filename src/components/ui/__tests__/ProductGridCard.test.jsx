@@ -90,10 +90,10 @@ describe("ProductGridCard", () => {
       <ProductGridCard {...defaultProps} onSelect={onSelectMock} selected={false} />
     );
 
-    // Unselected state - verify the checkbox button exists and doesn't render checked icon
+    // Unselected state - verify the checkbox button exists and reports unpressed
     const checkboxBtn = screen.getByRole("button", { name: "Select product" });
     expect(checkboxBtn).toBeInTheDocument();
-    expect(checkboxBtn.querySelector(".text-\\[10px\\]")).not.toBeInTheDocument(); // FaCheck not present
+    expect(checkboxBtn).toHaveAttribute("aria-pressed", "false");
 
     // Click checkbox
     fireEvent.click(checkboxBtn);
@@ -104,10 +104,10 @@ describe("ProductGridCard", () => {
       <ProductGridCard {...defaultProps} onSelect={onSelectMock} selected={true} />
     );
     const checkedBtn = screen.getByRole("button", { name: "Select product" });
-    expect(checkedBtn.querySelector("svg")).toBeInTheDocument();
-    
+    expect(checkedBtn).toHaveAttribute("aria-pressed", "true");
+
     // Simple verification that selection ring class is applied on root card
-    const card = screen.getByText("Sony Headphones").closest(".glass-card");
+    const card = screen.getByTestId("product-grid-card");
     expect(card).toHaveClass("ring-2");
     expect(card).toHaveClass("ring-brand-sky");
   });

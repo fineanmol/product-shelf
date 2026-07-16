@@ -44,18 +44,20 @@ const ProductGridCard = ({
   const selectable = typeof onSelect === 'function';
 
   return (
-    <div 
+    <div
       className={`glass-card p-6 transition-all duration-300 relative ${
         isHovered ? 'transform -translate-y-2' : ''
       } ${selected ? 'ring-2 ring-brand-sky ring-offset-2' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      data-testid="product-grid-card"
     >
       {/* Checkbox overlay — top-left, shown when selectable */}
       {selectable && (
         <button
           type="button"
           aria-label="Select product"
+          aria-pressed={selected}
           onClick={(e) => { e.stopPropagation(); onSelect(product.id); }}
           className={`absolute top-3 left-3 z-20 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
             selected
