@@ -28,7 +28,7 @@
     "build": "cross-env REACT_APP_VERSION=$npm_package_version react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "npm run build && firebase deploy --only hosting,database",
+    "deploy": "npm run build && firebase deploy --only hosting,database,storage",
     "publish": "npm run build && npm run deploy",
     "lint": "npx eslint src/**/*.{js,jsx} --max-warnings=0"
   },
