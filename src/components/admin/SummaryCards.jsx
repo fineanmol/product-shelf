@@ -2,10 +2,8 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { getDatabase, ref, get } from "firebase/database";
 import { FaBox, FaUsers, FaCommentDots, FaClock } from "react-icons/fa";
-import {
-  getCurrentUserRole,
-  getOwnedProductIds,
-} from "../../utils/permissions";
+import { getCurrentUserRole } from "../../utils/permissions";
+import { getAllProducts, getOwnedProducts } from "../../services/productsService";
 
 function SummaryCards() {
   const [productCount, setProductCount] = useState(0);
@@ -28,24 +26,12 @@ function SummaryCards() {
         // Fetch products
         let productsList;
         if (userRoleData.isSuperAdmin) {
-          const productsSnapshot = await get(ref(db, "products"));
-          const productsData = productsSnapshot.val() || {};
-          productsList = Object.entries(productsData).map(([id, data]) => ({
-            id,
-            ...data,
-          }));
+          productsList = await getAllProducts();
         } else {
           // Non-superadmins only ever fetch their own products, via the owner index
           // (products/.read is public, but a plain fetch-then-filter would still
           // download every seller's inventory to the browser before discarding it).
-          const ownedIds = await getOwnedProductIds(userRoleData.user?.uid);
-          const ownedProducts = await Promise.all(
-            ownedIds.map(async (id) => {
-              const snap = await get(ref(db, `products/${id}`));
-              return snap.exists() ? { id, ...snap.val() } : null;
-            })
-          );
-          productsList = ownedProducts.filter(Boolean);
+          productsList = await getOwnedProducts(userRoleData.user?.uid);
         }
 
         setProductCount(productsList.length);

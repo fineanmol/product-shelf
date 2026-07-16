@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { getDatabase, ref, push, update, remove } from "firebase/database";
 import { showToast } from "../../utils/showToast";
 import { getCurrentUserRole } from "../../utils/permissions";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +7,7 @@ import { getAuth } from "firebase/auth";
 import ProductFormFields from "./ProductFormFields";
 import ProductPreview from "./ProductPreview";
 import { buildProductPayload } from "../../utils/buildProductPayload";
-import { withOwnerIndexOnCreate, withOwnerIndexOnDelete } from "../../utils/productOwnerIndex";
+import { createProduct, updateProduct, deleteProduct } from "../../services/productsService";
 import ProductToggles from "./ProductToggles";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { FaSave, FaPlus, FaEye, FaTrash, FaArrowLeft } from "react-icons/fa";
@@ -52,7 +51,6 @@ const ProductManager = ({ product = null, onRefresh = null }) => {
   const [loading, setLoading] = useState(false);
   const [loadingAccess, setLoadingAccess] = useState(true);
   const navigate = useNavigate();
-  const db = getDatabase();
 
   useEffect(() => {
     async function fetchAccess() {
@@ -108,16 +106,13 @@ const ProductManager = ({ product = null, onRefresh = null }) => {
       if (isEditMode) {
         // Update existing product
         const payload = buildProductPayload(formData, null, false);
-        await update(ref(db, `products/${product.id}`), payload);
+        await updateProduct(product.id, payload);
         showToast("✅ Product updated successfully");
         onRefresh?.();
       } else {
         // Create new product
         const payload = buildProductPayload(formData, user, true);
-        const newProductRef = push(ref(db, "products"));
-        const updates = { [`products/${newProductRef.key}`]: payload };
-        withOwnerIndexOnCreate(updates, newProductRef.key, user.uid);
-        await update(ref(db), updates);
+        await createProduct(payload, user.uid);
         showToast("✅ Product added successfully");
         setFormData(initial);
       }
@@ -141,9 +136,7 @@ const ProductManager = ({ product = null, onRefresh = null }) => {
     if (confirmDelete) {
       setLoading(true);
       try {
-        const updates = withOwnerIndexOnDelete({}, product.id, product.added_by);
-        await update(ref(db), updates);
-        await remove(ref(db, `products/${product.id}`));
+        await deleteProduct(product.id, product.added_by);
         showToast("✅ Product deleted successfully");
         navigate("/admin/products");
       } catch (error) {

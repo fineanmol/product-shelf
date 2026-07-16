@@ -1,11 +1,8 @@
 // src/components/admin/DashboardProducts.jsx
 import React, { useEffect, useState, useMemo } from "react";
-import { getDatabase, ref, get } from "firebase/database";
 import { Link } from "react-router-dom";
-import {
-  getCurrentUserRole,
-  getOwnedProductIds,
-} from "../../utils/permissions";
+import { getCurrentUserRole } from "../../utils/permissions";
+import { getAllProducts, getOwnedProducts } from "../../services/productsService";
 
 const DashboardProducts = () => {
   const [allProducts, setAllProducts] = useState([]);
@@ -13,37 +10,21 @@ const DashboardProducts = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const db = getDatabase();
-
       // Get current user role
       const userRoleData = await getCurrentUserRole();
       setUserRole(userRoleData);
 
       if (userRoleData.isSuperAdmin) {
-        const snap = await get(ref(db, "products"));
-        if (snap.exists()) {
-          let data = snap.val();
-          let entries = Object.entries(data).map(([id, val]) => ({
-            id,
-            ...val,
-          }));
-
-          setAllProducts(entries);
-        }
+        const entries = await getAllProducts();
+        setAllProducts(entries);
         return;
       }
 
       // Non-superadmins only ever fetch their own products, via the owner index
       // (products/.read is public, but a plain fetch-then-filter would still
       // download every seller's inventory to the browser before discarding it).
-      const ownedIds = await getOwnedProductIds(userRoleData.user?.uid);
-      const ownedProducts = await Promise.all(
-        ownedIds.map(async (id) => {
-          const snap = await get(ref(db, `products/${id}`));
-          return snap.exists() ? { id, ...snap.val() } : null;
-        })
-      );
-      setAllProducts(ownedProducts.filter(Boolean));
+      const ownedProducts = await getOwnedProducts(userRoleData.user?.uid);
+      setAllProducts(ownedProducts);
     };
 
     fetchProducts();

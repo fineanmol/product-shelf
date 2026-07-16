@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { ref, push, set, onValue, limitToLast, query, getDatabase, runTransaction } from "firebase/database";
+import { ref, push, set, onValue, limitToLast, query, getDatabase } from "firebase/database";
 import { db, analytics } from "../firebase";
+import { incrementInterestCount } from "../services/productsService";
 import ProductCard from "../components/product/ProductCard";
 import ProductInterestModal from "../components/product/ProductInterestModal";
 import { showToast } from "../utils/showToast";
@@ -109,10 +110,7 @@ const Home = () => {
       });
 
       try {
-        await runTransaction(
-          ref(db, `products/${product.id}/interestCount`),
-          (current) => (current || 0) + 1
-        );
+        await incrementInterestCount(product.id);
       } catch (countErr) {
         // Non-fatal: the interest itself was recorded; the counter is a
         // display aggregate and can lag if this second write is rejected.

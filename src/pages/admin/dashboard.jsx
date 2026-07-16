@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useNavigate, Link, useOutletContext } from "react-router-dom";
-import { getDatabase, ref, get } from "firebase/database";
 import SummaryCards from "../../components/admin/SummaryCards";
 import InterestsTable from "../../components/admin/InterestsTable";
 import DashboardProducts from "../../components/admin/DashboardProducts";
@@ -18,7 +17,8 @@ import {
   FaCopy,
   FaCheckCircle 
 } from "react-icons/fa";
-import { getCurrentUserRole, getOwnedProductIds } from "../../utils/permissions";
+import { getCurrentUserRole } from "../../utils/permissions";
+import { getAllProducts, getOwnedProducts } from "../../services/productsService";
 import { showToast } from "../../utils/showToast";
 
 const AdminDashboard = () => {
@@ -41,19 +41,16 @@ const AdminDashboard = () => {
         }
 
         try {
-          const db = getDatabase();
           const roleData = await getCurrentUserRole();
 
           // Fetch products to determine onboarding state
           let count = 0;
           if (roleData.isSuperAdmin) {
-            const snapshot = await get(ref(db, "products"));
-            if (snapshot.exists()) {
-              count = Object.keys(snapshot.val()).length;
-            }
+            const productsList = await getAllProducts();
+            count = productsList.length;
           } else {
-            const ownedIds = await getOwnedProductIds(user.uid);
-            count = ownedIds.length;
+            const ownedProducts = await getOwnedProducts(user.uid);
+            count = ownedProducts.length;
           }
           setProductCount(count);
         } catch (error) {

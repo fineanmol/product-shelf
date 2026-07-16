@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { getDatabase, ref, get, update, remove, push } from "firebase/database";
+import { getDatabase, ref, get } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { FaPlus, FaTh, FaList, FaDownload, FaFileImport, FaCheckSquare, FaTrash, FaEye, FaEyeSlash, FaBoxOpen, FaEdit, FaExternalLinkAlt, FaTimesCircle, FaUndo, FaCopy } from "react-icons/fa";
 import DashboardLayout from "../../components/ui/DashboardLayout";
@@ -9,15 +9,15 @@ import BulkActionConfirmModal from "../../components/admin/BulkActionConfirmModa
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import AnimatedButton from "../../components/ui/AnimatedButton";
 import { showToast } from "../../utils/showToast";
+import { getCurrentUserRole } from "../../utils/permissions";
 import {
-  getCurrentUserRole,
-  getOwnedProductIds,
-} from "../../utils/permissions";
-import {
-  withOwnerIndexOnCreate,
-  withOwnerIndexOnDelete,
-  withOwnerIndexOnReassign,
-} from "../../utils/productOwnerIndex";
+  getAllProducts,
+  getOwnedProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  reassignProductOwner,
+} from "../../services/productsService";
 import GlassModal from "../../components/ui/GlassModal";
 import ProfileImage from "../../components/shared/ProfileImage";
 
@@ -65,34 +65,17 @@ const Products = () => {
       const userRoleData = await getCurrentUserRole();
       setUserRole(userRoleData);
 
-      const db = getDatabase();
-
       if (userRoleData.isSuperAdmin) {
-        const snapshot = await get(ref(db, "products"));
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          const productsList = Object.entries(data).map(([id, product]) => ({
-            id,
-            ...product,
-          }));
-          setProducts(productsList);
-        } else {
-          setProducts([]);
-        }
+        const productsList = await getAllProducts();
+        setProducts(productsList);
         return;
       }
 
       // Non-superadmins only ever fetch their own products, via the owner index
       // (products/.read is public, but a plain fetch-then-filter would still
       // download every seller's inventory to the browser before discarding it).
-      const ownedIds = await getOwnedProductIds(userRoleData.user?.uid);
-      const ownedProducts = await Promise.all(
-        ownedIds.map(async (id) => {
-          const snap = await get(ref(db, `products/${id}`));
-          return snap.exists() ? { id, ...snap.val() } : null;
-        })
-      );
-      setProducts(ownedProducts.filter(Boolean));
+      const ownedProducts = await getOwnedProducts(userRoleData.user?.uid);
+      setProducts(ownedProducts);
     } catch (error) {
       console.error("Error fetching products:", error);
       showToast("❌ Failed to load products");
@@ -148,7 +131,6 @@ const Products = () => {
 
   const handleDuplicateProduct = async (product) => {
     try {
-      const db = getDatabase();
       const newProduct = {
         ...product,
         title: `${product.title} (Copy)`,
@@ -164,12 +146,7 @@ const Products = () => {
         newProduct.added_email = userRole.user.email || "";
       }
 
-      const newProductRef = push(ref(db, "products"));
-      const updates = { [`products/${newProductRef.key}`]: newProduct };
-      if (userRole?.user?.uid) {
-        withOwnerIndexOnCreate(updates, newProductRef.key, userRole.user.uid);
-      }
-      await update(ref(db), updates);
+      await createProduct(newProduct, userRole?.user?.uid);
       showToast("✅ Product duplicated successfully");
       fetchProducts();
     } catch (error) {
@@ -186,10 +163,7 @@ const Products = () => {
     }
 
     try {
-      const db = getDatabase();
-      const updates = withOwnerIndexOnDelete({}, product.id, product.added_by);
-      await update(ref(db), updates);
-      await remove(ref(db, `products/${product.id}`));
+      await deleteProduct(product.id, product.added_by);
       showToast("✅ Product deleted successfully");
       fetchProducts();
     } catch (error) {
@@ -200,8 +174,7 @@ const Products = () => {
 
   const handleToggleVisibility = async (product) => {
     try {
-      const db = getDatabase();
-      await update(ref(db, `products/${product.id}`), {
+      await updateProduct(product.id, {
         visible: !product.visible,
         updatedAt: Date.now(),
       });
@@ -216,8 +189,7 @@ const Products = () => {
   const handleToggleStatus = async (product) => {
     const newStatus = product.status === "available" ? "reserved" : "available";
     try {
-      const db = getDatabase();
-      await update(ref(db, `products/${product.id}`), {
+      await updateProduct(product.id, {
         status: newStatus,
         updatedAt: Date.now(),
       });
@@ -262,11 +234,9 @@ const Products = () => {
 
   // ── Individual bulk action handlers ─────────────────────────────────────────
   const handleBulkDelete = () => confirmBulk('delete', async () => {
-    const db = getDatabase();
     await Promise.allSettled([...selectedIds].map((id) => {
       const product = selectedProducts.find((p) => p.id === id);
-      const updates = withOwnerIndexOnDelete({}, id, product?.added_by);
-      return update(ref(db), updates).then(() => remove(ref(db, `products/${id}`)));
+      return deleteProduct(id, product?.added_by);
     }));
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} deleted`);
     setSelectedIds(new Set());
@@ -274,55 +244,48 @@ const Products = () => {
   });
 
   const handleBulkHide = () => confirmBulk('hide', async () => {
-    const db = getDatabase();
-    await Promise.allSettled([...selectedIds].map((id) => update(ref(db, `products/${id}`), { visible: false, updatedAt: Date.now() })));
+    await Promise.allSettled([...selectedIds].map((id) => updateProduct(id, { visible: false, updatedAt: Date.now() })));
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} hidden`);
     setSelectedIds(new Set());
     fetchProducts();
   });
 
   const handleBulkShow = () => confirmBulk('show', async () => {
-    const db = getDatabase();
-    await Promise.allSettled([...selectedIds].map((id) => update(ref(db, `products/${id}`), { visible: true, updatedAt: Date.now() })));
+    await Promise.allSettled([...selectedIds].map((id) => updateProduct(id, { visible: true, updatedAt: Date.now() })));
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} made visible`);
     setSelectedIds(new Set());
     fetchProducts();
   });
 
   const handleBulkMarkAvailable = () => confirmBulk('available', async () => {
-    const db = getDatabase();
-    await Promise.allSettled([...selectedIds].map((id) => update(ref(db, `products/${id}`), { status: 'available', updatedAt: Date.now() })));
+    await Promise.allSettled([...selectedIds].map((id) => updateProduct(id, { status: 'available', updatedAt: Date.now() })));
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} marked available`);
     setSelectedIds(new Set());
     fetchProducts();
   });
 
   const handleBulkMarkReserved = () => confirmBulk('reserved', async () => {
-    const db = getDatabase();
-    await Promise.allSettled([...selectedIds].map((id) => update(ref(db, `products/${id}`), { status: 'reserved', updatedAt: Date.now() })));
+    await Promise.allSettled([...selectedIds].map((id) => updateProduct(id, { status: 'reserved', updatedAt: Date.now() })));
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} marked reserved`);
     setSelectedIds(new Set());
     fetchProducts();
   });
 
   const handleBulkMarkSoldOut = () => confirmBulk('soldOut', async () => {
-    const db = getDatabase();
-    await Promise.allSettled([...selectedIds].map((id) => update(ref(db, `products/${id}`), { sold_out: true, status: 'sold', updatedAt: Date.now() })));
+    await Promise.allSettled([...selectedIds].map((id) => updateProduct(id, { sold_out: true, status: 'sold', updatedAt: Date.now() })));
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} marked as sold out`);
     setSelectedIds(new Set());
     fetchProducts();
   });
 
   const handleBulkUnmarkSoldOut = () => confirmBulk('unsoldOut', async () => {
-    const db = getDatabase();
-    await Promise.allSettled([...selectedIds].map((id) => update(ref(db, `products/${id}`), { sold_out: false, status: 'available', updatedAt: Date.now() })));
+    await Promise.allSettled([...selectedIds].map((id) => updateProduct(id, { sold_out: false, status: 'available', updatedAt: Date.now() })));
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} marked as available`);
     setSelectedIds(new Set());
     fetchProducts();
   });
 
   const handleBulkDuplicate = () => confirmBulk('duplicate', async () => {
-    const db = getDatabase();
     const duplicatedProducts = filteredAndSortedProducts.filter((p) => selectedIds.has(p.id));
 
     await Promise.allSettled(duplicatedProducts.map((p) => {
@@ -339,12 +302,7 @@ const Products = () => {
         newProduct.added_by = userRole.user.uid;
         newProduct.added_email = userRole.user.email || "";
       }
-      const newProductRef = push(ref(db, "products"));
-      const updates = { [`products/${newProductRef.key}`]: newProduct };
-      if (userRole?.user?.uid) {
-        withOwnerIndexOnCreate(updates, newProductRef.key, userRole.user.uid);
-      }
-      return update(ref(db), updates);
+      return createProduct(newProduct, userRole?.user?.uid);
     }));
 
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} duplicated successfully`);
@@ -403,18 +361,16 @@ const Products = () => {
   const handleSelectAssignee = async (user) => {
     if (!assigningProduct) return;
     try {
-      const db = getDatabase();
-      const updates = withOwnerIndexOnReassign(
-        {
-          [`products/${assigningProduct.id}/added_by`]: user.uid,
-          [`products/${assigningProduct.id}/added_email`]: user.email,
-          [`products/${assigningProduct.id}/updatedAt`]: Date.now(),
-        },
+      await reassignProductOwner(
         assigningProduct.id,
         assigningProduct.added_by,
-        user.uid
+        user.uid,
+        {
+          added_by: user.uid,
+          added_email: user.email,
+          updatedAt: Date.now(),
+        }
       );
-      await update(ref(db), updates);
       showToast(`✅ Assigned to ${user.name || user.email}`);
       setAssigningProduct(null);
       fetchProducts();

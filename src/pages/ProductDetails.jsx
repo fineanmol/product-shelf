@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ref, get, push, set, runTransaction } from "firebase/database";
+import { ref, get, push, set } from "firebase/database";
 import { db, analytics } from "../firebase";
+import { getProduct, incrementInterestCount } from "../services/productsService";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import ProductInterestModal from "../components/product/ProductInterestModal";
 import PageHeader from "../components/shared/PageHeader";
@@ -52,11 +53,10 @@ const ProductDetails = () => {
       setLoading(true);
       setError(null);
       try {
-        const snap = await get(ref(db, `products/${id}`));
-        if (snap.exists()) {
-          const productData = snap.val();
-          setProduct({ id, ...productData });
-          
+        const productData = await getProduct(id);
+        if (productData) {
+          setProduct(productData);
+
           if (productData.added_by) {
             const sellerSnap = await get(ref(db, `users/${productData.added_by}`));
             if (sellerSnap.exists()) {
@@ -920,10 +920,7 @@ const ProductDetails = () => {
               });
 
               try {
-                await runTransaction(
-                  ref(db, `products/${product.id}/interestCount`),
-                  (current) => (current || 0) + 1
-                );
+                await incrementInterestCount(product.id);
                 setProduct((prev) => {
                   if (!prev) return null;
                   return {

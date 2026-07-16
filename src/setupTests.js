@@ -42,5 +42,6 @@ jest.mock("firebase/database", () => ({
   update: jest.fn(() => Promise.resolve()),
   remove: jest.fn(() => Promise.resolve()),
   push: jest.fn((ref, value) => ({ key: "mock-key", ref })),
+  runTransaction: jest.fn(() => Promise.resolve()),
 }));
 
