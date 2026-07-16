@@ -74,8 +74,10 @@ const HomeRedesigned = () => {
       })
       .filter((item) => (categoryFilter ? item.category === categoryFilter : true))
       .sort((a, b) => {
-        if (priceSort === "price-low") return a.price - b.price;
-        if (priceSort === "price-high") return b.price - a.price;
+        const priceA = typeof a.price === "number" && !isNaN(a.price) ? a.price : 0;
+        const priceB = typeof b.price === "number" && !isNaN(b.price) ? b.price : 0;
+        if (priceSort === "price-low") return priceA - priceB;
+        if (priceSort === "price-high") return priceB - priceA;
         return (b.timestamp || 0) - (a.timestamp || 0);
       });
   }, [items, searchTerm, statusFilter, conditionFilter, categoryFilter, priceSort]);
@@ -234,7 +236,9 @@ const HomeRedesigned = () => {
               No products found
             </h3>
             <p className="text-gray-600">
-              Try adjusting your search or filters
+              {items.length === 0
+                ? "This shop has no products yet — check back soon"
+                : "Try adjusting your search or filters"}
             </p>
           </div>
         ) : (

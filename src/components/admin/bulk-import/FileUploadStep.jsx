@@ -46,7 +46,7 @@ export default function FileUploadStep({ onParsed }) {
       <div>
         <h2 className="text-xl font-bold text-brand-navy">Upload Your File</h2>
         <p className="text-sm text-gray-500 mt-1">
-          Upload an Excel (.xlsx, .xls) or CSV file. Up to 500 products per import.
+          Upload an Excel (.xlsx, .xls) or CSV file. Up to 200 products per import.
         </p>
       </div>
 
