@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { ref, push, onValue, limitToLast, query, getDatabase, update } from "firebase/database";
 import { db, analytics } from "../firebase";
-import ProductCardRedesigned from "../components/product/ProductCardRedesigned";
+import ProductCard from "../components/product/ProductCard";
 import ProductInterestModal from "../components/product/ProductInterestModal";
 import { showToast } from "../utils/showToast";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,7 @@ import { FaSearch, FaFilter, FaPlus } from "react-icons/fa";
 import PageHeader from "../components/shared/PageHeader";
 import FilterBar from "../components/shared/FilterBar";
 
-const HomeRedesigned = () => {
+const Home = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showInterestForm, setShowInterestForm] = useState(null);
@@ -240,7 +240,7 @@ const HomeRedesigned = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredItems.map((product) => (
-              <ProductCardRedesigned
+              <ProductCard
                 key={product.id}
                 product={product}
                 isInterested={interestedItems.includes(product.id)}
@@ -303,4 +303,4 @@ const HomeRedesigned = () => {
   );
 };
 
-export default HomeRedesigned;
+export default Home;

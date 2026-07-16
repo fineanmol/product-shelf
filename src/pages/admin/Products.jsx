@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { FaPlus, FaTh, FaList, FaDownload, FaFileImport, FaCheckSquare, FaTrash, FaEye, FaEyeSlash, FaBoxOpen, FaEdit, FaExternalLinkAlt, FaTimesCircle, FaUndo, FaCopy } from "react-icons/fa";
 import DashboardLayout from "../../components/ui/DashboardLayout";
 import SearchAndFilter from "../../components/ui/SearchAndFilter";
-import ProductCard from "../../components/ui/ProductCard";
+import ProductGridCard from "../../components/ui/ProductGridCard";
 import BulkActionConfirmModal from "../../components/admin/BulkActionConfirmModal";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import AnimatedButton from "../../components/ui/AnimatedButton";
@@ -16,7 +16,7 @@ import {
 import GlassModal from "../../components/ui/GlassModal";
 import ProfileImage from "../../components/shared/ProfileImage";
 
-const ProductsRedesigned = () => {
+const Products = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -524,7 +524,7 @@ const ProductsRedesigned = () => {
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredAndSortedProducts.map((product) => (
-              <ProductCard
+              <ProductGridCard
                 key={product.id}
                 product={product}
                 onEdit={handleEditProduct}
@@ -798,4 +798,4 @@ const ProductsRedesigned = () => {
   );
 };
 
-export default ProductsRedesigned;
+export default Products;

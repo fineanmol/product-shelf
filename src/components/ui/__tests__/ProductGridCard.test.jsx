@@ -1,9 +1,9 @@
-// src/components/ui/__tests__/ProductCard.test.jsx
+// src/components/ui/__tests__/ProductGridCard.test.jsx
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import ProductCard from "../ProductCard";
+import ProductGridCard from "../ProductGridCard";
 
-describe("ProductCard", () => {
+describe("ProductGridCard", () => {
   const mockProduct = {
     id: "prod-1",
     title: "Sony Headphones",
@@ -32,7 +32,7 @@ describe("ProductCard", () => {
   });
 
   it("should render product title, description, and price with correct currency symbol", () => {
-    render(<ProductCard {...defaultProps} />);
+    render(<ProductGridCard {...defaultProps} />);
 
     expect(screen.getByText("Sony Headphones")).toBeInTheDocument();
     expect(
@@ -43,14 +43,14 @@ describe("ProductCard", () => {
 
   it("should render placeholder image when product has no image", () => {
     const productWithoutImage = { ...mockProduct, image: "" };
-    render(<ProductCard {...defaultProps} product={productWithoutImage} />);
+    render(<ProductGridCard {...defaultProps} product={productWithoutImage} />);
 
     const img = screen.getByRole("img", { name: "Sony Headphones" });
     expect(img).toHaveAttribute("src", "/placeholder.png");
   });
 
   it("should fallback to placeholder image when image failing to load triggers onError", () => {
-    render(<ProductCard {...defaultProps} />);
+    render(<ProductGridCard {...defaultProps} />);
 
     const img = screen.getByRole("img", { name: "Sony Headphones" });
     expect(img).toHaveAttribute("src", "https://example.com/headphones.jpg");
@@ -62,7 +62,7 @@ describe("ProductCard", () => {
   });
 
   it("should render visit website link when product has a valid HTTP/HTTPS URL", () => {
-    render(<ProductCard {...defaultProps} />);
+    render(<ProductGridCard {...defaultProps} />);
 
     const link = screen.getByRole("link", { name: "View on Amazon" });
     expect(link).toBeInTheDocument();
@@ -74,20 +74,20 @@ describe("ProductCard", () => {
     // Missing URL
     const productNoUrl = { ...mockProduct, url: "" };
     const { rerender } = render(
-      <ProductCard {...defaultProps} product={productNoUrl} />
+      <ProductGridCard {...defaultProps} product={productNoUrl} />
     );
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
 
     // Invalid protocol/URL
     const productInvalidUrl = { ...mockProduct, url: "not-a-link" };
-    rerender(<ProductCard {...defaultProps} product={productInvalidUrl} />);
+    rerender(<ProductGridCard {...defaultProps} product={productInvalidUrl} />);
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
   it("should show selection checkbox when selectable and toggle onSelect when clicked", () => {
     const onSelectMock = jest.fn();
     const { rerender } = render(
-      <ProductCard {...defaultProps} onSelect={onSelectMock} selected={false} />
+      <ProductGridCard {...defaultProps} onSelect={onSelectMock} selected={false} />
     );
 
     // Unselected state - verify the checkbox button exists and doesn't render checked icon
@@ -101,7 +101,7 @@ describe("ProductCard", () => {
 
     // Selected state - render with selected=true
     rerender(
-      <ProductCard {...defaultProps} onSelect={onSelectMock} selected={true} />
+      <ProductGridCard {...defaultProps} onSelect={onSelectMock} selected={true} />
     );
     const checkedBtn = screen.getByRole("button", { name: "Select product" });
     expect(checkedBtn.querySelector("svg")).toBeInTheDocument();
