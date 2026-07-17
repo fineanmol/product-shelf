@@ -59,18 +59,30 @@ const ProductDetails = () => {
           setProduct(productData);
 
           if (productData.added_by) {
-            const sellerSnap = await get(ref(db, `users/${productData.added_by}`));
-            if (sellerSnap.exists()) {
-              const sellerData = sellerSnap.val();
-              if (sellerData.phone) {
-                setSellerPhone(sellerData.phone);
+            // Best-effort only: anonymous/non-owner visitors are not
+            // permitted to read another user's record (database.rules.json
+            // restricts users/$uid reads to that user or a superAdmin), so a
+            // permission-denied here is expected for most shoppers and must
+            // not fail the whole product page -- it should just mean no
+            // WhatsApp contact button, which is already how a missing phone
+            // number is handled below.
+            try {
+              const sellerSnap = await get(ref(db, `users/${productData.added_by}`));
+              if (sellerSnap.exists()) {
+                const sellerData = sellerSnap.val();
+                if (sellerData.phone) {
+                  setSellerPhone(sellerData.phone);
+                }
               }
+            } catch (sellerErr) {
+              console.error("Could not load seller contact info:", sellerErr);
             }
           }
         } else {
           setError("Product not found.");
         }
       } catch (err) {
+        console.error("Failed to load product:", err);
         setError("Failed to load product.");
       }
       setLoading(false);
