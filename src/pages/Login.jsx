@@ -15,6 +15,7 @@ import {
   FaEyeSlash,
   FaArrowLeft,
 } from "react-icons/fa";
+import AnimatedButton from "../components/ui/AnimatedButton";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -148,7 +149,14 @@ const Login = () => {
       {/* Left Column - Hero/Branding (visible on lg screens and up) */}
       <div className="hidden lg:flex lg:col-span-5 bg-brand-navy flex-col justify-between p-10 text-white relative overflow-hidden">
         {/* Subtle background pattern */}
-        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#5cc3e8_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none"></div>
+        <div
+          className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(var(--login-dot-color, #5cc3e8) 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+          }}
+        ></div>
 
         {/* Top Header */}
         <div className="relative flex items-center gap-3">
@@ -164,25 +172,25 @@ const Login = () => {
         {/* Hero Content */}
         <div className="relative space-y-5 my-auto">
           <div>
-            <span className="inline-block text-xs font-bold uppercase tracking-widest text-brand-sky/80 mb-3">
+            <span className="inline-block text-caption font-bold uppercase tracking-widest text-brand-sky/80 mb-3">
               ✦ Built for sellers
             </span>
-            <h2 className="text-3xl font-extrabold leading-tight">
+            <h2 className="text-display leading-tight">
               Manage your store <br />
               with absolute ease.
             </h2>
-            <p className="text-blue-100/60 text-sm leading-relaxed mt-3 max-w-xs">
+            <p className="text-body text-blue-100/60 mt-3 max-w-xs">
               List products, track customer interests, and coordinate deliveries — all in one place.
             </p>
           </div>
 
           {/* Dashboard screenshot mock-frame */}
-          <div className="rounded-xl overflow-hidden border border-white/10 shadow-2xl shadow-black/40">
+          <div className="rounded-xl overflow-hidden border border-white/10 shadow-soft-lg">
             {/* Browser chrome bar */}
             <div className="flex items-center gap-1.5 bg-white/10 px-3 py-2 border-b border-white/10">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-400/70"></span>
-              <span className="w-2.5 h-2.5 rounded-full bg-yellow-400/70"></span>
-              <span className="w-2.5 h-2.5 rounded-full bg-green-400/70"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-coral/70"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-sunshine/70"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-mint/70"></span>
               <div className="ml-2 flex-1 bg-white/10 rounded px-2 py-0.5 text-[10px] text-white/40 font-mono truncate">
                 skymarket.app/admin
               </div>
@@ -200,41 +208,41 @@ const Login = () => {
           <div className="space-y-2.5 pt-1">
             <div className="flex items-center gap-2.5">
               <span className="w-2 h-2 rounded-full bg-brand-sky flex-shrink-0"></span>
-              <span className="text-xs font-medium text-blue-100/70">Real-time interest tracking</span>
+              <span className="text-caption font-medium text-blue-100/70">Real-time interest tracking</span>
             </div>
             <div className="flex items-center gap-2.5">
               <span className="w-2 h-2 rounded-full bg-brand-mint flex-shrink-0"></span>
-              <span className="text-xs font-medium text-blue-100/70">Secure Firebase authentication</span>
+              <span className="text-caption font-medium text-blue-100/70">Secure Firebase authentication</span>
             </div>
             <div className="flex items-center gap-2.5">
               <span className="w-2 h-2 rounded-full bg-brand-sunshine flex-shrink-0"></span>
-              <span className="text-xs font-medium text-blue-100/70">Automated seller onboarding</span>
+              <span className="text-caption font-medium text-blue-100/70">Automated seller onboarding</span>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="relative text-xs text-blue-100/30">
+        <div className="relative text-caption text-blue-100/30">
           &copy; {new Date().getFullYear()} SkyMarket. All rights reserved.
         </div>
       </div>
 
       {/* Right Column - Login Form */}
-      <div className="lg:col-span-7 bg-gray-50 flex flex-col justify-center px-4 sm:px-6 lg:px-20 xl:px-24 py-12 relative">
+      <div className="lg:col-span-7 bg-stone-50 flex flex-col justify-center px-4 sm:px-6 lg:px-20 xl:px-24 py-12 relative">
         {/* Back to Home Button in top right */}
         <div className="absolute top-8 right-8">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-gray-500 hover:text-brand-navy text-sm font-semibold transition-colors"
+            className="flex items-center gap-2 text-stone-500 hover:text-brand-navy text-sm font-semibold transition-colors"
           >
             <FaArrowLeft />
             <span>Back to Home</span>
           </button>
         </div>
 
-        <div className="w-full max-w-md mx-auto bg-white p-8 sm:p-10 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="w-full max-w-md mx-auto bg-white p-8 sm:p-12 rounded-2xl border border-stone-200 shadow-soft">
           {/* Logo on mobile */}
-          <div className="flex items-center gap-3 mb-6 lg:hidden">
+          <div className="flex items-center gap-3 mb-8 lg:hidden">
             <div className="w-8 h-8 bg-brand-navy rounded-lg flex items-center justify-center">
               <FaShoppingCart className="text-white text-sm" />
             </div>
@@ -242,17 +250,17 @@ const Login = () => {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-3xl font-extrabold text-brand-navy tracking-tight">
+            <h2 className="text-title-lg text-brand-navy">
               Sign In
             </h2>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-body text-stone-500 mt-2">
               Enter your credentials to manage your store listings.
             </p>
           </div>
 
-          <form onSubmit={handleEmailLogin} className="space-y-5">
+          <form onSubmit={handleEmailLogin} className="space-y-6">
             <div>
-              <label className="block text-xs font-bold text-brand-navy uppercase tracking-wider mb-2">
+              <label className="block text-caption font-bold text-brand-navy uppercase tracking-wider mb-2">
                 Email Address
               </label>
               <input
@@ -260,7 +268,7 @@ const Login = () => {
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-sky focus:border-brand-sky transition-colors"
+                className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-stone-900 text-sm placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-brand-sky focus:border-brand-sky transition-colors"
                 required
                 disabled={isLoading}
               />
@@ -268,7 +276,7 @@ const Login = () => {
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-xs font-bold text-brand-navy uppercase tracking-wider">
+                <label className="block text-caption font-bold text-brand-navy uppercase tracking-wider">
                   Password
                 </label>
               </div>
@@ -278,54 +286,49 @@ const Login = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-sky focus:border-brand-sky transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-stone-900 text-sm placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-brand-sky focus:border-brand-sky transition-colors"
                   required
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-3.5 top-1/2 transform -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
                 >
                   {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
                 </button>
               </div>
             </div>
 
-            <button
+            <AnimatedButton
               type="submit"
-              disabled={isLoading}
-              className="w-full bg-brand-sky hover:bg-brand-navy disabled:bg-gray-400 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm text-sm"
+              variant="primary"
+              loading={isLoading}
+              className="w-full"
             >
-              {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Signing In...</span>
-                </>
-              ) : (
-                <span>Sign In</span>
-              )}
-            </button>
+              {isLoading ? "Signing In..." : "Sign In"}
+            </AnimatedButton>
           </form>
 
           <div className="flex items-center my-6">
-            <hr className="flex-1 border-gray-100" />
-            <span className="px-4 text-gray-400 text-xs font-bold tracking-wider">OR</span>
-            <hr className="flex-1 border-gray-100" />
+            <hr className="flex-1 border-stone-100" />
+            <span className="px-4 text-stone-400 text-caption font-bold tracking-wider">OR</span>
+            <hr className="flex-1 border-stone-100" />
           </div>
 
           <button
             type="button"
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-3 shadow-sm cursor-pointer text-sm"
+            className="w-full bg-white hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed border border-stone-200 text-stone-700 font-semibold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-3 shadow-soft cursor-pointer text-sm"
           >
             <FcGoogle size={18} />
             <span>Continue with Google</span>
           </button>
 
           <div className="mt-8 p-4 bg-brand-sky/5 rounded-xl border border-brand-sky/10">
-            <p className="text-xs text-brand-navy leading-relaxed text-center font-medium">
+            <p className="text-caption text-brand-navy leading-relaxed text-center font-medium">
               💡 <strong>Note:</strong> Accounts are created instantly with <span className="text-brand-sky font-semibold">Editor</span> status to start listing items immediately.
             </p>
           </div>

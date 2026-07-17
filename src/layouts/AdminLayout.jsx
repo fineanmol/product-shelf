@@ -146,11 +146,11 @@ function AdminLayout() {
 
   if (!currentUser || !userRole) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="bg-white rounded-xl p-8 shadow-lg border">
+      <div className="flex items-center justify-center h-screen bg-stone-50">
+        <div className="bg-white rounded-xl p-8 shadow-soft-lg border border-stone-200">
           <div className="flex flex-col items-center gap-4">
             <div className="w-8 h-8 border-4 border-brand-sky border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-gray-600">Authenticating...</p>
+            <p className="text-body text-stone-600">Authenticating...</p>
           </div>
         </div>
       </div>
@@ -158,7 +158,7 @@ function AdminLayout() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-stone-50">
       {/* Desktop Sidebar - Collapsible */}
       <div
         className={`hidden lg:block transition-all duration-300 ${
@@ -192,21 +192,21 @@ function AdminLayout() {
       {/* Main Content */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Top Navbar */}
-        <header className="bg-white border-b border-gray-200 shadow-sm z-30">
+        <header className="bg-white border-b border-stone-200 shadow-soft z-30">
           <div className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center gap-4">
               {/* Menu button - works for both mobile and desktop */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                className="p-2 rounded-lg bg-stone-100 hover:bg-stone-200 transition-colors"
               >
-                <FaBars className="text-gray-600" />
+                <FaBars className="text-stone-600" />
               </button>
 
               <div className="flex items-center gap-4">
                 <Link
                   to="/admin"
-                  className="flex items-center gap-3 text-xl font-bold text-gray-800 hover:text-brand-sky transition-colors"
+                  className="flex items-center gap-3 text-xl font-bold text-stone-800 hover:text-brand-sky transition-colors"
                 >
                   <div className="w-8 h-8 bg-brand-sky rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">A</span>
@@ -215,12 +215,12 @@ function AdminLayout() {
                 </Link>
 
                 {/* Search Bar */}
-                <div className="hidden md:flex items-center bg-gray-100 rounded-lg px-4 py-2 w-80">
-                  <FaSearch className="text-gray-400 mr-3" />
+                <div className="hidden md:flex items-center bg-stone-100 rounded-lg px-4 py-2 w-80">
+                  <FaSearch className="text-stone-400 mr-3" />
                   <input
                     type="text"
                     placeholder="Search products, users, feedback..."
-                    className="bg-transparent flex-1 outline-none text-gray-700 placeholder-gray-500"
+                    className="bg-transparent flex-1 outline-none text-stone-700 placeholder-stone-500"
                   />
                 </div>
               </div>
@@ -251,7 +251,7 @@ function AdminLayout() {
               <div className="relative ml-2">
                 <button
                   onClick={() => setShowMenu(!showMenu)}
-                  className="flex items-center gap-3 bg-white hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors border"
+                  className="flex items-center gap-3 bg-white hover:bg-stone-50 px-3 py-2 rounded-lg transition-colors border border-stone-200"
                 >
                   <ProfileImage
                     src={profileData.photoURL}
@@ -260,15 +260,15 @@ function AdminLayout() {
                     size={128}
                   />
                   <div className="hidden sm:block text-left min-w-[120px]">
-                    <div className="font-medium text-gray-800 text-sm truncate">
+                    <div className="font-medium text-stone-800 text-sm truncate">
                       {profileData.name || "Admin"}
                     </div>
-                    <div className="text-xs text-gray-500 truncate">
+                    <div className="text-caption text-stone-500 truncate">
                       {userRole.isSuperAdmin ? "Super Admin" : "Editor"}
                     </div>
                   </div>
                   <svg
-                    className="w-4 h-4 text-gray-400 flex-shrink-0"
+                    className="w-4 h-4 text-stone-400 flex-shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -281,12 +281,12 @@ function AdminLayout() {
                 </button>
 
                 {showMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg py-1 z-50">
-                    <div className="px-4 py-2 border-b">
-                      <div className="font-medium text-gray-800 text-sm truncate">
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-stone-200 rounded-lg shadow-soft-md py-1 z-50">
+                    <div className="px-4 py-2 border-b border-stone-100">
+                      <div className="font-medium text-stone-800 text-sm truncate">
                         {profileData.name || currentUser.displayName || currentUser.email}
                       </div>
-                      <div className="text-xs text-gray-500 truncate">
+                      <div className="text-caption text-stone-500 truncate">
                         {currentUser.email}
                       </div>
                     </div>
@@ -296,18 +296,18 @@ function AdminLayout() {
                         setShowProfileModal(true);
                         setShowMenu(false);
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left text-sm"
+                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-stone-50 text-left text-sm"
                     >
-                      <FaUser className="text-gray-500" />
-                      <span className="text-gray-700">Profile</span>
+                      <FaUser className="text-stone-500" />
+                      <span className="text-stone-700">Profile</span>
                     </button>
 
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left border-t text-sm"
+                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-stone-50 text-left border-t border-stone-100 text-sm"
                     >
-                      <FaSignOutAlt className="text-red-500" />
-                      <span className="text-red-600">Sign Out</span>
+                      <FaSignOutAlt className="text-brand-coral" />
+                      <span className="text-brand-coral">Sign Out</span>
                     </button>
                   </div>
                 )}
@@ -339,20 +339,20 @@ function AdminLayout() {
             <ProfileImage
               src={editPhotoURL}
               alt={editName || "User"}
-              className="w-24 h-24 rounded-full border-4 border-brand-sky object-cover shadow-md"
+              className="w-24 h-24 rounded-full border-4 border-brand-sky object-cover shadow-soft-md"
               size={128}
             />
             <div className="text-center">
               <span className="inline-block text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded bg-brand-sky/10 text-brand-navy border border-brand-sky/20">
                 {userRole?.isSuperAdmin ? "Super Admin" : "Seller"}
               </span>
-              <p className="text-sm text-gray-500 mt-1">{profileData.email}</p>
+              <p className="text-caption text-stone-500 mt-1">{profileData.email}</p>
             </div>
           </div>
 
           <form onSubmit={handleSaveProfile} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label className="block text-sm font-semibold text-stone-700 mb-1.5">
                 Display Name
               </label>
               <input
@@ -360,14 +360,14 @@ function AdminLayout() {
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 placeholder="Enter your name"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sky focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sky focus:border-transparent transition-all"
                 required
                 disabled={isSavingProfile}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label className="block text-sm font-semibold text-stone-700 mb-1.5">
                 Profile Photo URL
               </label>
               <input
@@ -375,16 +375,16 @@ function AdminLayout() {
                 value={editPhotoURL}
                 onChange={(e) => setEditPhotoURL(e.target.value)}
                 placeholder="https://example.com/avatar.jpg"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sky focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sky focus:border-transparent transition-all"
                 disabled={isSavingProfile}
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-stone-400 mt-1">
                 Provide a direct image link (e.g., from Unsplash or Imgur).
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label className="block text-sm font-semibold text-stone-700 mb-1.5">
                 WhatsApp Phone Number
               </label>
               <input
@@ -392,26 +392,26 @@ function AdminLayout() {
                 value={editPhone}
                 onChange={(e) => setEditPhone(e.target.value)}
                 placeholder="e.g. +4917612345678"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sky focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sky focus:border-transparent transition-all"
                 disabled={isSavingProfile}
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-stone-400 mt-1">
                 Enter phone number with country code (e.g. +4917612345678) for direct WhatsApp customer chats.
               </p>
             </div>
 
-            <div className="flex gap-3 pt-4 border-t">
+            <div className="flex gap-3 pt-4 border-t border-stone-200">
               <button
                 type="button"
                 onClick={() => setShowProfileModal(false)}
-                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2.5 border border-stone-300 text-stone-700 rounded-lg font-medium hover:bg-stone-50 transition-colors"
                 disabled={isSavingProfile}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex-1 bg-brand-sky hover:bg-brand-navy text-white py-2.5 px-4 rounded-lg font-semibold transition-colors disabled:bg-gray-400 flex items-center justify-center gap-2"
+                className="flex-1 bg-brand-sky hover:bg-brand-navy text-white py-2.5 px-4 rounded-lg font-semibold transition-colors disabled:bg-stone-400 flex items-center justify-center gap-2"
                 disabled={isSavingProfile}
               >
                 {isSavingProfile ? (

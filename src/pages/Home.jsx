@@ -13,6 +13,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { FaSearch, FaFilter, FaPlus } from "react-icons/fa";
 import PageHeader from "../components/shared/PageHeader";
 import FilterBar from "../components/shared/FilterBar";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 const Home = () => {
   const [items, setItems] = useState([]);
@@ -145,17 +146,14 @@ const Home = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-brand-sky border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading products...</p>
-        </div>
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <LoadingSpinner text="Loading products..." />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-stone-50">
       {/* Header with Search - Using Reusable Component */}
       <PageHeader
         siteName="SkyMarket"
@@ -167,10 +165,10 @@ const Home = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-colors font-medium shadow-sm ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-colors font-medium shadow-soft ${
                 hasActiveFilters
                   ? "bg-brand-sky text-white border-brand-sky"
-                  : "bg-white text-gray-700 border-gray-300 hover:border-brand-sky hover:text-brand-sky"
+                  : "bg-white text-stone-700 border-stone-300 hover:border-brand-sky hover:text-brand-sky"
               }`}
             >
               <FaFilter className="text-sm" />
@@ -185,14 +183,14 @@ const Home = () => {
             {currentUser ? (
               <button
                 onClick={() => navigate("/admin")}
-                className="hidden sm:flex items-center gap-2 bg-brand-sky hover:bg-brand-mint text-white px-4 py-2.5 rounded-lg transition-colors font-medium shadow-sm"
+                className="hidden sm:flex items-center gap-2 bg-brand-sky hover:bg-brand-mint text-white px-4 py-2.5 rounded-lg transition-colors font-medium shadow-soft"
               >
                 Dashboard
               </button>
             ) : (
               <button
                 onClick={() => navigate("/login")}
-                className="hidden sm:flex items-center gap-2 bg-brand-sky hover:bg-brand-mint text-white px-4 py-2.5 rounded-lg transition-colors font-medium shadow-sm"
+                className="hidden sm:flex items-center gap-2 bg-brand-sky hover:bg-brand-mint text-white px-4 py-2.5 rounded-lg transition-colors font-medium shadow-soft"
               >
                 <FaPlus className="text-sm" />
                 Sell
@@ -204,12 +202,12 @@ const Home = () => {
 
       {/* Hero Section */}
       <div className="bg-brand-navy text-white py-14 px-6 text-center relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#5cc3e8_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div className="absolute inset-0 opacity-[0.07] bg-[radial-gradient(#5cc3e8_1px,transparent_1px)] [background-size:20px_20px]"></div>
         <div className="max-w-3xl mx-auto relative z-10">
-          <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">
+          <h2 className="text-display-lg text-white mb-4">
             Discover Great Deals on <span className="text-brand-sky">SkyMarket</span>
           </h2>
-          <p className="text-gray-300 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+          <p className="text-body-lg text-stone-300 max-w-xl mx-auto">
             Your trusted local marketplace for buying and selling premium pre-loved items. Clean, safe, and secure.
           </p>
         </div>
@@ -217,7 +215,7 @@ const Home = () => {
 
       {/* Expandable Filters - Using Reusable Component */}
       {showFilters && (
-        <div className="bg-white border-b shadow-sm">
+        <div className="bg-white border-b border-stone-200 shadow-soft">
           <div className="max-w-7xl mx-auto px-4 py-4">
             <FilterBar
               statusFilter={statusFilter}
@@ -239,7 +237,7 @@ const Home = () => {
       {/* Products Grid */}
       <main className="max-w-7xl mx-auto px-4 py-6">
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-gray-600">
+          <p className="text-body text-stone-600">
             {filteredItems.length}{" "}
             {filteredItems.length === 1 ? "product" : "products"}
           </p>
@@ -247,11 +245,11 @@ const Home = () => {
 
         {filteredItems.length === 0 ? (
           <div className="text-center py-16">
-            <FaSearch className="text-gray-400 text-5xl mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <FaSearch className="text-stone-400 text-5xl mx-auto mb-4" />
+            <h3 className="text-title-lg text-stone-900 mb-2">
               No products found
             </h3>
-            <p className="text-gray-600">
+            <p className="text-body text-stone-600">
               {items.length === 0
                 ? "This shop has no products yet — check back soon"
                 : "Try adjusting your search or filters"}

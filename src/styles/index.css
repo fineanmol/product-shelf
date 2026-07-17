@@ -3,6 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --login-dot-color: var(--brand-sky);
+}
+
 /* Enhanced Base styles */
 * {
   box-sizing: border-box;
@@ -384,18 +388,6 @@ select:focus {
 
 .bg-gradient {
   background: var(--accent-primary);
-}
-
-.shadow-soft {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-.shadow-medium {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-}
-
-.shadow-strong {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 .border-gradient {

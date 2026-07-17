@@ -34,6 +34,7 @@ import {
 import { logEvent } from "firebase/analytics";
 import { currencySymbols } from "../utils/utils";
 import AnimatedButton from "../components/ui/AnimatedButton";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -121,11 +122,11 @@ const ProductDetails = () => {
 
   const getDeliveryIcon = (option) => {
     const icons = {
-      shipping: <FaTruck className="text-blue-600" />,
-      "pick up": <FaStore className="text-green-600" />,
-      pickup: <FaStore className="text-green-600" />,
+      shipping: <FaTruck className="text-brand-sky" />,
+      "pick up": <FaStore className="text-brand-mint" />,
+      pickup: <FaStore className="text-brand-mint" />,
     };
-    return icons[option.toLowerCase()] || <FaTruck className="text-blue-600" />;
+    return icons[option.toLowerCase()] || <FaTruck className="text-brand-sky" />;
   };
 
   const formatPrice = (price, currency = "EUR") => {
@@ -134,23 +135,9 @@ const ProductDetails = () => {
 
   if (loading) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "var(--bg-primary)" }}
-      >
-        <div className="glass-card p-8 text-center">
-          <div className="loading-dots mb-4">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <p
-            className="text-lg font-medium"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Loading product details...
-          </p>
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <div className="bg-white border border-stone-200 rounded-xl shadow-soft p-8 text-center">
+          <LoadingSpinner text="Loading product details..." />
         </div>
       </div>
     );
@@ -158,19 +145,11 @@ const ProductDetails = () => {
 
   if (error) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "var(--bg-primary)" }}
-      >
-        <div className="glass-card p-8 text-center max-w-md">
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <div className="bg-white border border-stone-200 rounded-xl shadow-soft p-8 text-center max-w-md">
           <div className="text-6xl mb-4">⚠️</div>
-          <h2
-            className="text-xl font-bold mb-2"
-            style={{ color: "var(--accent-error)" }}
-          >
-            {error}
-          </h2>
-          <p className="mb-6" style={{ color: "var(--text-secondary)" }}>
+          <h2 className="text-title-lg text-brand-coral mb-2">{error}</h2>
+          <p className="text-body text-stone-700 mb-6">
             The product you're looking for might have been removed or doesn't
             exist.
           </p>
@@ -186,7 +165,7 @@ const ProductDetails = () => {
   if (!product) return null;
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
+    <div className="min-h-screen bg-stone-50">
       {/* Header */}
       <PageHeader
         siteName="SkyMarket"
@@ -206,26 +185,20 @@ const ProductDetails = () => {
 
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-4 py-4">
-        <div
-          className="flex items-center gap-2 text-sm"
-          style={{ color: "var(--text-muted)" }}
-        >
+        <div className="flex items-center gap-2 text-caption text-stone-500">
           <Link
             to="/"
-            className="hover:text-blue-600 transition-colors flex items-center gap-1"
+            className="hover:text-brand-sky transition-colors flex items-center gap-1"
           >
             <FaHome />
             Home
           </Link>
           <FaChevronRight className="text-xs" />
-          <Link to="/" className="hover:text-blue-600 transition-colors">
+          <Link to="/" className="hover:text-brand-sky transition-colors">
             Products
           </Link>
           <FaChevronRight className="text-xs" />
-          <span
-            style={{ color: "var(--text-primary)" }}
-            className="font-medium truncate max-w-xs"
-          >
+          <span className="text-brand-navy font-medium truncate max-w-xs">
             {product.title}
           </span>
         </div>
@@ -236,8 +209,8 @@ const ProductDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Product Images */}
           <div className="space-y-4">
-            <div className="glass-card p-6 rounded-2xl">
-              <div className="aspect-square bg-gray-50 rounded-xl overflow-hidden mb-4 relative group">
+            <div className="bg-white border border-stone-200 rounded-xl shadow-soft p-6">
+              <div className="aspect-square bg-stone-50 rounded-xl overflow-hidden mb-4 relative group">
                 <img
                   src={product.image || null}
                   alt={product.title}
@@ -248,17 +221,22 @@ const ProductDetails = () => {
                 <div className="absolute top-4 right-4 flex gap-2">
                   <button
                     onClick={() => setIsWishlisted(!isWishlisted)}
-                    className={`p-3 rounded-full backdrop-blur-md transition-all ${
+                    aria-label={
+                      isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+                    }
+                    aria-pressed={isWishlisted}
+                    className={`p-3 rounded-full shadow-soft transition-all ${
                       isWishlisted
-                        ? "bg-red-500 text-white"
-                        : "bg-white/20 text-gray-700 hover:bg-white/30"
+                        ? "bg-brand-coral text-white"
+                        : "bg-white/80 text-stone-700 hover:bg-white"
                     }`}
                   >
                     <FaHeart />
                   </button>
                   <button
                     onClick={handleShare}
-                    className="p-3 rounded-full bg-white/20 backdrop-blur-md text-gray-700 hover:bg-white/30 transition-all"
+                    aria-label="Share this product"
+                    className="p-3 rounded-full bg-white/80 text-stone-700 hover:bg-white shadow-soft transition-all"
                   >
                     <FaShareAlt />
                   </button>
@@ -267,7 +245,7 @@ const ProductDetails = () => {
                 {/* Discount badge */}
                 {calculateDiscount() > 0 && (
                   <div className="absolute top-4 left-4">
-                    <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                    <span className="bg-brand-coral text-white px-3 py-1 rounded-full text-caption font-bold">
                       -{calculateDiscount()}% OFF
                     </span>
                   </div>
@@ -276,86 +254,57 @@ const ProductDetails = () => {
             </div>
 
             {/* Trust indicators */}
-            <div className="glass-card p-6 rounded-2xl">
-              <h3
-                className="font-semibold mb-4"
-                style={{ color: "var(--text-primary)" }}
-              >
+            <div className="bg-white border border-stone-200 rounded-xl shadow-soft p-6">
+              <h3 className="text-title text-brand-navy mb-4">
                 Why Choose Us?
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <FaShieldAlt className="text-green-600" />
+                  <div className="w-10 h-10 bg-brand-mint/20 rounded-lg flex items-center justify-center">
+                    <FaShieldAlt className="text-brand-mint" />
                   </div>
                   <div>
-                    <p
-                      className="font-medium text-sm"
-                      style={{ color: "var(--text-primary)" }}
-                    >
+                    <p className="text-body font-medium text-brand-navy">
                       Secure Payment
                     </p>
-                    <p
-                      className="text-xs"
-                      style={{ color: "var(--text-muted)" }}
-                    >
+                    <p className="text-caption text-stone-500">
                       100% Protected
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <FaTruck className="text-blue-600" />
+                  <div className="w-10 h-10 bg-brand-sky/20 rounded-lg flex items-center justify-center">
+                    <FaTruck className="text-brand-sky" />
                   </div>
                   <div>
-                    <p
-                      className="font-medium text-sm"
-                      style={{ color: "var(--text-primary)" }}
-                    >
+                    <p className="text-body font-medium text-brand-navy">
                       Fast Delivery
                     </p>
-                    <p
-                      className="text-xs"
-                      style={{ color: "var(--text-muted)" }}
-                    >
+                    <p className="text-caption text-stone-500">
                       2-3 Business Days
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <FaHeadset className="text-purple-600" />
+                  <div className="w-10 h-10 bg-stone-200 rounded-lg flex items-center justify-center">
+                    <FaHeadset className="text-stone-600" />
                   </div>
                   <div>
-                    <p
-                      className="font-medium text-sm"
-                      style={{ color: "var(--text-primary)" }}
-                    >
+                    <p className="text-body font-medium text-brand-navy">
                       24/7 Support
                     </p>
-                    <p
-                      className="text-xs"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      Always Here
-                    </p>
+                    <p className="text-caption text-stone-500">Always Here</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <FaAward className="text-orange-600" />
+                  <div className="w-10 h-10 bg-brand-sunshine/20 rounded-lg flex items-center justify-center">
+                    <FaAward className="text-brand-navy" />
                   </div>
                   <div>
-                    <p
-                      className="font-medium text-sm"
-                      style={{ color: "var(--text-primary)" }}
-                    >
+                    <p className="text-body font-medium text-brand-navy">
                       Quality Assured
                     </p>
-                    <p
-                      className="text-xs"
-                      style={{ color: "var(--text-muted)" }}
-                    >
+                    <p className="text-caption text-stone-500">
                       Verified Products
                     </p>
                   </div>
@@ -366,43 +315,40 @@ const ProductDetails = () => {
 
           {/* Product Info */}
           <div className="space-y-6">
-            <div className="glass-card p-8 rounded-2xl">
+            <div className="bg-white border border-stone-200 rounded-xl shadow-soft p-8">
               {/* Product title and rating */}
               <div className="mb-6">
                 {product.sold_out && (
                   <div className="mb-3">
-                    <span className="inline-block bg-red-600 text-white text-sm font-bold px-4 py-2 rounded-full">
+                    <span className="inline-block bg-brand-coral text-white text-body font-bold px-4 py-2 rounded-full">
                       SOLD OUT
                     </span>
                   </div>
                 )}
 
-                <h1
-                  className="text-3xl lg:text-4xl font-bold mb-3 leading-tight"
-                  style={{ color: "var(--text-primary)" }}
-                >
+                <h1 className="text-display text-brand-navy mb-3">
                   {product.title}
                 </h1>
 
                 {/* Status badges */}
                 <div className="flex flex-wrap gap-2 mb-6">
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 ${
+                    className={`px-3 py-1 rounded-full text-caption font-semibold flex items-center gap-1 ${
                       product.status === "available"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-orange-100 text-orange-800"
+                        ? "bg-brand-mint/20 text-brand-navy"
+                        : "bg-brand-sunshine/30 text-brand-navy"
                     }`}
                   >
                     <FaCheckCircle className="text-xs" />
                     {product.status === "available" ? "In Stock" : "Reserved"}
                   </span>
 
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                  <span className="bg-brand-sky/20 text-brand-navy px-3 py-1 rounded-full text-caption font-semibold">
                     {product.condition || product.age || "New"}
                   </span>
 
                   {product.source && (
-                    <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-semibold">
+                    <span className="bg-stone-200 text-stone-700 px-3 py-1 rounded-full text-caption font-semibold">
                       From {product.source}
                     </span>
                   )}
@@ -410,23 +356,14 @@ const ProductDetails = () => {
               </div>
 
               {/* Pricing */}
-              <div
-                className="mb-8 p-6 rounded-xl"
-                style={{ background: "var(--bg-glass)" }}
-              >
+              <div className="mb-8 p-6 rounded-xl bg-stone-50">
                 <div className="flex items-baseline gap-4 mb-2">
-                  <span
-                    className="text-4xl font-bold"
-                    style={{ color: "var(--accent-primary)" }}
-                  >
+                  <span className="text-display text-brand-navy">
                     {formatPrice(product.price, product.currency)}
                   </span>
                   {product.original_price &&
                     product.original_price > product.price && (
-                      <span
-                        className="text-xl line-through"
-                        style={{ color: "var(--text-muted)" }}
-                      >
+                      <span className="text-title-lg line-through text-stone-500">
                         {formatPrice(product.original_price, product.currency)}
                       </span>
                     )}
@@ -434,17 +371,17 @@ const ProductDetails = () => {
 
                 {calculateSavings() > 0 && (
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-green-600 font-semibold">
+                    <span className="text-body font-semibold text-brand-mint">
                       You save{" "}
                       {formatPrice(calculateSavings(), product.currency)}
                     </span>
-                    <span className="bg-red-500 text-white px-2 py-1 rounded text-sm font-bold">
+                    <span className="bg-brand-coral text-white px-2 py-1 rounded text-caption font-bold">
                       {calculateDiscount()}% OFF
                     </span>
                   </div>
                 )}
 
-                <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                <p className="text-caption text-stone-500">
                   Inclusive of all taxes • Free shipping on orders over €50
                 </p>
               </div>
@@ -452,31 +389,24 @@ const ProductDetails = () => {
               {/* Quantity and Actions */}
               <div className="space-y-4 mb-8">
                 <div className="flex items-center gap-4">
-                  <label
-                    className="text-sm font-medium"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
+                  <label className="text-body font-medium text-stone-700">
                     Quantity:
                   </label>
-                  <div
-                    className="flex items-center border rounded-lg"
-                    style={{ borderColor: "var(--border-glass)" }}
-                  >
+                  <div className="flex items-center border border-stone-200 rounded-lg">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-3 py-2 hover:bg-gray-100 transition-colors"
+                      aria-label="Decrease quantity"
+                      className="px-3 py-2 hover:bg-stone-100 transition-colors"
                     >
                       -
                     </button>
-                    <span
-                      className="px-4 py-2 border-x"
-                      style={{ borderColor: "var(--border-glass)" }}
-                    >
+                    <span className="px-4 py-2 border-x border-stone-200 text-stone-700">
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="px-3 py-2 hover:bg-gray-100 transition-colors"
+                      aria-label="Increase quantity"
+                      className="px-3 py-2 hover:bg-stone-100 transition-colors"
                     >
                       +
                     </button>
@@ -515,7 +445,7 @@ const ProductDetails = () => {
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-sm hover:shadow-md text-center text-base"
+                      className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-soft hover:shadow-soft-md text-center text-body-lg"
                     >
                       <FaWhatsapp className="text-xl" />
                       <span>Chat on WhatsApp</span>
@@ -527,45 +457,29 @@ const ProductDetails = () => {
               {/* Delivery Options */}
               {product.delivery_options && (
                 <div className="mb-8">
-                  <h3
-                    className="text-lg font-semibold mb-4"
-                    style={{ color: "var(--text-primary)" }}
-                  >
+                  <h3 className="text-title text-brand-navy mb-4">
                     Delivery Options
                   </h3>
                   <div className="space-y-3">
                     {product.delivery_options.map((option, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-4 p-4 rounded-xl border"
-                        style={{
-                          background: "var(--bg-glass)",
-                          borderColor: "var(--border-glass)",
-                        }}
+                        className="flex items-center gap-4 p-4 rounded-xl border border-stone-200 bg-stone-50"
                       >
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-brand-sky/20 rounded-lg flex items-center justify-center">
                           {getDeliveryIcon(option)}
                         </div>
                         <div className="flex-1">
-                          <div
-                            className="font-medium"
-                            style={{ color: "var(--text-primary)" }}
-                          >
+                          <div className="text-body font-medium text-brand-navy">
                             {option}
                           </div>
-                          <div
-                            className="text-sm"
-                            style={{ color: "var(--text-secondary)" }}
-                          >
+                          <div className="text-caption text-stone-700">
                             {option.toLowerCase() === "shipping"
                               ? "Free delivery in 2-3 business days"
                               : "Available for pickup in Berlin"}
                           </div>
                         </div>
-                        <div
-                          className="text-sm font-semibold"
-                          style={{ color: "var(--accent-success)" }}
-                        >
+                        <div className="text-caption font-semibold text-brand-mint">
                           {option.toLowerCase() === "shipping"
                             ? "Free"
                             : "Available"}
@@ -578,19 +492,16 @@ const ProductDetails = () => {
             </div>
 
             {/* Product Details Tabs */}
-            <div className="glass-card rounded-2xl overflow-hidden">
-              <div
-                className="flex border-b"
-                style={{ borderColor: "var(--border-glass)" }}
-              >
+            <div className="bg-white border border-stone-200 rounded-xl shadow-soft overflow-hidden">
+              <div className="flex border-b border-stone-200">
                 {["description", "specifications", "reviews"].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`flex-1 px-6 py-4 text-sm font-medium capitalize transition-colors ${
+                    className={`flex-1 px-6 py-4 text-body font-medium capitalize transition-colors ${
                       activeTab === tab
-                        ? "border-b-2 border-blue-500 text-blue-600"
-                        : "text-gray-600 hover:text-gray-900"
+                        ? "border-b-2 border-brand-sky text-brand-sky"
+                        : "text-stone-500 hover:text-stone-700"
                     }`}
                   >
                     {tab}
@@ -601,10 +512,7 @@ const ProductDetails = () => {
               <div className="p-6">
                 {activeTab === "description" && (
                   <div className="prose max-w-none">
-                    <p
-                      style={{ color: "var(--text-secondary)" }}
-                      className="leading-relaxed"
-                    >
+                    <p className="text-body text-stone-700 leading-relaxed">
                       {product.description ||
                         "No description available for this product."}
                     </p>
@@ -615,60 +523,39 @@ const ProductDetails = () => {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {product.source && (
-                        <div
-                          className="flex justify-between py-2 border-b"
-                          style={{ borderColor: "var(--border-glass)" }}
-                        >
-                          <span style={{ color: "var(--text-muted)" }}>
+                        <div className="flex justify-between py-2 border-b border-stone-200">
+                          <span className="text-body text-stone-500">
                             Source
                           </span>
-                          <span
-                            style={{ color: "var(--text-primary)" }}
-                            className="font-medium"
-                          >
+                          <span className="text-body font-medium text-brand-navy">
                             {product.source}
                           </span>
                         </div>
                       )}
                       {product.available_from && (
-                        <div
-                          className="flex justify-between py-2 border-b"
-                          style={{ borderColor: "var(--border-glass)" }}
-                        >
-                          <span style={{ color: "var(--text-muted)" }}>
+                        <div className="flex justify-between py-2 border-b border-stone-200">
+                          <span className="text-body text-stone-500">
                             Available From
                           </span>
-                          <span
-                            style={{ color: "var(--text-primary)" }}
-                            className="font-medium"
-                          >
+                          <span className="text-body font-medium text-brand-navy">
                             {product.available_from}
                           </span>
                         </div>
                       )}
-                      <div
-                        className="flex justify-between py-2 border-b"
-                        style={{ borderColor: "var(--border-glass)" }}
-                      >
-                        <span style={{ color: "var(--text-muted)" }}>
+                      <div className="flex justify-between py-2 border-b border-stone-200">
+                        <span className="text-body text-stone-500">
                           Currency
                         </span>
-                        <span
-                          style={{ color: "var(--text-primary)" }}
-                          className="font-medium"
-                        >
+                        <span className="text-body font-medium text-brand-navy">
                           {product.currency || "EUR"}
                         </span>
                       </div>
                       {product.timestamp && (
                         <div className="flex justify-between py-2">
-                          <span style={{ color: "var(--text-muted)" }}>
+                          <span className="text-body text-stone-500">
                             Listed On
                           </span>
-                          <span
-                            style={{ color: "var(--text-primary)" }}
-                            className="font-medium"
-                          >
+                          <span className="text-body font-medium text-brand-navy">
                             {new Date(product.timestamp).toLocaleDateString()}
                           </span>
                         </div>
@@ -678,12 +565,11 @@ const ProductDetails = () => {
                 )}
 
                 {activeTab === "reviews" && (
-                  <div
-                    className="text-center py-8"
-                    style={{ color: "var(--text-muted)" }}
-                  >
+                  <div className="text-center py-8 text-stone-500">
                     <FaUsers className="text-4xl mb-4 mx-auto" />
-                    <p>Customer reviews will appear here once available.</p>
+                    <p className="text-body">
+                      Customer reviews will appear here once available.
+                    </p>
                   </div>
                 )}
               </div>
@@ -693,60 +579,48 @@ const ProductDetails = () => {
       </div>
 
       {/* Enhanced Footer */}
-      <footer
-        className="glass-card mt-16 rounded-none border-t"
-        style={{ borderColor: "var(--border-glass)" }}
-      >
+      <footer className="bg-white mt-16 rounded-none border-t border-stone-200">
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Company Info */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-brand-navy rounded-xl flex items-center justify-center">
                   <FaStore className="text-white text-lg" />
                 </div>
                 <div>
-                  <h3
-                    className="text-xl font-bold"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    MarketSpace
-                  </h3>
-                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                  <h3 className="text-title text-brand-navy">SkyMarket</h3>
+                  <p className="text-caption text-stone-500">
                     Premium Marketplace
                   </p>
                 </div>
               </div>
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: "var(--text-secondary)" }}
-              >
+              <p className="text-body text-stone-700 leading-relaxed">
                 Your trusted marketplace for premium products. We connect buyers
                 and sellers in a secure, modern platform designed for the
                 digital age.
               </p>
               <div className="flex gap-3">
-                {[FaFacebook, FaTwitter, FaInstagram, FaLinkedin].map(
-                  (Icon, index) => (
-                    <button
-                      key={index}
-                      className="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                    >
-                      <Icon className="text-gray-600" />
-                    </button>
-                  )
-                )}
+                {[
+                  { Icon: FaFacebook, label: "Facebook" },
+                  { Icon: FaTwitter, label: "Twitter" },
+                  { Icon: FaInstagram, label: "Instagram" },
+                  { Icon: FaLinkedin, label: "LinkedIn" },
+                ].map(({ Icon, label }) => (
+                  <button
+                    key={label}
+                    aria-label={`Visit our ${label} page`}
+                    className="w-10 h-10 rounded-lg bg-stone-100 hover:bg-stone-200 flex items-center justify-center transition-colors"
+                  >
+                    <Icon className="text-stone-600" />
+                  </button>
+                ))}
               </div>
             </div>
 
             {/* Quick Links */}
             <div>
-              <h4
-                className="font-semibold mb-4"
-                style={{ color: "var(--text-primary)" }}
-              >
-                Quick Links
-              </h4>
+              <h4 className="text-title text-brand-navy mb-4">Quick Links</h4>
               <ul className="space-y-2">
                 {[
                   "Browse Products",
@@ -758,8 +632,7 @@ const ProductDetails = () => {
                   <li key={link}>
                     <Link
                       to="/"
-                      className="text-sm hover:text-blue-600 transition-colors"
-                      style={{ color: "var(--text-secondary)" }}
+                      className="text-body text-stone-700 hover:text-brand-sky transition-colors"
                     >
                       {link}
                     </Link>
@@ -770,10 +643,7 @@ const ProductDetails = () => {
 
             {/* Customer Service */}
             <div>
-              <h4
-                className="font-semibold mb-4"
-                style={{ color: "var(--text-primary)" }}
-              >
+              <h4 className="text-title text-brand-navy mb-4">
                 Customer Service
               </h4>
               <ul className="space-y-2">
@@ -787,8 +657,7 @@ const ProductDetails = () => {
                   <li key={link}>
                     <Link
                       to="/"
-                      className="text-sm hover:text-blue-600 transition-colors"
-                      style={{ color: "var(--text-secondary)" }}
+                      className="text-body text-stone-700 hover:text-brand-sky transition-colors"
                     >
                       {link}
                     </Link>
@@ -799,61 +668,46 @@ const ProductDetails = () => {
 
             {/* Contact Info */}
             <div>
-              <h4
-                className="font-semibold mb-4"
-                style={{ color: "var(--text-primary)" }}
-              >
+              <h4 className="text-title text-brand-navy mb-4">
                 Get in Touch
               </h4>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <FaMapMarkerAlt style={{ color: "var(--text-muted)" }} />
-                  <span
-                    className="text-sm"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
+                  <FaMapMarkerAlt className="text-stone-500" />
+                  <span className="text-body text-stone-700">
                     Berlin, Germany
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <FaPhone style={{ color: "var(--text-muted)" }} />
-                  <span
-                    className="text-sm"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
+                  <FaPhone className="text-stone-500" />
+                  <span className="text-body text-stone-700">
                     +49 (0) 123 456 789
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <FaEnvelope style={{ color: "var(--text-muted)" }} />
-                  <span
-                    className="text-sm"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    hello@marketspace.com
+                  <FaEnvelope className="text-stone-500" />
+                  <span className="text-body text-stone-700">
+                    hello@skymarket.com
                   </span>
                 </div>
               </div>
 
               <div className="mt-6">
-                <h5
-                  className="font-medium mb-2"
-                  style={{ color: "var(--text-primary)" }}
-                >
+                <h5 className="text-body font-medium text-brand-navy mb-2">
                   Newsletter
                 </h5>
                 <div className="flex gap-2">
                   <input
                     type="email"
                     placeholder="Your email"
-                    className="flex-1 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    style={{
-                      background: "var(--bg-glass)",
-                      borderColor: "var(--border-glass)",
-                      color: "var(--text-primary)",
-                    }}
+                    aria-label="Email address for newsletter"
+                    className="flex-1 px-3 py-2 text-body border border-stone-200 bg-stone-50 text-brand-navy rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sky"
                   />
-                  <AnimatedButton variant="primary" size="sm">
+                  <AnimatedButton
+                    variant="primary"
+                    size="sm"
+                    aria-label="Subscribe to newsletter"
+                  >
                     <FaRocket />
                   </AnimatedButton>
                 </div>
@@ -862,32 +716,26 @@ const ProductDetails = () => {
           </div>
 
           {/* Bottom Bar */}
-          <div
-            className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
-            style={{ borderColor: "var(--border-glass)" }}
-          >
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-              © {new Date().getFullYear()} MarketSpace. All rights reserved.
+          <div className="border-t border-stone-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-caption text-stone-500">
+              © {new Date().getFullYear()} SkyMarket. All rights reserved.
             </p>
-            <div className="flex items-center gap-6 text-sm">
+            <div className="flex items-center gap-6 text-caption">
               <Link
                 to="/privacy"
-                className="hover:text-blue-600 transition-colors"
-                style={{ color: "var(--text-muted)" }}
+                className="text-stone-500 hover:text-brand-sky transition-colors"
               >
                 Privacy Policy
               </Link>
               <Link
                 to="/terms"
-                className="hover:text-blue-600 transition-colors"
-                style={{ color: "var(--text-muted)" }}
+                className="text-stone-500 hover:text-brand-sky transition-colors"
               >
                 Terms of Service
               </Link>
               <Link
                 to="/cookies"
-                className="hover:text-blue-600 transition-colors"
-                style={{ color: "var(--text-muted)" }}
+                className="text-stone-500 hover:text-brand-sky transition-colors"
               >
                 Cookie Policy
               </Link>
