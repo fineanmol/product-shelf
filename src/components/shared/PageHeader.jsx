@@ -5,7 +5,7 @@ import SearchBar from "./SearchBar";
 import ProfileImage from "./ProfileImage";
 
 const PageHeader = ({
-  siteName = "MarketSpace",
+  siteName = "SkyMarket",
   searchValue,
   onSearchChange,
   searchPlaceholder = "Search products...",
