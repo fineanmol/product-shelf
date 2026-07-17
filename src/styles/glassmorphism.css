@@ -1,4 +1,10 @@
-/* Enhanced Glassmorphism and Neumorphism Design System */
+/* Calm, restrained design tokens built on the brand palette (BRAND_COLORS.md).
+   Previously a heavy blurred-glass/neumorphism system; retoned to a flatter,
+   quieter aesthetic (soft single-layer shadows, warm-neutral surfaces, no
+   backdrop blur) as part of the site-wide redesign. Kept as CSS variables
+   rather than removed, since components outside the redesigned pages
+   (GlassModal, LoadingSpinner, StatusBadge, DashboardLayout, SearchAndFilter)
+   still depend on these exact variable names. */
 
 :root {
   /* Brand Colors - NightOwl Developers */
@@ -8,18 +14,18 @@
   --brand-mint: #79ceb8;
   --brand-coral: #e95f5c;
 
-  /* Light Theme Colors */
-  --bg-primary: #f8fafc;
+  /* Surfaces: warm-neutral, navy-tinted rather than stark white/gray */
+  --bg-primary: #faf9f7;
   --bg-secondary: #ffffff;
-  --bg-glass: rgba(255, 255, 255, 0.25);
-  --bg-glass-hover: rgba(255, 255, 255, 0.35);
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --bg-modal: rgba(255, 255, 255, 0.95);
+  --bg-glass: #ffffff;
+  --bg-glass-hover: #f5f4f2;
+  --bg-card: #ffffff;
+  --bg-modal: #ffffff;
 
   /* Text Colors */
   --text-primary: #314855;
-  --text-secondary: #314855;
-  --text-muted: #64748b;
+  --text-secondary: #4b5f6c;
+  --text-muted: #8593a0;
 
   /* Accent Colors using Brand Colors */
   --accent-primary: #5cc3e8;
@@ -28,22 +34,23 @@
   --accent-warning: #ffdb00;
   --accent-error: #e95f5c;
 
-  /* Enhanced Shadows */
-  --shadow-glass: 0 8px 32px rgba(31, 38, 135, 0.37);
-  --shadow-neumorphism: 20px 20px 60px #d1d9e6, -20px -20px 60px #ffffff;
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
-  --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
-  --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  /* Soft, single-layer shadows -- no heavy glass glow */
+  --shadow-glass: 0 1px 2px rgba(49, 72, 85, 0.06), 0 1px 3px rgba(49, 72, 85, 0.08);
+  --shadow-neumorphism: 0 1px 2px rgba(49, 72, 85, 0.06), 0 1px 3px rgba(49, 72, 85, 0.08);
+  --shadow-card: 0 1px 2px rgba(49, 72, 85, 0.06), 0 1px 3px rgba(49, 72, 85, 0.08);
+  --shadow-hover: 0 4px 12px rgba(49, 72, 85, 0.1);
+  --shadow-focus: 0 0 0 3px rgba(92, 195, 232, 0.25);
 
-  /* Professional Borders */
-  --border-glass: 1px solid rgba(255, 255, 255, 0.18);
-  --border-radius: 16px;
-  --border-radius-lg: 24px;
-  --border-radius-xl: 32px;
+  /* Restrained borders -- solid, not translucent-glass */
+  --border-glass: 1px solid #e8e6e1;
+  --border-radius: 12px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 20px;
 
-  /* Enhanced Backdrop */
-  --backdrop-blur: blur(20px);
-  --backdrop-saturate: saturate(180%);
+  /* No backdrop blur in the calm system -- kept defined (as none/0) so any
+     remaining consumer degrades to a flat surface instead of erroring. */
+  --backdrop-blur: none;
+  --backdrop-saturate: none;
 }
 
 /* Enhanced Glass Card Component */
