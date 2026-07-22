@@ -23,6 +23,7 @@ const PageHeader = ({
           {/* Logo */}
           <button
             onClick={() => navigate("/")}
+            aria-label={`${siteName} — go to homepage`}
             className="flex items-center gap-3 transition-all duration-200"
           >
             <div className="w-11 h-11 bg-brand-sky rounded-xl flex items-center justify-center shadow-sm">

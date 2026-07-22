@@ -171,6 +171,8 @@ const ProductCard = ({
                 e.stopPropagation();
                 onHeartClick();
               }}
+              aria-label={isInterested ? `Remove ${product.title} from interested items` : `Mark ${product.title} as interested`}
+              aria-pressed={isInterested}
               className={`w-10 h-10 rounded-full backdrop-blur-md transition-all duration-200 flex items-center justify-center ${
                 isInterested
                   ? "bg-red-500 text-white"

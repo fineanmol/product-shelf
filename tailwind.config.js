@@ -10,6 +10,14 @@ module.exports = {
           sunshine: "#ffdb00",
           mint: "#79ceb8",
           coral: "#e95f5c",
+          // Text-safe variants of sky/mint: a real Lighthouse audit found the
+          // base brand-sky/brand-mint colors fail WCAG AA as text (2.01:1 and
+          // 1.76:1 against white/stone-50; need 4.5:1). These darkened
+          // variants keep the same hue for text-only use (buttons, labels,
+          // active tab state) while backgrounds/icons keep using the base
+          // brand colors, where contrast rules don't apply.
+          "sky-text": "#0c6d92",
+          "mint-text": "#1a6b50",
         },
         // Warm-neutral scale (slight navy tint, not pure gray) used for the
         // calm, restrained aesthetic across the redesigned pages instead of
@@ -20,8 +28,13 @@ module.exports = {
           200: "#e8e6e1",
           300: "#d4d1ca",
           400: "#a8a49a",
-          500: "#8593a0",
-          600: "#6b7a87",
+          // 500/600 darkened from the original redesign values (#8593a0 /
+          // #6b7a87) -- a real Lighthouse audit found both failed WCAG AA
+          // (2.99:1 and 4.19:1 against stone-50/white; need 4.5:1) for
+          // normal-size text. These pass with margin on both backgrounds
+          // while keeping the same warm-navy hue.
+          500: "#61707d",
+          600: "#5c6f7c",
           700: "#4b5f6c",
           800: "#314855",
           900: "#24343e",

@@ -28,7 +28,11 @@ const AnimatedButton = ({
 
   const variantClasses = {
     primary:
-      "bg-brand-sky text-white hover:bg-brand-navy focus:ring-brand-sky shadow-sm",
+      // bg-brand-sky-text (not bg-brand-sky): white text on the base sky
+      // (#5cc3e8) only reaches 2.01:1 contrast, failing WCAG AA (needs
+      // 4.5:1) -- confirmed by Lighthouse. The darker sky-text variant
+      // (5.80:1) keeps the same hue with white text readable.
+      "bg-brand-sky-text text-white hover:bg-brand-navy focus:ring-brand-sky shadow-sm",
     secondary:
       "bg-white border-2 border-brand-navy text-brand-navy hover:bg-brand-navy hover:text-white focus:ring-brand-navy shadow-sm",
     success:

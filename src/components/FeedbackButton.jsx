@@ -10,6 +10,7 @@ const FeedbackButton = () => {
       {/* Floating Feedback Button */}
       <button
         onClick={() => setShowModal(true)}
+        aria-label="Send feedback"
         className="fixed bottom-6 right-6 bg-brand-sky hover:bg-brand-mint text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-40 group"
       >
         {/* Mobile version - just icon */}

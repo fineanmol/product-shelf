@@ -165,6 +165,8 @@ const Home = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
+              aria-label="Toggle filters"
+              aria-pressed={showFilters}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-colors font-medium shadow-soft ${
                 hasActiveFilters
                   ? "bg-brand-sky text-white border-brand-sky"

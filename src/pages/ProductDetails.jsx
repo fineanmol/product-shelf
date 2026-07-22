@@ -187,6 +187,7 @@ const ProductDetails = () => {
         rightActions={
           <button
             onClick={() => navigate("/")}
+            aria-label="Back to Home"
             className="flex items-center gap-2 bg-white border-2 border-brand-navy text-brand-navy hover:bg-brand-navy hover:text-white px-4 py-2.5 rounded-lg transition-colors font-medium shadow-sm"
           >
             <FaHome className="text-sm" />
@@ -217,7 +218,7 @@ const ProductDetails = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 pb-12">
+      <main className="max-w-7xl mx-auto px-4 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Product Images */}
           <div className="space-y-4">
@@ -267,9 +268,9 @@ const ProductDetails = () => {
 
             {/* Trust indicators */}
             <div className="bg-white border border-stone-200 rounded-xl shadow-soft p-6">
-              <h3 className="text-title text-brand-navy mb-4">
+              <h2 className="text-title text-brand-navy mb-4">
                 Why Choose Us?
-              </h3>
+              </h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-brand-mint/20 rounded-lg flex items-center justify-center">
@@ -469,9 +470,9 @@ const ProductDetails = () => {
               {/* Delivery Options */}
               {product.delivery_options && (
                 <div className="mb-8">
-                  <h3 className="text-title text-brand-navy mb-4">
+                  <h2 className="text-title text-brand-navy mb-4">
                     Delivery Options
-                  </h3>
+                  </h2>
                   <div className="space-y-3">
                     {product.delivery_options.map((option, index) => (
                       <div
@@ -491,7 +492,7 @@ const ProductDetails = () => {
                               : "Available for pickup in Berlin"}
                           </div>
                         </div>
-                        <div className="text-caption font-semibold text-brand-mint">
+                        <div className="text-caption font-semibold text-brand-mint-text">
                           {option.toLowerCase() === "shipping"
                             ? "Free"
                             : "Available"}
@@ -512,7 +513,7 @@ const ProductDetails = () => {
                     onClick={() => setActiveTab(tab)}
                     className={`flex-1 px-6 py-4 text-body font-medium capitalize transition-colors ${
                       activeTab === tab
-                        ? "border-b-2 border-brand-sky text-brand-sky"
+                        ? "border-b-2 border-brand-sky text-brand-sky-text"
                         : "text-stone-500 hover:text-stone-700"
                     }`}
                   >
@@ -588,7 +589,7 @@ const ProductDetails = () => {
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Enhanced Footer */}
       <footer className="bg-white mt-16 rounded-none border-t border-stone-200">
@@ -601,7 +602,7 @@ const ProductDetails = () => {
                   <FaStore className="text-white text-lg" />
                 </div>
                 <div>
-                  <h3 className="text-title text-brand-navy">SkyMarket</h3>
+                  <h2 className="text-title text-brand-navy">SkyMarket</h2>
                   <p className="text-caption text-stone-500">
                     Premium Marketplace
                   </p>
@@ -632,7 +633,7 @@ const ProductDetails = () => {
 
             {/* Quick Links */}
             <div>
-              <h4 className="text-title text-brand-navy mb-4">Quick Links</h4>
+              <h3 className="text-title text-brand-navy mb-4">Quick Links</h3>
               <ul className="space-y-2">
                 {[
                   "Browse Products",
@@ -655,9 +656,9 @@ const ProductDetails = () => {
 
             {/* Customer Service */}
             <div>
-              <h4 className="text-title text-brand-navy mb-4">
+              <h3 className="text-title text-brand-navy mb-4">
                 Customer Service
-              </h4>
+              </h3>
               <ul className="space-y-2">
                 {[
                   "Help Center",
@@ -680,9 +681,9 @@ const ProductDetails = () => {
 
             {/* Contact Info */}
             <div>
-              <h4 className="text-title text-brand-navy mb-4">
+              <h3 className="text-title text-brand-navy mb-4">
                 Get in Touch
-              </h4>
+              </h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <FaMapMarkerAlt className="text-stone-500" />
@@ -705,9 +706,9 @@ const ProductDetails = () => {
               </div>
 
               <div className="mt-6">
-                <h5 className="text-body font-medium text-brand-navy mb-2">
+                <h4 className="text-body font-medium text-brand-navy mb-2">
                   Newsletter
-                </h5>
+                </h4>
                 <div className="flex gap-2">
                   <input
                     type="email"
