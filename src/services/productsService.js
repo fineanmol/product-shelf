@@ -114,3 +114,12 @@ export const incrementInterestCount = async (productId) => {
     (current) => (current || 0) + 1
   );
 };
+
+// Fetch every product marked sold (status === 'sold'), for the admin Sales
+// Report page. Reuses getAllProducts/getOwnedProducts rather than duplicating
+// their Firebase call logic, then filters client-side — same superAdmin vs.
+// owned-only split every other read in this module already follows.
+export const getSoldProducts = async (uid, isSuperAdmin) => {
+  const products = isSuperAdmin ? await getAllProducts() : await getOwnedProducts(uid);
+  return products.filter((product) => product.status === "sold");
+};

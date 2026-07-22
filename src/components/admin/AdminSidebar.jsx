@@ -1,7 +1,7 @@
 // src/components/AdminSidebar.jsx
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaTimes, FaHome, FaBox, FaUsers, FaCommentDots, FaFileImport } from "react-icons/fa";
+import { FaTimes, FaHome, FaBox, FaUsers, FaCommentDots, FaFileImport, FaChartLine } from "react-icons/fa";
 import { getFormattedVersion } from "../../utils/version";
 
 function AdminSidebar({ onClose, userRole }) {
@@ -14,6 +14,7 @@ function AdminSidebar({ onClose, userRole }) {
   ];
 
   const adminOnlyLinks = [
+    { to: "/admin/sales-report", label: "Sales Report", icon: <FaChartLine /> },
     { to: "/admin/users", label: "Users", icon: <FaUsers /> },
     { to: "/admin/feedback", label: "Feedback", icon: <FaCommentDots /> },
   ];

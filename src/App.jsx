@@ -24,6 +24,7 @@ const AddProduct = lazy(() => import("./pages/admin/add-product"));
 const EditProduct = lazy(() => import("./pages/admin/edit-product"));
 const Users = lazy(() => import("./pages/admin/users"));
 const Feedback = lazy(() => import("./pages/admin/feedback"));
+const SalesReport = lazy(() => import("./pages/admin/sales-report"));
 const BulkImport = lazy(() => import("./pages/admin/BulkImport"));
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
           <Route path="products/add" element={<AddProduct />} />
           <Route path="products/edit/:id" element={<EditProduct />} />
           <Route path="products/bulk-import" element={<BulkImport />} />
+          <Route path="sales-report" element={<SalesReport />} />
           <Route path="users" element={<Users />} />
           <Route path="feedback" element={<Feedback />} />
         </Route>

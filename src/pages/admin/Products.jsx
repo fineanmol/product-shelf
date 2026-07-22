@@ -272,14 +272,14 @@ const Products = () => {
   });
 
   const handleBulkMarkSoldOut = () => confirmBulk('soldOut', async () => {
-    await Promise.allSettled([...selectedIds].map((id) => updateProduct(id, { sold_out: true, status: 'sold', updatedAt: Date.now() })));
+    await Promise.allSettled([...selectedIds].map((id) => updateProduct(id, { sold_out: true, status: 'sold', sold_at: Date.now(), updatedAt: Date.now() })));
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} marked as sold out`);
     setSelectedIds(new Set());
     fetchProducts();
   });
 
   const handleBulkUnmarkSoldOut = () => confirmBulk('unsoldOut', async () => {
-    await Promise.allSettled([...selectedIds].map((id) => updateProduct(id, { sold_out: false, status: 'available', updatedAt: Date.now() })));
+    await Promise.allSettled([...selectedIds].map((id) => updateProduct(id, { sold_out: false, status: 'available', sold_at: null, updatedAt: Date.now() })));
     showToast(`✅ ${selectedIds.size} product${selectedIds.size !== 1 ? 's' : ''} marked as available`);
     setSelectedIds(new Set());
     fetchProducts();
