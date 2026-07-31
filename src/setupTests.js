@@ -45,3 +45,15 @@ vi.mock("firebase/database", () => ({
   push: vi.fn((ref, value) => ({ key: "mock-key", ref })),
   runTransaction: vi.fn(() => Promise.resolve()),
 }));
+
+vi.mock("firebase/functions", () => ({
+  getFunctions: vi.fn(() => ({})),
+  httpsCallable: vi.fn(() => vi.fn(() => Promise.resolve({ data: {} }))),
+}));
+
+vi.mock("firebase/storage", () => ({
+  getStorage: vi.fn(() => ({})),
+  ref: vi.fn((storage, path) => ({ storage, path })),
+  uploadBytes: vi.fn(() => Promise.resolve()),
+  getDownloadURL: vi.fn(() => Promise.resolve("https://example.com/mock-photo.jpg")),
+}));

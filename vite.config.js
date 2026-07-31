@@ -13,7 +13,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/setupTests.js"],
     globals: true,
-    exclude: ["**/node_modules/**", "**/.claude/**"],
+    exclude: ["**/node_modules/**", "**/.claude/**", "**/functions/**"],
     // CRA's Jest preset ran with resetMocks: true, wiping every mock's
     // recorded calls/implementations before each test. Vitest doesn't do
     // this by default; matching it here (rather than adding manual

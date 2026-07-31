@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FaShoppingCart, FaHome, FaCog, FaPlus } from "react-icons/fa";
+import { FaShoppingCart, FaHome, FaCog, FaPlus, FaMagic } from "react-icons/fa";
 import SearchBar from "./SearchBar";
 import ProfileImage from "./ProfileImage";
 
@@ -57,6 +57,15 @@ const PageHeader = ({
               >
                 <FaHome className="text-sm" />
                 <span className="hidden sm:inline">Home</span>
+              </button>
+
+              {/* AI Stylist */}
+              <button
+                onClick={() => navigate("/stylist")}
+                className="flex items-center gap-2 text-gray-600 hover:text-brand-sky transition-colors"
+              >
+                <FaMagic className="text-sm" />
+                <span className="hidden sm:inline">Style Me</span>
               </button>
 
               {/* User Section */}

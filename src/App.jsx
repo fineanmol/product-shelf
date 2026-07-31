@@ -17,6 +17,10 @@ import LoadingSpinner from "./components/ui/LoadingSpinner";
 // firebase/auth, firebase/database) would ship to every anonymous shopper
 // regardless of whether they ever visit /admin. BulkImport is the biggest win
 // here since it transitively pulls in the xlsx parsing library.
+const StylistQuiz = lazy(() => import("./pages/stylist/Quiz"));
+const StylistResults = lazy(() => import("./pages/stylist/Results"));
+const StylistSavedBoards = lazy(() => import("./pages/stylist/SavedBoards"));
+
 const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 const Dashboard = lazy(() => import("./pages/admin/dashboard"));
 const Products = lazy(() => import("./pages/admin/Products"));
@@ -34,6 +38,32 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/product/:id" element={<ProductDetails />} />
+
+        {/* AI Stylist — lazy-loaded, same code-splitting rationale as admin below */}
+        <Route
+          path="/stylist"
+          element={
+            <Suspense fallback={<LoadingSpinner size="lg" text="Loading stylist..." />}>
+              <StylistQuiz />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/stylist/results"
+          element={
+            <Suspense fallback={<LoadingSpinner size="lg" text="Loading stylist..." />}>
+              <StylistResults />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/stylist/saved"
+          element={
+            <Suspense fallback={<LoadingSpinner size="lg" text="Loading stylist..." />}>
+              <StylistSavedBoards />
+            </Suspense>
+          }
+        />
 
         {/* Admin (protected) — lazy-loaded as a group behind one Suspense boundary */}
         <Route

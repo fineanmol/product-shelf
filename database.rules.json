@@ -42,6 +42,12 @@
       "$feedbackId": {
         ".write": "!data.exists() || (auth != null && root.child('superAdmins').child(auth.uid).val() === true)"
       }
+    },
+    "stylistBoards": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
     }
   }
 }

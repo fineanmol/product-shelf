@@ -24,7 +24,7 @@ yarn-error.log*
 firebase-admin-key.json
 .vercel
 api/firebase-service-account.json
-functions/
+functions/node_modules/
 firebase-debug.log
 .firebase/hosting.YnVpbGQ.cache
 .env
