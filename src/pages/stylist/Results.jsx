@@ -6,7 +6,6 @@ import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import AnimatedButton from "../../components/ui/AnimatedButton";
 import StylistTabs from "../../components/stylist/StylistTabs";
 import OutfitCard from "../../components/stylist/OutfitCard";
-import { getProduct } from "../../services/productsService";
 import {
   getStylistRecommendations,
   saveBoard,
@@ -30,16 +29,16 @@ const TABS = [
 const Results = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { quiz, selfiePhotoUrl, wardrobeItems = [] } = location.state || {};
+  const { quiz, selfieFile, wardrobeItems = [], initialTab } = location.state || {};
 
   const [currentUser, setCurrentUser] = useState(null);
-  const [activeTab, setActiveTab] = useState("forYou");
+  const [activeTab, setActiveTab] = useState(initialTab || "forYou");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [outfitsByTab, setOutfitsByTab] = useState({});
+  const [productsByTab, setProductsByTab] = useState({});
   const [savedOutfitTitles, setSavedOutfitTitles] = useState(new Set());
   const [selectedOccasion, setSelectedOccasion] = useState(OCCASION_OPTIONS[0]);
-  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const auth = getAuth();
@@ -67,26 +66,20 @@ const Results = () => {
           context = { wardrobeItems };
         }
 
+        // getStylistRecommendations resolves candidates against the live
+        // catalog client-side and returns them alongside outfits, so there's
+        // no follow-up per-product-id fetch needed (unlike the old
+        // Cloud-Function version, which only returned productIds).
         const result = await getStylistRecommendations(quiz, context);
         setOutfitsByTab((prev) => ({ ...prev, [tab]: result.outfits || [] }));
-
-        // The Cloud Function already resolved candidates server-side against
-        // the full catalog; the client only needs to fetch the specific
-        // products referenced in its response, via the public products/$id
-        // read (products/.read is true for everyone per database.rules.json).
-        const ids = new Set((result.outfits || []).flatMap((o) => o.productIds));
-        const missingIds = [...ids].filter((id) => !products.some((p) => p.id === id));
-        if (missingIds.length > 0) {
-          const fetched = await Promise.all(missingIds.map((id) => getProduct(id)));
-          setProducts((prev) => [...prev, ...fetched.filter(Boolean)]);
-        }
+        setProductsByTab((prev) => ({ ...prev, [tab]: result.products || [] }));
       } catch (err) {
         console.error("Failed to load stylist recommendations:", err);
         setError(err.message || "Could not load recommendations. Please try again.");
       }
       setLoading(false);
     },
-    [quiz, selectedOccasion, wardrobeItems, products]
+    [quiz, selectedOccasion, wardrobeItems]
   );
 
   useEffect(() => {
@@ -125,17 +118,26 @@ const Results = () => {
   if (!quiz) return null;
 
   const outfits = outfitsByTab[activeTab] || [];
+  const products = productsByTab[activeTab] || [];
 
   return (
     <div className="min-h-screen bg-stone-50">
       <PageHeader siteName="SkyMarket" showSearch={false} currentUser={currentUser} />
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 gap-3">
           <h1 className="text-display text-brand-navy">Your Recommendations</h1>
-          <AnimatedButton variant="secondary" size="sm" onClick={() => navigate("/stylist")}>
-            Retake quiz
-          </AnimatedButton>
+          <div className="flex gap-3 shrink-0">
+            <AnimatedButton variant="ghost" size="sm" onClick={() => navigate("/stylist/wardrobe")}>
+              My Wardrobe
+            </AnimatedButton>
+            <AnimatedButton variant="ghost" size="sm" onClick={() => navigate("/stylist/saved")}>
+              Saved Looks
+            </AnimatedButton>
+            <AnimatedButton variant="secondary" size="sm" onClick={() => navigate("/stylist")}>
+              Retake quiz
+            </AnimatedButton>
+          </div>
         </div>
 
         <div className="rounded-xl overflow-hidden shadow-soft mb-6">
@@ -188,7 +190,7 @@ const Results = () => {
                 key={outfit.title}
                 outfit={outfit}
                 products={products}
-                userPhotoUrl={selfiePhotoUrl}
+                userPhotoFile={selfieFile}
                 onSave={handleSave}
                 isSaved={savedOutfitTitles.has(outfit.title)}
               />

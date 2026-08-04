@@ -1,7 +1,7 @@
 // src/services/__tests__/stylistService.test.js
-import { getDatabase, ref, get, push, set, remove } from "firebase/database";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { getDatabase, ref, get, push, set, update, remove } from "firebase/database";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import * as geminiClient from "../geminiClient";
 import {
   getStylistRecommendations,
   saveBoard,
@@ -10,7 +10,17 @@ import {
   uploadStylistPhoto,
   analyzePhoto,
   requestTryOn,
+  saveWardrobeItem,
+  getWardrobeItems,
+  updateWardrobeItem,
+  deleteWardrobeItem,
 } from "../stylistService";
+
+vi.mock("../geminiClient", () => ({
+  generateOutfits: vi.fn(),
+  analyzePhoto: vi.fn(),
+  generateTryOnImage: vi.fn(),
+}));
 
 describe("stylistService", () => {
   beforeEach(() => {
@@ -18,10 +28,10 @@ describe("stylistService", () => {
     ref.mockImplementation((db, path) => ({ db, path }));
     get.mockImplementation(() => Promise.resolve({ exists: () => false, val: () => null }));
     set.mockImplementation(() => Promise.resolve());
+    update.mockImplementation(() => Promise.resolve());
     remove.mockImplementation(() => Promise.resolve());
     push.mockImplementation(() => ({ key: "mock-board-id" }));
 
-    getFunctions.mockReturnValue({});
     getStorage.mockReturnValue({});
     storageRef.mockImplementation((storage, path) => ({ storage, path }));
     uploadBytes.mockImplementation(() => Promise.resolve());
@@ -29,17 +39,41 @@ describe("stylistService", () => {
   });
 
   describe("getStylistRecommendations", () => {
-    it("calls the getStylistRecommendations callable with quiz and context", async () => {
-      const callable = vi.fn(() => Promise.resolve({ data: { stageName: "all", outfits: [] } }));
-      httpsCallable.mockReturnValue(callable);
+    it("reads the live catalog, narrows candidates, and asks Gemini to group outfits", async () => {
+      get.mockImplementationOnce(() =>
+        Promise.resolve({
+          exists: () => true,
+          val: () => ({
+            "prod-1": { title: "Blue Shirt", gender: "women", price: 20, status: "available" },
+          }),
+        })
+      );
+      geminiClient.generateOutfits.mockResolvedValue({
+        outfits: [{ title: "Casual Look", productIds: ["prod-1"], rationale: "Great fit" }],
+      });
 
       const quiz = { gender: "women" };
       const context = { occasion: "work" };
       const result = await getStylistRecommendations(quiz, context);
 
-      expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), "getStylistRecommendations");
-      expect(callable).toHaveBeenCalledWith({ quiz, context });
-      expect(result).toEqual({ stageName: "all", outfits: [] });
+      expect(ref).toHaveBeenCalledWith(expect.anything(), "products");
+      expect(geminiClient.generateOutfits).toHaveBeenCalledWith(
+        quiz,
+        context,
+        expect.arrayContaining([expect.objectContaining({ id: "prod-1" })])
+      );
+      expect(result.outfits).toEqual([{ title: "Casual Look", productIds: ["prod-1"], rationale: "Great fit" }]);
+      expect(result.products).toEqual(expect.arrayContaining([expect.objectContaining({ id: "prod-1" })]));
+    });
+
+    it("returns an empty product list when the catalog is empty", async () => {
+      get.mockImplementationOnce(() => Promise.resolve({ exists: () => false, val: () => null }));
+      geminiClient.generateOutfits.mockResolvedValue({ outfits: [] });
+
+      const result = await getStylistRecommendations({ gender: "women" });
+
+      expect(result.products).toEqual([]);
+      expect(result.stageName).toBe("none");
     });
   });
 
@@ -109,33 +143,90 @@ describe("stylistService", () => {
   });
 
   describe("analyzePhoto", () => {
-    it("calls the analyzeStylistPhoto callable with photoUrl and kind", async () => {
-      const callable = vi.fn(() => Promise.resolve({ data: { skinTone: "tan" } }));
-      httpsCallable.mockReturnValue(callable);
+    it("delegates directly to geminiClient.analyzePhoto with the file and kind", async () => {
+      const file = { name: "selfie.jpg" };
+      geminiClient.analyzePhoto.mockResolvedValue({ skinTone: "tan" });
 
-      const result = await analyzePhoto("https://example.com/photo.jpg", "selfie");
+      const result = await analyzePhoto(file, "selfie");
 
-      expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), "analyzeStylistPhoto");
-      expect(callable).toHaveBeenCalledWith({ photoUrl: "https://example.com/photo.jpg", kind: "selfie" });
+      expect(geminiClient.analyzePhoto).toHaveBeenCalledWith(file, "selfie");
       expect(result).toEqual({ skinTone: "tan" });
     });
   });
 
   describe("requestTryOn", () => {
-    it("calls the requestTryOn callable and returns the generated image directly", async () => {
-      const callable = vi.fn(() =>
-        Promise.resolve({ data: { resultImageUrl: "data:image/png;base64,abc123" } })
-      );
-      httpsCallable.mockReturnValue(callable);
+    it("delegates to geminiClient.generateTryOnImage and wraps the result", async () => {
+      const personFile = { name: "me.jpg" };
+      geminiClient.generateTryOnImage.mockResolvedValue("data:image/png;base64,abc123");
 
-      const result = await requestTryOn("https://example.com/me.jpg", "https://example.com/garment.jpg");
+      const result = await requestTryOn(personFile, "https://example.com/garment.jpg");
 
-      expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), "requestTryOn");
-      expect(callable).toHaveBeenCalledWith({
-        photoUrl: "https://example.com/me.jpg",
-        garmentImageUrl: "https://example.com/garment.jpg",
-      });
+      expect(geminiClient.generateTryOnImage).toHaveBeenCalledWith(personFile, "https://example.com/garment.jpg");
       expect(result).toEqual({ resultImageUrl: "data:image/png;base64,abc123" });
+    });
+  });
+
+  describe("saveWardrobeItem", () => {
+    it("pushes a new item under wardrobeItems/$uid with a createdAt timestamp", async () => {
+      const item = { photoUrl: "https://example.com/shirt.jpg", category: "top" };
+      const itemId = await saveWardrobeItem("user-1", item);
+
+      expect(ref).toHaveBeenCalledWith(expect.anything(), "wardrobeItems/user-1");
+      expect(set).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ photoUrl: "https://example.com/shirt.jpg", category: "top", createdAt: expect.any(Number) })
+      );
+      expect(itemId).toBe("mock-board-id");
+    });
+  });
+
+  describe("getWardrobeItems", () => {
+    it("returns an empty array when there is no uid", async () => {
+      expect(await getWardrobeItems(null)).toEqual([]);
+    });
+
+    it("returns an empty array when the user has no wardrobe items", async () => {
+      get.mockImplementationOnce(() => Promise.resolve({ exists: () => false, val: () => null }));
+      expect(await getWardrobeItems("user-1")).toEqual([]);
+    });
+
+    it("returns items with their ids attached", async () => {
+      get.mockImplementationOnce(() =>
+        Promise.resolve({
+          exists: () => true,
+          val: () => ({
+            "item-1": { photoUrl: "https://example.com/a.jpg", category: "top" },
+            "item-2": { photoUrl: "https://example.com/b.jpg", category: "bottom" },
+          }),
+        })
+      );
+
+      const result = await getWardrobeItems("user-1");
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { id: "item-1", photoUrl: "https://example.com/a.jpg", category: "top" },
+          { id: "item-2", photoUrl: "https://example.com/b.jpg", category: "bottom" },
+        ])
+      );
+    });
+  });
+
+  describe("updateWardrobeItem", () => {
+    it("patches the item at wardrobeItems/$uid/$itemId", async () => {
+      const patch = { category: "dress", colors: ["red"] };
+      await updateWardrobeItem("user-1", "item-1", patch);
+
+      expect(ref).toHaveBeenCalledWith(expect.anything(), "wardrobeItems/user-1/item-1");
+      expect(update).toHaveBeenCalledWith(expect.anything(), patch);
+    });
+  });
+
+  describe("deleteWardrobeItem", () => {
+    it("removes the item at wardrobeItems/$uid/$itemId", async () => {
+      await deleteWardrobeItem("user-1", "item-1");
+      expect(ref).toHaveBeenCalledWith(expect.anything(), "wardrobeItems/user-1/item-1");
+      expect(remove).toHaveBeenCalledWith(expect.anything());
     });
   });
 });

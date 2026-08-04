@@ -8,7 +8,7 @@ import { currencySymbols } from "../../utils/utils";
 // Gemini-generated rationale ("why this outfit") + optional try-on, matching
 // product-shelf's existing card conventions (rounded-xl, shadow-soft, brand
 // tokens) rather than the original repo's actual CSS.
-const OutfitCard = ({ outfit, products, userPhotoUrl, onSave, isSaved }) => {
+const OutfitCard = ({ outfit, products, userPhotoFile, onSave, isSaved }) => {
   const [tryOnImage, setTryOnImage] = useState(null);
 
   const items = outfit.productIds
@@ -59,9 +59,9 @@ const OutfitCard = ({ outfit, products, userPhotoUrl, onSave, isSaved }) => {
           </span>
         </div>
 
-        {userPhotoUrl && items[0]?.image && !tryOnImage && (
+        {userPhotoFile && items[0]?.image && !tryOnImage && (
           <TryOnButton
-            userPhotoUrl={userPhotoUrl}
+            userPhotoFile={userPhotoFile}
             garmentImageUrl={items[0].image}
             onResult={setTryOnImage}
           />

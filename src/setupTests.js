@@ -46,11 +46,6 @@ vi.mock("firebase/database", () => ({
   runTransaction: vi.fn(() => Promise.resolve()),
 }));
 
-vi.mock("firebase/functions", () => ({
-  getFunctions: vi.fn(() => ({})),
-  httpsCallable: vi.fn(() => vi.fn(() => Promise.resolve({ data: {} }))),
-}));
-
 vi.mock("firebase/storage", () => ({
   getStorage: vi.fn(() => ({})),
   ref: vi.fn((storage, path) => ({ storage, path })),

@@ -20,6 +20,7 @@ import LoadingSpinner from "./components/ui/LoadingSpinner";
 const StylistQuiz = lazy(() => import("./pages/stylist/Quiz"));
 const StylistResults = lazy(() => import("./pages/stylist/Results"));
 const StylistSavedBoards = lazy(() => import("./pages/stylist/SavedBoards"));
+const StylistWardrobe = lazy(() => import("./pages/stylist/Wardrobe"));
 
 const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 const Dashboard = lazy(() => import("./pages/admin/dashboard"));
@@ -61,6 +62,14 @@ function App() {
           element={
             <Suspense fallback={<LoadingSpinner size="lg" text="Loading stylist..." />}>
               <StylistSavedBoards />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/stylist/wardrobe"
+          element={
+            <Suspense fallback={<LoadingSpinner size="lg" text="Loading stylist..." />}>
+              <StylistWardrobe />
             </Suspense>
           }
         />

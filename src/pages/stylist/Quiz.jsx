@@ -5,6 +5,7 @@ import PageHeader from "../../components/shared/PageHeader";
 import AnimatedButton from "../../components/ui/AnimatedButton";
 import TagInput from "../../components/stylist/TagInput";
 import PhotoUploadStep from "../../components/stylist/PhotoUploadStep";
+import { saveWardrobeItem } from "../../services/stylistService";
 import { showToast } from "../../utils/showToast";
 
 const GENDER_OPTIONS = ["women", "men", "unisex"];
@@ -33,6 +34,7 @@ const Quiz = () => {
   const [manualSkinTone, setManualSkinTone] = useState("");
 
   const [selfiePhotoUrl, setSelfiePhotoUrl] = useState(null);
+  const [selfieFile, setSelfieFile] = useState(null);
   const [selfieAnalysis, setSelfieAnalysis] = useState(null);
   const [wardrobeItems, setWardrobeItems] = useState([]);
 
@@ -55,6 +57,7 @@ const Quiz = () => {
       state: {
         quiz,
         selfiePhotoUrl,
+        selfieFile,
         wardrobeItems,
       },
     });
@@ -150,6 +153,9 @@ const Quiz = () => {
             <AnimatedButton variant="primary" size="lg" className="w-full" onClick={() => setStep(2)}>
               Continue
             </AnimatedButton>
+            <p className="text-caption text-stone-500 text-center mt-3">
+              None of this is required — leave it blank and we'll use general picks.
+            </p>
           </div>
         )}
 
@@ -161,8 +167,9 @@ const Quiz = () => {
                 kind="selfie"
                 label="Add a selfie (optional)"
                 helperText="We'll use Gemini to estimate skin tone and style for better matches. Nothing is shared publicly."
-                onAnalyzed={({ photoUrl, analysis }) => {
+                onAnalyzed={({ photoUrl, file, analysis }) => {
                   setSelfiePhotoUrl(photoUrl);
+                  setSelfieFile(file);
                   setSelfieAnalysis(analysis);
                   showToast("Photo analyzed!");
                 }}
@@ -209,11 +216,21 @@ const Quiz = () => {
               <PhotoUploadStep
                 uid={currentUser.uid}
                 kind="wardrobe"
-                label="Add an item from your wardrobe (optional)"
-                helperText="We'll tag its category, color, and style so it can be mixed into your recommendations."
-                onAnalyzed={({ photoUrl, analysis }) => {
-                  setWardrobeItems((prev) => [...prev, { photoUrl, ...analysis }]);
-                  showToast("Wardrobe item added!");
+                multiple
+                label="Add items from your wardrobe (optional)"
+                helperText="Select as many photos as you like at once — we'll tag each one's category, color, and style so they can be mixed into your recommendations."
+                onAnalyzed={async ({ photoUrl, analysis }) => {
+                  const item = { photoUrl, ...analysis };
+                  setWardrobeItems((prev) => [...prev, item]);
+                  // Persist immediately so the item survives past this quiz
+                  // session -- visible/editable later on /stylist/wardrobe.
+                  try {
+                    await saveWardrobeItem(currentUser.uid, item);
+                    showToast("Wardrobe item added!");
+                  } catch (err) {
+                    console.error("Failed to save wardrobe item:", err);
+                    showToast("Item analyzed, but couldn't be saved for later.");
+                  }
                 }}
                 onSkip={handleSubmit}
               />
@@ -223,6 +240,19 @@ const Quiz = () => {
                   Sign in to mix your own wardrobe photos into your recommendations, or see your results now.
                 </p>
               </div>
+            )}
+
+            {currentUser && wardrobeItems.length > 0 && (
+              <p className="text-caption text-stone-500">
+                Manage everything you've uploaded on the{" "}
+                <button
+                  onClick={() => navigate("/stylist/wardrobe")}
+                  className="underline hover:text-brand-sky-text"
+                >
+                  Wardrobe page
+                </button>
+                .
+              </p>
             )}
 
             <div className="flex gap-3">

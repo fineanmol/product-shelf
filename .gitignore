@@ -28,3 +28,7 @@ functions/node_modules/
 firebase-debug.log
 .firebase/hosting.YnVpbGQ.cache
 .env
+
+# local tooling
+.claude/
+.vite/

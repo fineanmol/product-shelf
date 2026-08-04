@@ -1,4 +1,5 @@
-const { selectCandidates } = require("./stylistRecommender");
+// src/utils/__tests__/stylistRecommender.test.js
+import { selectCandidates } from "../stylistRecommender";
 
 const product = (overrides) => ({
   id: "p1",
@@ -101,5 +102,23 @@ describe("selectCandidates", () => {
     const { candidates } = selectCandidates(products, { gender: "women" }, 3);
 
     expect(candidates).toHaveLength(3);
+  });
+
+  it("round-robins across categories when capping, instead of taking a flat prefix", () => {
+    // 20 tops followed by 5 bottoms and 5 footwear -- a naive .slice(0, 10)
+    // would return all tops and zero bottoms/footwear, making it impossible
+    // for Gemini to ever pair a complete top+bottom outfit.
+    const products = [
+      ...Array.from({ length: 20 }, (_, i) => product({ id: `top-${i}`, category: "top" })),
+      ...Array.from({ length: 5 }, (_, i) => product({ id: `bottom-${i}`, category: "bottom" })),
+      ...Array.from({ length: 5 }, (_, i) => product({ id: `footwear-${i}`, category: "footwear" })),
+    ];
+
+    const { candidates } = selectCandidates(products, { gender: "women" }, 12);
+
+    const categories = candidates.map((p) => p.category);
+    expect(categories).toContain("bottom");
+    expect(categories).toContain("footwear");
+    expect(categories.filter((c) => c === "top").length).toBeLessThan(20);
   });
 });

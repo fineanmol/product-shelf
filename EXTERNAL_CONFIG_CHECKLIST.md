@@ -28,3 +28,17 @@ Two findings from the security audit can't be fixed in code — they require cha
 **Why it matters:** this repo's RTDB/Storage security rules govern who can read/write specific data, but nothing currently verifies that requests are coming from the real web app versus a scripted/automated client hitting the API directly. App Check adds that verification layer on top of the rules already fixed in this branch.
 
 **Suggested order:** do this after the rules changes in this branch are deployed and confirmed stable — App Check enforcement can briefly break legitimate traffic if turned on before the app itself is sending valid attestation tokens, so monitor-mode first, enforce second.
+
+## 3. Set and restrict the Gemini API key for the AI Stylist module
+
+**Where:** [Google AI Studio](https://aistudio.google.com/apikey) to generate the key, then Google Cloud Console → APIs & Services → Credentials → the generated key, to restrict it.
+
+**What to do:**
+1. Generate a free Gemini API key in Google AI Studio (no billing account needed for the free tier).
+2. Add it to a new `.env.local` file at the repo root (gitignored already): `VITE_GEMINI_API_KEY=your-key-here`. Restart the dev server after adding it.
+3. In Google Cloud Console, open the key's settings and set **Application restrictions → HTTP referrers**, allowlisting `product-shelf-inventory.web.app/*` (and any custom domain / staging preview domains actually in use), plus `localhost/*` for local development.
+4. Redeploy (`npm run deploy`) and confirm the stylist quiz → results flow works end-to-end in production.
+
+**Why it matters:** this app calls the Gemini API directly from the browser (no backend — see the AI Stylist module's plan notes for why: deploying any Firebase Cloud Function requires the paid Blaze plan, which conflicts with this project's free-tier-only requirement). That means the API key ships inside the public JS bundle, visible to anyone who opens devtools. The HTTP-referrer restriction doesn't hide the key, but it does stop it from working from any origin other than this app's own domains, which prevents casual reuse/quota theft by someone who copies it out of the bundle.
+
+**Until step 3 is done**, the key works from anywhere, including if someone extracts it — treat that as a temporary state, not a shipped one.

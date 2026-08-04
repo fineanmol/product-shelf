@@ -4,9 +4,10 @@ import AnimatedButton from "../ui/AnimatedButton";
 import { requestTryOn } from "../../services/stylistService";
 
 // Triggers a virtual try-on via Gemini 2.5 Flash Image, which generates the
-// composite image synchronously in the response -- no job id, no polling,
-// unlike the job-based FASHN.ai flow this replaced.
-const TryOnButton = ({ userPhotoUrl, garmentImageUrl, onResult }) => {
+// composite image synchronously in the response -- no job id, no polling.
+// userPhotoFile is the user's own selfie as a File/Blob (Gemini needs inline
+// image data, not a bare URL); garmentImageUrl is a public catalog image URL.
+const TryOnButton = ({ userPhotoFile, garmentImageUrl, onResult }) => {
   const [state, setState] = useState("idle"); // idle | processing | done | error
   const [error, setError] = useState(null);
 
@@ -14,7 +15,7 @@ const TryOnButton = ({ userPhotoUrl, garmentImageUrl, onResult }) => {
     setState("processing");
     setError(null);
     try {
-      const { resultImageUrl } = await requestTryOn(userPhotoUrl, garmentImageUrl);
+      const { resultImageUrl } = await requestTryOn(userPhotoFile, garmentImageUrl);
       setState("done");
       onResult(resultImageUrl);
     } catch (err) {

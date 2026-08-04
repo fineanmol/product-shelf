@@ -66,7 +66,12 @@ const SavedBoards = () => {
       <PageHeader siteName="SkyMarket" showSearch={false} currentUser={currentUser || null} />
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-display text-brand-navy mb-6">Saved Looks</h1>
+        <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
+          <h1 className="text-display text-brand-navy">Saved Looks</h1>
+          <AnimatedButton variant="ghost" size="sm" onClick={() => navigate("/stylist/wardrobe")}>
+            My Wardrobe
+          </AnimatedButton>
+        </div>
 
         {loading && (
           <div className="bg-white border border-stone-200 rounded-xl shadow-soft p-8">
